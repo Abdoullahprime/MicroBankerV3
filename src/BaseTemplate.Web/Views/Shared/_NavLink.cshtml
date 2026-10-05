@@ -1,0 +1,18 @@
+@* Sidebar link, rendered only when the user can VIEW the module. Usage: <partial name="_NavLink" model="new NavLinkModel(...)" /> *@
+@model BaseTemplate.Web.Models.NavLinkModel
+@inject BaseTemplate.Web.Services.IPermissionService PermissionService
+@{
+    var perms = await PermissionService.GetCurrentAsync();
+}
+@if (Model.Module == null || perms.Can(Model.Module))
+{
+    <li class="nav-item">
+        <a class="nav-link @(ViewData["ActivePage"]?.ToString() == Model.Page ? "active" : "")"
+           asp-controller="@Model.Controller" asp-action="@Model.Action">
+            <div class="d-flex align-items-center">
+                <span class="nav-link-icon"><span class="@Model.Icon"></span></span>
+                <span class="nav-link-text ps-1">@Model.Text</span>
+            </div>
+        </a>
+    </li>
+}

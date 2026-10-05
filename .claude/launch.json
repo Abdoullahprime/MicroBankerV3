@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "BaseTemplate.Web (https)",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "src/BaseTemplate.Web/BaseTemplate.Web.csproj", "--launch-profile", "https"],
+      "port": 7226
+    }
+  ]
+}

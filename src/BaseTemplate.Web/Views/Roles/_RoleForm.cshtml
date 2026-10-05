@@ -1,0 +1,24 @@
+@model BaseTemplate.Web.Models.RoleFormModel
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">Role Name <span class="text-danger">*</span></label>
+        <input asp-for="Name" class="form-control" placeholder="e.g. HR Manager" />
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">Code <span class="text-danger">*</span></label>
+        <input asp-for="Code" class="form-control" placeholder="e.g. HR_MANAGER"
+               oninput="this.value=this.value.toUpperCase().replace(/\s+/g,'_')" />
+        <div class="form-text">Uppercase, no spaces (underscores allowed).</div>
+    </div>
+    <div class="col-12">
+        <label class="form-label fw-semibold">Description</label>
+        <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+    </div>
+    <div class="col-md-4">
+        <div class="form-check form-switch mt-2">
+            <input asp-for="IsActive" type="checkbox" class="form-check-input" role="switch" />
+            <label asp-for="IsActive" class="form-check-label fw-semibold">Active</label>
+        </div>
+    </div>
+</div>

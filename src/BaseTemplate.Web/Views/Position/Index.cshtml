@@ -1,0 +1,73 @@
+@* ── Position/Index.cshtml ── *@
+@model BaseTemplate.Web.Models.PositionListViewModel
+@{
+    ViewData["Title"] = "Positions";
+    ViewData["PageTitle"] = "Positions";
+    ViewData["PageSubTitle"] = "Manage job positions";
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-transparent border-bottom py-3 d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-semibold"><i class="fas fa-user-tag me-2 text-primary"></i>All Positions</h6>
+        <a asp-action="Create" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i> Add Position</a>
+    </div>
+    <div class="card-body p-0">
+        @if (!Model.Positions.Any())
+        {
+            <div class="text-center py-5 text-muted">
+                <i class="fas fa-user-tag fa-3x mb-3 opacity-25"></i>
+                <p class="mb-0">No positions yet. <a asp-action="Create">Add your first position</a>.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover table-sm mb-0 fs--1">
+                    <thead class="bg-200">
+                        <tr>
+                            <th>Name</th>
+                            <th>Code</th>
+                            <th class="text-center">Level</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in Model.Positions)
+                        {
+                            <tr>
+                                <td class="fw-medium">@p.Name</td>
+                                <td><span class="badge badge-subtle-secondary">@p.Code</span></td>
+                                <td class="text-center">@p.Level</td>
+                                <td class="text-center">
+                                    <span class="badge @(p.IsActive ? "badge-subtle-success" : "badge-subtle-danger")">
+                                        @(p.IsActive ? "Active" : "Inactive")
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <a asp-action="Edit" asp-route-id="@p.EncryptedId" class="btn btn-falcon-default btn-sm py-0 px-2">
+                                        <i class="fas fa-pencil-alt"></i>
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@p.EncryptedId" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-falcon-danger btn-sm py-0 px-2">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

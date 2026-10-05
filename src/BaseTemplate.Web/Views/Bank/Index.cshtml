@@ -1,0 +1,136 @@
+@* src/BaseTemplate.Web/Views/Bank/Index.cshtml *@
+@model List<BaseTemplate.Web.Models.BankViewModel>
+@{
+    ViewData["Title"]        = "Banks";
+    ViewData["PageTitle"]    = "Banks";
+    ViewData["PageSubTitle"] = "Manage organization banks";
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div style="max-width:750px;">
+
+    @* Add Bank inline form card *@
+    <div class="card shadow-sm border-0 mb-3">
+        <div class="card-header bg-transparent border-bottom py-2 d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 fw-semibold fs--1"><i class="fas fa-university me-2 text-primary"></i>Banks</h6>
+            <button class="btn btn-falcon-default btn-sm" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#addBankPanel" aria-expanded="false">
+                <i class="fas fa-plus me-1"></i> Add Bank
+            </button>
+        </div>
+        <div class="collapse" id="addBankPanel">
+            <div class="card-body border-bottom bg-200 py-3">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label fw-medium fs--2 mb-1">Bank Name <span class="text-danger">*</span></label>
+                            <input name="Name" class="form-control form-control-sm" placeholder="e.g. Standard Chartered" required />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-medium fs--2 mb-1">Code</label>
+                            <input name="Code" class="form-control form-control-sm" placeholder="e.g. SCB" />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-medium fs--2 mb-1">Branch Code</label>
+                            <input name="BranchCode" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-medium fs--2 mb-1">SWIFT</label>
+                            <input name="SwiftCode" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary btn-sm w-100">
+                                <i class="fas fa-save me-1"></i> Save
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    @* Banks table *@
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="fas fa-university fa-3x mb-3 opacity-25"></i>
+                    <p class="mb-0 fs--1">No banks found. Click <strong>Add Bank</strong> above to get started.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm mb-0 fs--1">
+                        <thead class="bg-200">
+                            <tr>
+                                <th>Bank Name</th>
+                                <th>Code</th>
+                                <th>Branch Code</th>
+                                <th>SWIFT Code</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var b in Model)
+                            {
+                                <tr>
+                                    <td class="fw-medium">@b.Name</td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(b.Code))
+                                        {
+                                            <span class="badge badge-subtle-secondary">@b.Code</span>
+                                        }
+                                        else { <span class="text-muted">—</span> }
+                                    </td>
+                                    <td class="text-muted">@(b.BranchCode ?? "—")</td>
+                                    <td class="text-muted">@(b.SwiftCode ?? "—")</td>
+                                    <td class="text-center">
+                                        @if (b.IsActive)
+                                        {
+                                            <span class="badge badge-subtle-success">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-subtle-danger">Inactive</span>
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        <a asp-action="Edit" asp-route-id="@b.EncryptedId"
+                                           class="btn btn-falcon-default btn-sm py-0 px-2">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </a>
+                                        <form asp-action="Delete" asp-route-id="@b.EncryptedId"
+                                              method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-falcon-danger btn-sm py-0 px-2">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,51 @@
+@model BaseTemplate.Web.Controllers.SystemSettingsViewModel
+@{
+    ViewData["Title"] = "System Settings";
+}
+
+<div class="card shadow-none border mb-3">
+  <div class="card-header bg-light border-bottom">
+    <h5 class="mb-0"><span class="fas fa-cogs me-2 text-primary"></span>System Settings</h5>
+    <p class="text-muted small mb-0 mt-1">
+      Generic key/value settings stored in the database. Saving an existing key updates it.
+    </p>
+  </div>
+  <div class="card-body">
+    <partial name="_Alerts" />
+
+    <form asp-action="Save" method="post" class="row g-2 mb-4">
+      @Html.AntiForgeryToken()
+      <div class="col-md-3"><input name="Key" class="form-control" placeholder="Key" required maxlength="200" /></div>
+      <div class="col-md-4"><input name="Value" class="form-control" placeholder="Value" maxlength="2000" /></div>
+      <div class="col-md-3"><input name="Description" class="form-control" placeholder="Description" maxlength="500" /></div>
+      <div class="col-md-2 d-grid"><button class="btn btn-primary" type="submit"><span class="fas fa-save me-1"></span>Save</button></div>
+    </form>
+
+    <div class="table-responsive">
+      <table class="table table-sm table-striped fs--1 mb-0">
+        <thead class="bg-200"><tr><th>Key</th><th>Value</th><th>Description</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var s in Model.Settings)
+        {
+          <tr>
+            <td class="fw-semibold">@s.Key</td>
+            <td class="text-break">@s.Value</td>
+            <td class="text-muted">@s.Description</td>
+            <td class="text-end">
+              <form asp-action="Delete" method="post" onsubmit="return confirm('Delete this setting?');" class="d-inline">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@s.EncryptedId" />
+                <button class="btn btn-link btn-sm text-danger p-0" type="submit"><span class="fas fa-trash"></span></button>
+              </form>
+            </td>
+          </tr>
+        }
+        @if (!Model.Settings.Any())
+        {
+          <tr><td colspan="4" class="text-center text-muted py-3">No settings yet.</td></tr>
+        }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

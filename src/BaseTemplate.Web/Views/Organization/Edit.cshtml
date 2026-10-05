@@ -1,0 +1,158 @@
+@* src/BaseTemplate.Web/Views/Organization/Edit.cshtml *@
+@model BaseTemplate.Web.Models.OrganizationFormModel
+@{
+    ViewData["Title"]        = "Edit Organization";
+    ViewData["PageTitle"]    = "Edit Organization";
+    ViewData["PageSubTitle"] = "Update your organization profile";
+    ViewData["ActivePage"]   = "Organization";
+    ViewData["ActiveGroup"]  = "Setup";
+}
+
+<div class="card shadow-sm border-0" style="max-width:900px;">
+    <div class="card-header bg-transparent border-bottom py-3">
+        <h6 class="mb-0 fw-semibold"><i class="fas fa-building me-2 text-primary"></i>Organization Details</h6>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit" asp-route-id="@Model.EncryptedId" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="ExistingLogo" />
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+
+            @* ── Identity ───────────────────────────────────────────────── *@
+            <h6 class="text-uppercase text-600 fw-bold fs--2 mb-3 mt-1">Identity</h6>
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label asp-for="Name" class="form-label fw-medium"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="ShortName" class="form-label fw-medium"></label>
+                    <input asp-for="ShortName" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Industry" class="form-label fw-medium"></label>
+                    <input asp-for="Industry" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="EstablishedDate" class="form-label fw-medium"></label>
+                    <input asp-for="EstablishedDate" type="date" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="RegistrationNumber" class="form-label fw-medium"></label>
+                    <input asp-for="RegistrationNumber" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="TaxNumber" class="form-label fw-medium"></label>
+                    <input asp-for="TaxNumber" class="form-control" />
+                </div>
+            </div>
+
+            @* ── Logo ───────────────────────────────────────────────────── *@
+            <hr class="my-4" />
+            <h6 class="text-uppercase text-600 fw-bold fs--2 mb-3">Logo</h6>
+            <div class="row g-3 align-items-center">
+                @if (!string.IsNullOrEmpty(Model.ExistingLogo))
+                {
+                    <div class="col-auto">
+                        <img src="~/uploads/org-logos/@Model.ExistingLogo" alt="Current Logo"
+                             class="img-thumbnail" style="max-height:80px;" id="logoPreview" />
+                        <div class="form-text text-center mt-1">Current logo</div>
+                    </div>
+                }
+                else
+                {
+                    <div class="col-auto">
+                        <div class="bg-light rounded d-flex align-items-center justify-content-center"
+                             style="width:80px;height:80px;">
+                            <i class="fas fa-building text-muted fa-2x"></i>
+                        </div>
+                        <div id="logoPreviewWrap" class="d-none mt-1">
+                            <img id="logoPreview" src="#" alt="Preview"
+                                 class="img-thumbnail" style="max-height:80px;" />
+                        </div>
+                    </div>
+                }
+                <div class="col-md-6">
+                    <label asp-for="LogoFile" class="form-label fw-medium"></label>
+                    <input asp-for="LogoFile" type="file" class="form-control"
+                           accept=".jpg,.jpeg,.png,.gif,.webp,.svg" />
+                    <div class="form-text">JPG, PNG, GIF, WEBP or SVG · max 2 MB. Leave blank to keep current logo.</div>
+                    <span asp-validation-for="LogoFile" class="text-danger small"></span>
+                </div>
+            </div>
+
+            @* ── Contact ────────────────────────────────────────────────── *@
+            <hr class="my-4" />
+            <h6 class="text-uppercase text-600 fw-bold fs--2 mb-3">Contact Details</h6>
+            <div class="row g-3">
+                <div class="col-12">
+                    <label asp-for="Address" class="form-label fw-medium"></label>
+                    <textarea asp-for="Address" class="form-control" rows="2"></textarea>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Phone" class="form-label fw-medium"></label>
+                    <input asp-for="Phone" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Email" class="form-label fw-medium"></label>
+                    <input asp-for="Email" class="form-control" type="email" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Website" class="form-label fw-medium"></label>
+                    <input asp-for="Website" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="PostalCode" class="form-label fw-medium"></label>
+                    <input asp-for="PostalCode" class="form-control" />
+                </div>
+                <div class="col-md-8">
+                    <label asp-for="GoogleCode" class="form-label fw-medium"></label>
+                    <input asp-for="GoogleCode" class="form-control" />
+                    <div class="form-text">
+                        Find on <a href="https://maps.google.com" target="_blank">Google Maps</a>
+                        → Share → copy the Plus Code.
+                    </div>
+                </div>
+            </div>
+
+            @* ── Mission & Vision ───────────────────────────────────────── *@
+            <hr class="my-4" />
+            <h6 class="text-uppercase text-600 fw-bold fs--2 mb-3">Mission &amp; Vision</h6>
+            <div class="row g-3">
+                <div class="col-12">
+                    <label asp-for="MissionStatement" class="form-label fw-medium"></label>
+                    <textarea asp-for="MissionStatement" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="col-12">
+                    <label asp-for="VisionStatement" class="form-label fw-medium"></label>
+                    <textarea asp-for="VisionStatement" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+
+            <hr class="my-4" />
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save Changes
+                </button>
+                <a asp-action="Index" class="btn btn-falcon-default">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('LogoFile').addEventListener('change', function () {
+            const file = this.files[0];
+            if (!file) return;
+            const img = document.getElementById('logoPreview');
+            if (img) {
+                img.src = URL.createObjectURL(file);
+                const wrap = document.getElementById('logoPreviewWrap');
+                if (wrap) wrap.classList.remove('d-none');
+            }
+        });
+    </script>
+}

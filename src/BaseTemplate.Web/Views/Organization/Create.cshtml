@@ -1,0 +1,144 @@
+@* src/BaseTemplate.Web/Views/Organization/Create.cshtml *@
+@model BaseTemplate.Web.Models.OrganizationFormModel
+@{
+    ViewData["Title"]        = "Create Organization";
+    ViewData["PageTitle"]    = "Create Organization";
+    ViewData["PageSubTitle"] = "Set up your organization profile";
+    ViewData["ActivePage"]   = "Organization";
+    ViewData["ActiveGroup"]  = "Setup";
+}
+
+<div class="card shadow-sm border-0" style="max-width:900px;">
+    <div class="card-header bg-transparent border-bottom py-3">
+        <h6 class="mb-0 fw-semibold"><i class="fas fa-building me-2 text-primary"></i>Organization Details</h6>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+
+            @* ── Identity ───────────────────────────────────────────────── *@
+            <h6 class="text-uppercase text-600 fw-bold fs--2 mb-3 mt-1">Identity</h6>
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label asp-for="Name" class="form-label fw-medium"></label>
+                    <input asp-for="Name" class="form-control" placeholder="e.g. National Human Rights Commission" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="ShortName" class="form-label fw-medium"></label>
+                    <input asp-for="ShortName" class="form-control" placeholder="e.g. NHRC" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Industry" class="form-label fw-medium"></label>
+                    <input asp-for="Industry" class="form-control" placeholder="e.g. Human Rights" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="EstablishedDate" class="form-label fw-medium"></label>
+                    <input asp-for="EstablishedDate" type="date" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="RegistrationNumber" class="form-label fw-medium"></label>
+                    <input asp-for="RegistrationNumber" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="TaxNumber" class="form-label fw-medium"></label>
+                    <input asp-for="TaxNumber" class="form-control" />
+                </div>
+            </div>
+
+            @* ── Logo ───────────────────────────────────────────────────── *@
+            <hr class="my-4" />
+            <h6 class="text-uppercase text-600 fw-bold fs--2 mb-3">Logo</h6>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="LogoFile" class="form-label fw-medium"></label>
+                    <input asp-for="LogoFile" type="file" class="form-control"
+                           accept=".jpg,.jpeg,.png,.gif,.webp,.svg" />
+                    <div class="form-text">JPG, PNG, GIF, WEBP or SVG · max 2 MB</div>
+                    <span asp-validation-for="LogoFile" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 d-flex align-items-center">
+                    <div id="logoPreviewWrap" class="d-none">
+                        <img id="logoPreview" src="#" alt="Preview"
+                             class="img-thumbnail" style="max-height:100px;" />
+                    </div>
+                </div>
+            </div>
+
+            @* ── Contact ────────────────────────────────────────────────── *@
+            <hr class="my-4" />
+            <h6 class="text-uppercase text-600 fw-bold fs--2 mb-3">Contact Details</h6>
+            <div class="row g-3">
+                <div class="col-12">
+                    <label asp-for="Address" class="form-label fw-medium"></label>
+                    <textarea asp-for="Address" class="form-control" rows="2"
+                              placeholder="Street address"></textarea>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Phone" class="form-label fw-medium"></label>
+                    <input asp-for="Phone" class="form-control" placeholder="+220 xxx xxxx" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Email" class="form-label fw-medium"></label>
+                    <input asp-for="Email" class="form-control" type="email" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Website" class="form-label fw-medium"></label>
+                    <input asp-for="Website" class="form-control" placeholder="https://" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="PostalCode" class="form-label fw-medium"></label>
+                    <input asp-for="PostalCode" class="form-control" placeholder="e.g. 12345" />
+                </div>
+                <div class="col-md-8">
+                    <label asp-for="GoogleCode" class="form-label fw-medium"></label>
+                    <input asp-for="GoogleCode" class="form-control"
+                           placeholder="e.g. WRGV+MH Banjul (Google Plus Code)" />
+                    <div class="form-text">
+                        Find on <a href="https://maps.google.com" target="_blank">Google Maps</a>
+                        → Share → copy the Plus Code.
+                    </div>
+                </div>
+            </div>
+
+            @* ── Mission & Vision ───────────────────────────────────────── *@
+            <hr class="my-4" />
+            <h6 class="text-uppercase text-600 fw-bold fs--2 mb-3">Mission &amp; Vision</h6>
+            <div class="row g-3">
+                <div class="col-12">
+                    <label asp-for="MissionStatement" class="form-label fw-medium"></label>
+                    <textarea asp-for="MissionStatement" class="form-control" rows="3"
+                              placeholder="Our mission is to…"></textarea>
+                </div>
+                <div class="col-12">
+                    <label asp-for="VisionStatement" class="form-label fw-medium"></label>
+                    <textarea asp-for="VisionStatement" class="form-control" rows="3"
+                              placeholder="Our vision is to…"></textarea>
+                </div>
+            </div>
+
+            <hr class="my-4" />
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save Organization
+                </button>
+                <a asp-action="Index" class="btn btn-falcon-default">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('LogoFile').addEventListener('change', function () {
+            const file = this.files[0];
+            if (!file) return;
+            const wrap = document.getElementById('logoPreviewWrap');
+            const img  = document.getElementById('logoPreview');
+            img.src = URL.createObjectURL(file);
+            wrap.classList.remove('d-none');
+        });
+    </script>
+}

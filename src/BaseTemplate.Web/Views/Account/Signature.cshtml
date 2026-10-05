@@ -1,0 +1,156 @@
+@* Views/Account/Signature.cshtml *@
+@{
+    ViewData["Title"]        = "My Signature";
+    ViewData["PageTitle"]    = "Account";
+    ViewData["PageSubTitle"] = "My Signature";
+
+    var current  = ViewData["CurrentSignature"] as string;
+    var fullName = ViewData["FullName"] as string ?? "";
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mb-3">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show mb-3">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row g-3">
+
+    @* ── LEFT: upload form ─────────────────────────────────────────────────── *@
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-transparent border-bottom py-3">
+                <h6 class="mb-0 fw-semibold">
+                    <i class="fas fa-pen-nib me-2 text-primary"></i>Upload Signature
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted fs--1 mb-3">
+                    Upload a clear image of your signature (PNG or JPG, transparent background preferred).
+                    Your signature can be attached to documents and approvals you sign off.
+                </p>
+
+                <form asp-action="Signature" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <label class="form-label fw-medium fs--1">Signature Image</label>
+                        <input type="file" name="signatureFile" id="sigFileInput"
+                               accept="image/png,image/jpeg,image/gif,image/webp"
+                               class="form-control form-control-sm" required />
+                        <div class="form-text text-muted fs--2">Max 2 MB · PNG / JPG / GIF / WebP</div>
+                    </div>
+
+                    @* Preview before upload *@
+                    <div id="previewWrapper" class="mb-3 d-none">
+                        <label class="form-label fw-medium fs--1 text-muted">Preview</label>
+                        <div class="border rounded p-3 bg-white text-center" style="min-height:80px;">
+                            <img id="previewImg" src="" alt="Preview"
+                                 style="max-height:80px;max-width:100%;object-fit:contain;" />
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-upload me-1"></i>Save Signature
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    @* ── RIGHT: current signature ──────────────────────────────────────────── *@
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-transparent border-bottom py-3">
+                <h6 class="mb-0 fw-semibold">
+                    <i class="fas fa-signature me-2 text-primary"></i>Current Signature
+                </h6>
+            </div>
+            <div class="card-body text-center">
+                @if (!string.IsNullOrEmpty(current))
+                {
+                    <div class="border rounded p-3 bg-white mb-3" style="min-height:100px;">
+                        <img src="@Url.Content(current)" alt="Signature of @fullName"
+                             style="max-height:100px;max-width:100%;object-fit:contain;" />
+                    </div>
+                    <p class="text-muted fs--2 mb-3">Signature on file for <strong>@fullName</strong></p>
+                    <form asp-action="DeleteSignature" method="post"
+                          onsubmit="return confirm('Remove your signature?');">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-trash me-1"></i>Remove Signature
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <div class="py-4 text-muted">
+                        <i class="fas fa-pen-nib fa-2x mb-2 opacity-25"></i>
+                        <p class="mb-0 fs--1">No signature on file.</p>
+                        <p class="fs--2 text-muted">Upload a signature on the left to get started.</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @* ── Where the signature is used ─────────────────────────────── *@
+        <div class="card shadow-sm border-0 mt-3">
+            <div class="card-header bg-transparent border-bottom py-2">
+                <h6 class="mb-0 fw-semibold fs--1">
+                    <i class="fas fa-info-circle me-2 text-info"></i>Where it appears
+                </h6>
+            </div>
+            <div class="card-body fs--1 text-muted">
+                When you approve an item, your signature can appear in the
+                <strong>Approval Trail</strong> section of generated documents,
+                next to your name and the date of approval.
+                <div class="mt-2 border rounded p-2 bg-light" style="font-size:10pt;">
+                    <div style="font-weight:600;font-size:9pt;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #dee2e6;padding-bottom:4px;margin-bottom:8px;">
+                        Approval Trail <span class="text-muted fw-normal">(example)</span>
+                    </div>
+                    <div style="display:grid;grid-template-columns:140px 1fr 130px;gap:6px;align-items:center;font-size:9pt;">
+                        <span style="font-weight:600;">Level 1 Approval</span>
+                        <span>24 Sep 2026 10:12</span>
+                        @if (!string.IsNullOrEmpty(current))
+                        {
+                            <img src="@Url.Content(current)" alt="sig"
+                                 style="height:30px;object-fit:contain;" />
+                        }
+                        else
+                        {
+                            <span class="text-muted fst-italic">— no signature —</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+document.getElementById('sigFileInput').addEventListener('change', function() {
+    var file = this.files[0];
+    if (!file) return;
+    var wrapper = document.getElementById('previewWrapper');
+    var img     = document.getElementById('previewImg');
+    var reader  = new FileReader();
+    reader.onload = function(e) {
+        img.src = e.target.result;
+        wrapper.classList.remove('d-none');
+    };
+    reader.readAsDataURL(file);
+});
+</script>
+}
