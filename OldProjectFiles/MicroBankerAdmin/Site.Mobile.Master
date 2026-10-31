@@ -1,0 +1,106 @@
+﻿<%@ Master Language="VB" AutoEventWireup="false" CodeBehind="Site.Mobile.Master.vb" Inherits="MicroBankerAdmin.Site_Mobile" %>
+
+<%@ Register Src="~/ViewSwitcher.ascx" TagPrefix="friendlyUrls" TagName="ViewSwitcher" %>
+<!DOCTYPE html>
+
+<html lang="en">
+<head runat="server">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%: Page.Title %> - Micro Banker Admin</title>
+
+    <asp:PlaceHolder runat="server">
+        <%: Scripts.Render("~/bundles/modernizr") %>
+    </asp:PlaceHolder>
+
+    <webopt:bundlereference runat="server" path="~/Content/css" />
+    <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+
+</head>
+<body>
+    <form runat="server">
+        <asp:ScriptManager runat="server">
+            <Scripts>
+                <%--To learn more about bundling scripts in ScriptManager see https://go.microsoft.com/fwlink/?LinkID=301884 --%>
+                <%--Framework Scripts--%>
+                <asp:ScriptReference Name="MsAjaxBundle" />
+                <asp:ScriptReference Name="jquery" />
+                <asp:ScriptReference Name="bootstrap" />
+                <asp:ScriptReference Name="WebForms.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebForms.js" />
+                <asp:ScriptReference Name="WebUIValidation.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebUIValidation.js" />
+                <asp:ScriptReference Name="MenuStandards.js" Assembly="System.Web" Path="~/Scripts/WebForms/MenuStandards.js" />
+                <asp:ScriptReference Name="GridView.js" Assembly="System.Web" Path="~/Scripts/WebForms/GridView.js" />
+                <asp:ScriptReference Name="DetailsView.js" Assembly="System.Web" Path="~/Scripts/WebForms/DetailsView.js" />
+                <asp:ScriptReference Name="TreeView.js" Assembly="System.Web" Path="~/Scripts/WebForms/TreeView.js" />
+                <asp:ScriptReference Name="WebParts.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebParts.js" />
+                <asp:ScriptReference Name="Focus.js" Assembly="System.Web" Path="~/Scripts/WebForms/Focus.js" />
+                <asp:ScriptReference Name="WebFormsBundle" />
+                <%--Site Scripts--%>
+            </Scripts>
+        </asp:ScriptManager>
+        <div class="navbar navbar-inverse navbar-fixed-top navbar-top">
+            <div class="logo-holder">
+                   <a  runat="server" href="~/Default"> <img src="Img/Matrix.png" class="logo"/>
+                    <h3 class="header-text">Matrix Micro Banker</h3></a>
+            </div>
+          
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <%--<a class="navbar-brand" runat="server" href="~/Default">Admin Module</a>--%>
+                </div>
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                    <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">System Parameter
+                        <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                          <li><a runat="server" href="~/CreateOrganization">Organization</a></li>
+                          <li><a runat="server" href="~/CreatBranch">Branch</a></li>
+                          <li><a runat="server" href="~/CreateProduct">Products</a></li>
+                          <li><a runat="server" href="~/CreateRegions">Regions</a></li>
+                          <li><a runat="server" href="~/CreateDistrict">District/Municipality</a></li>
+                           <li><a runat="server" href="~/CreateArea">Area</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Customer Manager
+                        <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                          <li><a runat="server" href="~/CreateCustomer">Customer Registration</a></li>
+                          <li><a runat="server" href="~/ViewCustomer">Customer Enquiry</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Account Manager
+                        <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                          
+                          <li><a runat="server" href="~/CreateAccount">Account Maintenance</a></li>
+                          <li><a runat="server" href="~/ViewAccount">Account Enquiry</a></li>
+                          <li><a runat="server" href="~/ViewAccountStatus">Account Status </a></li>
+                        </ul>
+                    </li>
+                          <li><a runat="server" href="~/CreateAccount">GL Account Maintenance</a></li>
+                        <li><a runat="server" href="~/CreateGL">General Ledger</a></li>
+                        <li><a runat="server" href="~/ViewTransactions">Transaction Manager</a></li>
+                        <li><a runat="server" href="~/Reports">Reports</a></li>
+                        <li><a runat="server" href="~/CreateProfile">Security</a></li>
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="container body-content">
+            <asp:ContentPlaceHolder ID="MainContent" runat="server">
+            </asp:ContentPlaceHolder>
+            <hr />
+            <footer>
+                <p>&copy; <%: DateTime.Now.Year %> - Matrix Solutions Limited</p>
+            </footer>
+        </div>
+
+    </form>
+</body>
+</html>
