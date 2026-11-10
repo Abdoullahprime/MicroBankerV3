@@ -1,0 +1,77 @@
+@* src/BaseTemplate.Web/Views/Calendar/Index.cshtml *@
+@model BaseTemplate.Web.Models.CalendarIndexModel
+@{
+    ViewData["Title"] = "Work Calendar";
+}
+
+<div class="row g-3">
+  <div class="col-12">
+    <div class="card mb-3">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><span class="fas fa-calendar-alt me-2 text-primary"></span>Work Calendar</h5>
+        <a asp-action="Create" class="btn btn-falcon-primary btn-sm">
+          <span class="fas fa-plus me-1"></span>Add Month
+        </a>
+      </div>
+
+      @if (TempData["Success"] != null)
+      {
+        <div class="alert alert-success alert-dismissible mx-3 mt-3 mb-0" role="alert">
+          @TempData["Success"]
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      }
+
+      <div class="card-body p-0">
+        @if (!Model.Calendars.Any())
+        {
+          <div class="p-4 text-center text-600">
+            <span class="fas fa-calendar-times fa-2x mb-2 d-block text-300"></span>
+            No calendar entries yet. Add a month to define working days and hours.
+          </div>
+        }
+        else
+        {
+          <div class="table-responsive">
+            <table class="table table-sm table-hover mb-0 fs--1">
+              <thead class="bg-light">
+                <tr>
+                  <th>Year</th>
+                  <th>Month</th>
+                  <th class="text-end">Working Days</th>
+                  <th class="text-end">Working Hours</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @foreach (var row in Model.Calendars)
+                {
+                  <tr>
+                    <td class="fw-medium">@row.Year</td>
+                    <td>@row.MonthName</td>
+                    <td class="text-end">@row.WorkingDays</td>
+                    <td class="text-end">@row.WorkingHours</td>
+                    <td class="text-end">
+                      <a asp-action="Edit" asp-route-id="@row.EncryptedId"
+                         class="btn btn-falcon-default btn-sm me-1">
+                        <span class="fas fa-edit"></span>
+                      </a>
+                      <form asp-action="Delete" asp-route-id="@row.EncryptedId"
+                            method="post" class="d-inline"
+                            onsubmit="return confirm('Remove calendar for @row.MonthName @row.Year?')">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-falcon-danger btn-sm">
+                          <span class="fas fa-trash-alt"></span>
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,55 @@
+@* src/BaseTemplate.Web/Views/Bank/Create.cshtml *@
+@model BaseTemplate.Web.Models.BankFormModel
+@{
+    ViewData["Title"]        = "Add Bank";
+    ViewData["PageTitle"]    = "Add Bank";
+    ViewData["PageSubTitle"] = "Register a new bank";
+}
+
+<div class="card shadow-sm border-0" style="max-width:680px;">
+    <div class="card-header bg-transparent border-bottom py-3">
+        <h6 class="mb-0 fw-semibold"><i class="fas fa-university me-2 text-primary"></i>Bank Details</h6>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 fs--1"></div>
+
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label asp-for="Name" class="form-label fw-medium"></label>
+                    <input asp-for="Name" class="form-control" placeholder="e.g. Standard Chartered Bank" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Code" class="form-label fw-medium"></label>
+                    <input asp-for="Code" class="form-control" placeholder="e.g. SCB" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="BranchCode" class="form-label fw-medium"></label>
+                    <input asp-for="BranchCode" class="form-control" placeholder="e.g. 001" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="SwiftCode" class="form-label fw-medium"></label>
+                    <input asp-for="SwiftCode" class="form-control" placeholder="e.g. SCBLGMBX" />
+                </div>
+                <div class="col-12">
+                    <div class="form-check form-switch">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsActive" class="form-check-label">Active</label>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4" />
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save Bank
+                </button>
+                <a asp-action="Index" class="btn btn-falcon-default">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

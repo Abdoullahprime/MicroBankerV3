@@ -1,0 +1,99 @@
+@model BaseTemplate.Web.Models.RoleListViewModel
+@{
+    ViewData["Title"] = "Roles";
+}
+
+<div class="row mb-3 align-items-center">
+    <div class="col">
+        <h4 class="mb-0"><i class="fas fa-shield-alt me-2 text-primary"></i>Roles</h4>
+        <small class="text-muted">Define roles and assign permissions</small>
+    </div>
+    <div class="col-auto">
+        <a asp-action="Create" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus me-1"></i> Add Role
+        </a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show py-2">
+        <i class="fas fa-check-circle me-1"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show py-2">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover table-sm mb-0 fs--1">
+            <thead class="bg-light">
+                <tr>
+                    <th>Role Name</th>
+                    <th>Code</th>
+                    <th>Description</th>
+                    <th class="text-center">Users</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model.Roles)
+                {
+                    <tr>
+                        <td class="fw-semibold">
+                            @r.Name
+                            @if (r.IsSystemRole)
+                            {
+                                <span class="badge bg-info ms-1">System</span>
+                            }
+                        </td>
+                        <td><code>@r.Code</code></td>
+                        <td class="text-muted">@r.Description</td>
+                        <td class="text-center">
+                            <span class="badge bg-soft-primary text-primary">@r.UserCount</span>
+                        </td>
+                        <td>
+                            @if (r.IsActive)
+                            { <span class="badge bg-success">Active</span> }
+                            else
+                            { <span class="badge bg-secondary">Inactive</span> }
+                        </td>
+                        <td class="text-end">
+                            <a asp-controller="Permissions" asp-action="Index"
+                               asp-route-roleId="@r.EncryptedId"
+                               class="btn btn-sm btn-outline-info py-0" title="Manage Permissions">
+                                <i class="fas fa-key"></i>
+                            </a>
+                            @if (!r.IsSystemRole)
+                            {
+                                <a asp-action="Edit" asp-route-id="@r.EncryptedId"
+                                   class="btn btn-sm btn-outline-primary py-0">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form method="post" asp-action="Delete" asp-route-id="@r.EncryptedId"
+                                      class="d-inline"
+                                      onsubmit="return confirm('Delete this role?')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-danger py-0">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Roles.Any())
+                {
+                    <tr><td colspan="6" class="text-center text-muted py-4">No roles found.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

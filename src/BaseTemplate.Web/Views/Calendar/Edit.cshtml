@@ -1,0 +1,70 @@
+@* src/BaseTemplate.Web/Views/Calendar/Edit.cshtml *@
+@model BaseTemplate.Web.Models.CalendarFormModel
+@{
+    ViewData["Title"] = "Edit Calendar Month";
+    var monthName = new DateTime(2000, Model.Month, 1).ToString("MMMM");
+}
+
+<div class="row g-3 justify-content-center">
+  <div class="col-12 col-lg-6">
+    <div class="card">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">
+          <span class="fas fa-calendar-edit me-2 text-warning"></span>
+          Edit — @monthName @Model.Year
+        </h5>
+      </div>
+      <div class="card-body">
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+          <div class="alert alert-danger">
+            @Html.ValidationSummary(false, "", new { @class = "mb-0" })
+          </div>
+        }
+
+        <form asp-action="Edit" asp-route-id="@Model.EncryptedId" method="post">
+          @Html.AntiForgeryToken()
+          <input type="hidden" asp-for="Month" />
+          <input type="hidden" asp-for="Year" />
+
+          <div class="alert alert-light border fs--1 mb-3">
+            <span class="fas fa-lock me-1 text-500"></span>
+            Month and year are locked. Only working days and hours can be changed.
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-medium fs--1">Month</label>
+              <input type="text" class="form-control form-control-sm" value="@monthName @Model.Year" readonly />
+            </div>
+            <div class="col-md-3">
+              <label asp-for="WorkingDays" class="form-label fw-medium fs--1"></label>
+              <input asp-for="WorkingDays" type="number" class="form-control form-control-sm"
+                     min="1" max="31" />
+              <span asp-validation-for="WorkingDays" class="text-danger fs--2"></span>
+            </div>
+            <div class="col-md-3">
+              <label asp-for="WorkingHours" class="form-label fw-medium fs--1"></label>
+              <input asp-for="WorkingHours" type="number" class="form-control form-control-sm"
+                     min="1" max="248" />
+              <span asp-validation-for="WorkingHours" class="text-danger fs--2"></span>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <a asp-action="Index" class="btn btn-falcon-default btn-sm">Cancel</a>
+            <button type="submit" class="btn btn-falcon-warning btn-sm">
+              <span class="fas fa-save me-1"></span>Update
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+  @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

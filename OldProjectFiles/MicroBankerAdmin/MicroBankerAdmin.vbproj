@@ -1,0 +1,1171 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>
+    </SchemaVersion>
+    <ProjectGuid>{CD8E53D2-B177-494B-AE08-1CEEF98E43D7}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{F184B08F-C81C-45F6-A57F-5ABD9991F28F}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <RootNamespace>MicroBankerAdmin</RootNamespace>
+    <AssemblyName>MicroBankerAdmin</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <MyType>Custom</MyType>
+    <UseIISExpress>true</UseIISExpress>
+    <Use64BitIISExpress />
+    <IISExpressSSLPort>44361</IISExpressSSLPort>
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <OutputPath>bin\</OutputPath>
+    <DocumentationFile>WebForms_Basic.xml</DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DocumentationFile>WebForms_Basic.xml</DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AjaxControlToolkit, Version=1.0.11119.20010, Culture=neutral, PublicKeyToken=28f01b0e84b6d53e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Downloads\190620211 Changes\dll\AjaxControlToolkit.dll</HintPath>
+    </Reference>
+    <Reference Include="ExcelDataReader, Version=3.6.0.0, Culture=neutral, PublicKeyToken=93517dbe6a4012fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExcelDataReader.3.6.0\lib\net45\ExcelDataReader.dll</HintPath>
+    </Reference>
+    <Reference Include="ExcelDataReader.DataSet, Version=3.6.0.0, Culture=neutral, PublicKeyToken=93517dbe6a4012fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExcelDataReader.DataSet.3.6.0\lib\net35\ExcelDataReader.DataSet.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.Design, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Microsoft.ReportViewer.Design.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WebDesign, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Microsoft.ReportViewer.WebDesign.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WebForms, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Microsoft.ReportViewer.WebForms.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WinForms, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Microsoft.ReportViewer.WinForms.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="AspNet.ScriptManager.bootstrap">
+      <HintPath>..\packages\AspNet.ScriptManager.bootstrap.3.4.1\lib\net45\AspNet.ScriptManager.bootstrap.dll</HintPath>
+    </Reference>
+    <Reference Include="AspNet.ScriptManager.jQuery">
+      <HintPath>..\packages\AspNet.ScriptManager.jQuery.3.4.1\lib\net45\AspNet.ScriptManager.jQuery.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ScriptManager.MSAjax">
+      <HintPath>..\packages\Microsoft.AspNet.ScriptManager.MSAjax.5.0.0\lib\net45\Microsoft.ScriptManager.MSAjax.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ScriptManager.WebForms">
+      <HintPath>..\packages\Microsoft.AspNet.ScriptManager.WebForms.5.0.0\lib\net45\Microsoft.ScriptManager.WebForms.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Optimization, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <HintPath>..\packages\Microsoft.AspNet.Web.Optimization.1.1.3\lib\net40\System.Web.Optimization.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="WebGrease">
+      <Private>True</Private>
+      <HintPath>..\packages\WebGrease.1.6.0\lib\WebGrease.dll</HintPath>
+    </Reference>
+    <Reference Include="Antlr3.Runtime">
+      <Private>True</Private>
+      <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Web.Optimization.WebForms">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.Web.Optimization.WebForms.1.1.3\lib\net45\Microsoft.AspNet.Web.Optimization.WebForms.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.FriendlyUrls">
+      <HintPath>..\packages\Microsoft.AspNet.FriendlyUrls.Core.1.0.2\lib\net45\Microsoft.AspNet.FriendlyUrls.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform">
+      <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Import Include="Microsoft.VisualBasic" />
+    <Import Include="System" />
+    <Import Include="System.Collections" />
+    <Import Include="System.Collections.Generic" />
+    <Import Include="System.Data" />
+    <Import Include="System.Linq" />
+    <Import Include="System.Xml.Linq" />
+    <Import Include="System.Diagnostics" />
+    <Import Include="System.Collections.Specialized" />
+    <Import Include="System.Configuration" />
+    <Import Include="System.Text" />
+    <Import Include="System.Text.RegularExpressions" />
+    <Import Include="System.Web" />
+    <Import Include="System.Web.Caching" />
+    <Import Include="System.Web.Routing" />
+    <Import Include="System.Web.SessionState" />
+    <Import Include="System.Web.Security" />
+    <Import Include="System.Web.Profile" />
+    <Import Include="System.Web.UI" />
+    <Import Include="System.Web.UI.WebControls" />
+    <Import Include="System.Web.UI.WebControls.WebParts" />
+    <Import Include="System.Web.UI.HtmlControls" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="About.aspx" />
+    <Content Include="CreateSelfReg.aspx" />
+    <Content Include="DeleteSelfreg.aspx" />
+    <Content Include="ApproveSelfReg.aspx" />
+    <Content Include="EditSelfReg.aspx" />
+    <Content Include="LoanAdvRepayment.aspx" />
+    <Content Include="LoanRequest.aspx" />
+    <Content Include="Login.aspx" />
+    <Content Include="ProcessRoutineEOY.aspx" />
+    <Content Include="UnBlockAmount.aspx" />
+    <Content Include="BlockAmount.aspx" />
+    <Content Include="BalanceEnquiry.aspx" />
+    <Content Include="Calender\bootstrap.min.js" />
+    <Content Include="Calender\jquery-1.10.2.js" />
+    <Content Include="Calender\jquery-ui.css" />
+    <Content Include="Calender\jquery-ui.js" />
+    <Content Include="Calender\jquery.min.js" />
+    <Content Include="ChartOfAccounts_.aspx" />
+    <Content Include="CreateSubSector.aspx" />
+    <Content Include="CreateSector.aspx" />
+    <Content Include="LoanAccountBalanceEnquiry.aspx" />
+    <Content Include="LoanAccountApproval.aspx" />
+    <Content Include="AccountApproval.aspx" />
+    <Content Include="MiniStatement.aspx" />
+    <Content Include="ProcessRoutineEOM.aspx" />
+    <Content Include="ViewLoans.aspx" />
+    <Content Include="LoanAccountEditRequest.aspx" />
+    <Content Include="AccountEditRequest.aspx" />
+    <Content Include="AccountMaintenance.aspx" />
+    <Content Include="AjaxControlToolkit.dll" />
+    <Content Include="CashWithdrawal.aspx" />
+    <Content Include="Content\jquery-ui.css" />
+    <Content Include="Content\jquery-ui.min.css" />
+    <Content Include="Content\jquery-ui.structure.css" />
+    <Content Include="Content\jquery-ui.structure.min.css" />
+    <Content Include="Content\jquery-ui.theme.css" />
+    <Content Include="Content\jquery-ui.theme.min.css" />
+    <Content Include="CreateLoanAccounts.aspx" />
+    <Content Include="DeleteCustomerAccount.aspx" />
+    <Content Include="DeleteCustomerDetails.aspx" />
+    <Content Include="EditCustomerAccount.aspx" />
+    <Content Include="EditLoanDetails.aspx" />
+    <Content Include="GeneralLedger\CashGL.aspx" />
+    <Content Include="CashDeposit.aspx" />
+    <Content Include="Contact.aspx" />
+    <Content Include="Content\bootstrap-theme.css" />
+    <Content Include="Content\bootstrap-theme.min.css" />
+    <Content Include="Content\bootstrap.css" />
+    <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\Site.css" />
+    <Content Include="CreateCurrentAccount.aspx" />
+    <Content Include="CreateFixedDepositAc.aspx" />
+    <Content Include="CreateProductDefinition.aspx" />
+    <Content Include="GeneralLedger\ChartOfAccounts.aspx" />
+    <Content Include="GeneralLedger\ChartOfAccountsList.aspx" />
+    <Content Include="GeneralLedger\GeneralLedger.aspx" />
+    <Content Include="GeneralLedger\GLDetails.aspx" />
+    <Content Include="GeneralLedger\glList.aspx" />
+    <Content Include="LoanDisbursement.aspx" />
+    <Content Include="ProcessRoutineEOD.aspx" />
+    <Content Include="ProcessRoutineSOD.aspx" />
+    <Content Include="ProductMaintenance.aspx" />
+    <Content Include="CreateTransactionCode.aspx" />
+    <Content Include="Default.aspx" />
+    <Content Include="DeleteLoanAccount.aspx" />
+    <Content Include="DeleteLoanDetails.aspx" />
+    <Content Include="EditLoanAccount.aspx" />
+    <Content Include="EditCustomerDetails.aspx" />
+    <Content Include="favicon.ico" />
+    <Content Include="fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="Global.asax" />
+    <Content Include="fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="Content\bootstrap.min.css.map" />
+    <Content Include="Content\bootstrap.css.map" />
+    <Content Include="Content\bootstrap-theme.min.css.map" />
+    <Content Include="Content\bootstrap-theme.css.map" />
+    <Content Include="CreateOrganization.aspx" />
+    <Content Include="CreatBranch.aspx" />
+    <Content Include="CreateAccount.aspx" />
+    <Content Include="CreateCustomer.aspx" />
+    <Content Include="CreateDistrict.aspx" />
+    <Content Include="CreateGL.aspx" />
+    <Content Include="CreateProduct.aspx" />
+    <Content Include="CreateProfile.aspx" />
+    <Content Include="CreateRegions.aspx" />
+    <Content Include="Img\ajax-loader.gif" />
+    <Content Include="Img\ajax-loader1.gif" />
+    <Content Include="Img\arrow_closed.gif" />
+    <Content Include="Img\arrow_closed1.gif" />
+    <Content Include="Img\arrow_opened.gif" />
+    <Content Include="Img\arrow_opened1.gif" />
+    <Content Include="Img\backcolor.gif" />
+    <Content Include="Img\base.gif" />
+    <Content Include="Img\bg-menu-main.png" />
+    <Content Include="Img\bg.jpg" />
+    <Content Include="Img\bg.png" />
+    <Content Include="Img\bg3.jpg" />
+    <Content Include="Img\bg5.png" />
+    <Content Include="Img\blt%281%29.jpg" />
+    <Content Include="Img\blt.gif" />
+    <Content Include="Img\blt.jpg" />
+    <Content Include="Img\blt1 %282%29.jpg" />
+    <Content Include="Img\blt1.jpg" />
+    <Content Include="Img\blt5.JPG" />
+    <Content Include="Img\blt55.jpg" />
+    <Content Include="Img\bold.gif" />
+    <Content Include="Img\bulletedlist.gif" />
+    <Content Include="Img\Calendar_scheduleHS.png" />
+    <Content Include="Img\cd.gif" />
+    <Content Include="Img\center.gif" />
+    <Content Include="Img\collapse.jpg" />
+    <Content Include="Img\collapse_blue.jpg" />
+    <Content Include="Img\design.gif" />
+    <Content Include="Img\empty.gif" />
+    <Content Include="Img\expand.jpg" />
+    <Content Include="Img\expand_blue.jpg" />
+    <Content Include="Img\folder.gif" />
+    <Content Include="Img\folderopen.gif" />
+    <Content Include="Img\forecolor.gif" />
+    <Content Include="Img\globe.gif" />
+    <Content Include="Img\html.gif" />
+    <Content Include="Img\image.gif" />
+    <Content Include="Img\imgfolder.gif" />
+    <Content Include="Img\indent.gif" />
+    <Content Include="Img\italic.gif" />
+    <Content Include="Img\join.gif" />
+    <Content Include="Img\joinbottom.gif" />
+    <Content Include="Img\justify.gif" />
+    <Content Include="Img\keyboard-2a.gif" />
+    <Content Include="Img\keyboard-2a.jpg" />
+    <Content Include="Img\keyboard-2b.gif" />
+    <Content Include="Img\keyboard-2b.jpg" />
+    <Content Include="Img\keyboard.gif" />
+    <Content Include="Img\left.gif" />
+    <Content Include="Img\line.gif" />
+    <Content Include="Img\link.gif" />
+    <Content Include="Img\Matrix Logo.png" />
+    <Content Include="Img\Matrix.png" />
+    <Content Include="Img\Matrix_Logo.png" />
+    <Content Include="Img\minus.gif" />
+    <Content Include="Img\minusbottom.gif" />
+    <Content Include="Img\musicfolder.gif" />
+    <Content Include="Img\new.gif" />
+    <Content Include="Img\orderedlist.gif" />
+    <Content Include="Img\outdent.gif" />
+    <Content Include="Img\page.gif" />
+    <Content Include="Img\pixel.gif" />
+    <Content Include="Img\plus.gif" />
+    <Content Include="Img\plusbottom.gif" />
+    <Content Include="Img\question.gif" />
+    <Content Include="Img\right.gif" />
+    <Content Include="Img\rule.gif" />
+    <Content Include="Img\save.gif" />
+    <Content Include="Img\spinner.gif" />
+    <Content Include="Img\subscript.gif" />
+    <Content Include="Img\superscript.gif" />
+    <Content Include="Img\trash.gif" />
+    <Content Include="Img\underline.gif" />
+    <Content Include="Img\view.gif" />
+    <Content Include="Reports.aspx" />
+    <Content Include="MixedPosting.aspx" />
+    <Content Include="Reports\GL_REPORTS\CHART_OF_ACCOUNTS.aspx" />
+    <Content Include="Reports\GL_REPORTS\GL_ACCOUNT_STATEMENT.aspx" />
+    <Content Include="RetailPosting.aspx" />
+    <Content Include="Scripts\images\ui-icons_444444_256x240.png" />
+    <Content Include="Scripts\images\ui-icons_555555_256x240.png" />
+    <Content Include="Scripts\images\ui-icons_777620_256x240.png" />
+    <Content Include="Scripts\images\ui-icons_777777_256x240.png" />
+    <Content Include="Scripts\images\ui-icons_cc0000_256x240.png" />
+    <Content Include="Scripts\images\ui-icons_ffffff_256x240.png" />
+    <Content Include="Scripts\jquery-ui-1.12.1\AUTHORS.txt" />
+    <Content Include="Scripts\jquery-ui-1.12.1\external\jquery\jquery.js" />
+    <Content Include="Scripts\jquery-ui-1.12.1\images\ui-icons_444444_256x240.png" />
+    <Content Include="Scripts\jquery-ui-1.12.1\images\ui-icons_555555_256x240.png" />
+    <Content Include="Scripts\jquery-ui-1.12.1\images\ui-icons_777620_256x240.png" />
+    <Content Include="Scripts\jquery-ui-1.12.1\images\ui-icons_777777_256x240.png" />
+    <Content Include="Scripts\jquery-ui-1.12.1\images\ui-icons_cc0000_256x240.png" />
+    <Content Include="Scripts\jquery-ui-1.12.1\images\ui-icons_ffffff_256x240.png" />
+    <Content Include="Scripts\jquery-ui-1.12.1\index.html" />
+    <Content Include="Scripts\jquery-ui-1.12.1\jquery-ui.css" />
+    <Content Include="Scripts\jquery-ui-1.12.1\jquery-ui.js" />
+    <Content Include="Scripts\jquery-ui-1.12.1\jquery-ui.min.css" />
+    <Content Include="Scripts\jquery-ui-1.12.1\jquery-ui.min.js" />
+    <Content Include="Scripts\jquery-ui-1.12.1\jquery-ui.structure.css" />
+    <Content Include="Scripts\jquery-ui-1.12.1\jquery-ui.structure.min.css" />
+    <Content Include="Scripts\jquery-ui-1.12.1\jquery-ui.theme.css" />
+    <Content Include="Scripts\jquery-ui-1.12.1\jquery-ui.theme.min.css" />
+    <Content Include="Scripts\jquery-ui-1.12.1\LICENSE.txt" />
+    <Content Include="Scripts\jquery-ui.js" />
+    <Content Include="Scripts\jquery-ui.min.js" />
+    <Content Include="SODProcess.aspx" />
+    <Content Include="ViewAccount.aspx" />
+    <Content Include="ViewAccountStatus.aspx" />
+    <Content Include="ViewSelfReg.aspx" />
+    <Content Include="ViewSavingAccount.aspx" />
+    <Content Include="ViewTransactions.aspx" />
+    <Content Include="Dashboard.aspx" />
+    <Content Include="ViewCustomer.aspx" />
+    <Content Include="CreateArea.aspx" />
+    <Content Include="SOD.aspx" />
+    <Content Include="BulkUploadPosting.aspx" />
+    <Content Include="Files\Salaries.xlsx" />
+    <Content Include="Files\TestCSV.csv" />
+    <Content Include="ComingSoon.aspx" />
+    <Content Include="Login.Master" />
+    <Content Include="WithdrawalRequest.aspx" />
+    <None Include="My Project\PublishProfiles\FolderProfile.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile1.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile10.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile11.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile12.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile13.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile14.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile15.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile16.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile17.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile18.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile19.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile2.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile20.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile21.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile22.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile23.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile24.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile25.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile26.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile27.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile28.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile29.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile3.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile30.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile31.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile32.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile33.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile34.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile35.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile36.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile37.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile38.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile39.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile4.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile40.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile41.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile42.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile43.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile44.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile45.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile46.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile47.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile48.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile49.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile5.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile50.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile51.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile52.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile53.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile54.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile55.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile56.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile57.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile58.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile59.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile6.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile60.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile61.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile62.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile63.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile64.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile65.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile66.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile67.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile68.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile69.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile7.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile8.pubxml" />
+    <None Include="My Project\PublishProfiles\FolderProfile9.pubxml" />
+    <None Include="Scripts\jquery-3.4.1.intellisense.js" />
+    <Content Include="Scripts\bootstrap.js" />
+    <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\jquery-3.4.1.js" />
+    <Content Include="Scripts\jquery-3.4.1.min.js" />
+    <Content Include="Scripts\jquery-3.4.1.slim.js" />
+    <Content Include="Scripts\jquery-3.4.1.slim.min.js" />
+    <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Scripts\WebForms\DetailsView.js" />
+    <Content Include="Scripts\WebForms\Focus.js" />
+    <Content Include="Scripts\WebForms\GridView.js" />
+    <Content Include="Scripts\WebForms\Menu.js" />
+    <Content Include="Scripts\WebForms\MenuStandards.js" />
+    <Content Include="Scripts\WebForms\MSAjax\MicrosoftAjax.js" />
+    <Content Include="Scripts\WebForms\MSAjax\MicrosoftAjaxApplicationServices.js" />
+    <Content Include="Scripts\WebForms\MSAjax\MicrosoftAjaxComponentModel.js" />
+    <Content Include="Scripts\WebForms\MSAjax\MicrosoftAjaxCore.js" />
+    <Content Include="Scripts\WebForms\MSAjax\MicrosoftAjaxGlobalization.js" />
+    <Content Include="Scripts\WebForms\MSAjax\MicrosoftAjaxHistory.js" />
+    <Content Include="Scripts\WebForms\MSAjax\MicrosoftAjaxNetwork.js" />
+    <Content Include="Scripts\WebForms\MSAjax\MicrosoftAjaxSerialization.js" />
+    <Content Include="Scripts\WebForms\MSAjax\MicrosoftAjaxTimer.js" />
+    <Content Include="Scripts\WebForms\MSAjax\MicrosoftAjaxWebForms.js" />
+    <Content Include="Scripts\WebForms\MSAjax\MicrosoftAjaxWebServices.js" />
+    <Content Include="Scripts\WebForms\SmartNav.js" />
+    <Content Include="Scripts\WebForms\TreeView.js" />
+    <Content Include="Scripts\WebForms\WebForms.js" />
+    <Content Include="Scripts\WebForms\WebParts.js" />
+    <Content Include="Scripts\WebForms\WebUIValidation.js" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Bundle.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App_Start\Models.vb" />
+    <Compile Include="CreateSelfReg.aspx.designer.vb">
+      <DependentUpon>CreateSelfReg.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CreateSelfReg.aspx.vb">
+      <DependentUpon>CreateSelfReg.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DeleteSelfreg.aspx.designer.vb">
+      <DependentUpon>DeleteSelfreg.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="DeleteSelfreg.aspx.vb">
+      <DependentUpon>DeleteSelfreg.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ApproveSelfReg.aspx.designer.vb">
+      <DependentUpon>ApproveSelfReg.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ApproveSelfReg.aspx.vb">
+      <DependentUpon>ApproveSelfReg.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EditSelfReg.aspx.designer.vb">
+      <DependentUpon>EditSelfReg.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="EditSelfReg.aspx.vb">
+      <DependentUpon>EditSelfReg.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="LoanAdvRepayment.aspx.designer.vb">
+      <DependentUpon>LoanAdvRepayment.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="LoanAdvRepayment.aspx.vb">
+      <DependentUpon>LoanAdvRepayment.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="LoanRequest.aspx.designer.vb">
+      <DependentUpon>LoanRequest.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="LoanRequest.aspx.vb">
+      <DependentUpon>LoanRequest.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Login.aspx.designer.vb">
+      <DependentUpon>Login.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Login.aspx.vb">
+      <DependentUpon>Login.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Login.Master.designer.vb">
+      <DependentUpon>Login.Master</DependentUpon>
+    </Compile>
+    <Compile Include="Login.Master.vb">
+      <DependentUpon>Login.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ProcessRoutineEOY.aspx.designer.vb">
+      <DependentUpon>ProcessRoutineEOY.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ProcessRoutineEOY.aspx.vb">
+      <DependentUpon>ProcessRoutineEOY.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UnBlockAmount.aspx.designer.vb">
+      <DependentUpon>UnBlockAmount.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="UnBlockAmount.aspx.vb">
+      <DependentUpon>UnBlockAmount.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="BlockAmount.aspx.designer.vb">
+      <DependentUpon>BlockAmount.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="BlockAmount.aspx.vb">
+      <DependentUpon>BlockAmount.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="BalanceEnquiry.aspx.designer.vb">
+      <DependentUpon>BalanceEnquiry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="BalanceEnquiry.aspx.vb">
+      <DependentUpon>BalanceEnquiry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ChartOfAccounts_.aspx.designer.vb">
+      <DependentUpon>ChartOfAccounts_.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ChartOfAccounts_.aspx.vb">
+      <DependentUpon>ChartOfAccounts_.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="CreateSubSector.aspx.designer.vb">
+      <DependentUpon>CreateSubSector.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CreateSubSector.aspx.vb">
+      <DependentUpon>CreateSubSector.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CreateSector.aspx.designer.vb">
+      <DependentUpon>CreateSector.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CreateSector.aspx.vb">
+      <DependentUpon>CreateSector.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="LoanAccountBalanceEnquiry.aspx.designer.vb">
+      <DependentUpon>LoanAccountBalanceEnquiry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="LoanAccountBalanceEnquiry.aspx.vb">
+      <DependentUpon>LoanAccountBalanceEnquiry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="LoanAccountApproval.aspx.designer.vb">
+      <DependentUpon>LoanAccountApproval.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="LoanAccountApproval.aspx.vb">
+      <DependentUpon>LoanAccountApproval.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AccountApproval.aspx.designer.vb">
+      <DependentUpon>AccountApproval.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AccountApproval.aspx.vb">
+      <SubType>ASPXCodeBehind</SubType>
+      <DependentUpon>AccountApproval.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MiniStatement.aspx.designer.vb">
+      <DependentUpon>MiniStatement.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MiniStatement.aspx.vb">
+      <DependentUpon>MiniStatement.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ProcessRoutineEOM.aspx.designer.vb">
+      <DependentUpon>ProcessRoutineEOM.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ProcessRoutineEOM.aspx.vb">
+      <DependentUpon>ProcessRoutineEOM.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ViewLoans.aspx.designer.vb">
+      <DependentUpon>ViewLoans.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ViewLoans.aspx.vb">
+      <DependentUpon>ViewLoans.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="LoanAccountEditRequest.aspx.designer.vb">
+      <DependentUpon>LoanAccountEditRequest.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="LoanAccountEditRequest.aspx.vb">
+      <DependentUpon>LoanAccountEditRequest.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AccountEditRequest.aspx.designer.vb">
+      <DependentUpon>AccountEditRequest.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AccountEditRequest.aspx.vb">
+      <SubType>ASPXCodeBehind</SubType>
+      <DependentUpon>AccountEditRequest.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AccountMaintenance.aspx.designer.vb">
+      <DependentUpon>AccountMaintenance.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AccountMaintenance.aspx.vb">
+      <DependentUpon>AccountMaintenance.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="App_Start\Functions.vb" />
+    <Compile Include="App_Start\UtilitiesModule.vb" />
+    <Compile Include="CashWithdrawal.aspx.designer.vb">
+      <DependentUpon>CashWithdrawal.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CashWithdrawal.aspx.vb">
+      <DependentUpon>CashWithdrawal.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CreateLoanAccounts.aspx.designer.vb">
+      <DependentUpon>CreateLoanAccounts.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CreateLoanAccounts.aspx.vb">
+      <DependentUpon>CreateLoanAccounts.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DeleteCustomerAccount.aspx.designer.vb">
+      <DependentUpon>DeleteCustomerAccount.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="DeleteCustomerAccount.aspx.vb">
+      <DependentUpon>DeleteCustomerAccount.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DeleteCustomerDetails.aspx.designer.vb">
+      <DependentUpon>DeleteCustomerDetails.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="DeleteCustomerDetails.aspx.vb">
+      <DependentUpon>DeleteCustomerDetails.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EditCustomerAccount.aspx.designer.vb">
+      <DependentUpon>EditCustomerAccount.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="EditCustomerAccount.aspx.vb">
+      <DependentUpon>EditCustomerAccount.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EditLoanDetails.aspx.designer.vb">
+      <DependentUpon>EditLoanDetails.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="EditLoanDetails.aspx.vb">
+      <DependentUpon>EditLoanDetails.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GeneralLedger\CashGL.aspx.designer.vb">
+      <DependentUpon>CashGL.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GeneralLedger\CashGL.aspx.vb">
+      <DependentUpon>CashGL.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CashDeposit.aspx.designer.vb">
+      <DependentUpon>CashDeposit.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CashDeposit.aspx.vb">
+      <DependentUpon>CashDeposit.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CreatBranch.aspx.designer.vb">
+      <DependentUpon>CreatBranch.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CreatBranch.aspx.vb">
+      <DependentUpon>CreatBranch.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CreateAccount.aspx.designer.vb">
+      <DependentUpon>CreateAccount.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CreateAccount.aspx.vb">
+      <DependentUpon>CreateAccount.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CreateCurrentAccount.aspx.designer.vb">
+      <DependentUpon>CreateCurrentAccount.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CreateCurrentAccount.aspx.vb">
+      <DependentUpon>CreateCurrentAccount.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CreateCustomer.aspx.designer.vb">
+      <DependentUpon>CreateCustomer.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CreateCustomer.aspx.vb">
+      <DependentUpon>CreateCustomer.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CreateDistrict.aspx.designer.vb">
+      <DependentUpon>CreateDistrict.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CreateDistrict.aspx.vb">
+      <DependentUpon>CreateDistrict.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CreateFixedDepositAc.aspx.designer.vb">
+      <DependentUpon>CreateFixedDepositAc.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CreateFixedDepositAc.aspx.vb">
+      <DependentUpon>CreateFixedDepositAc.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CreateGL.aspx.designer.vb">
+      <DependentUpon>CreateGL.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CreateGL.aspx.vb">
+      <DependentUpon>CreateGL.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CreateProduct.aspx.designer.vb">
+      <DependentUpon>CreateProduct.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CreateProduct.aspx.vb">
+      <DependentUpon>CreateProduct.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CreateProfile.aspx.designer.vb">
+      <DependentUpon>CreateProfile.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CreateProfile.aspx.vb">
+      <DependentUpon>CreateProfile.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CreateProductDefinition.aspx.designer.vb">
+      <DependentUpon>CreateProductDefinition.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CreateProductDefinition.aspx.vb">
+      <DependentUpon>CreateProductDefinition.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CreateRegions.aspx.designer.vb">
+      <DependentUpon>CreateRegions.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CreateRegions.aspx.vb">
+      <DependentUpon>CreateRegions.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GeneralLedger\ChartOfAccounts.aspx.designer.vb">
+      <DependentUpon>ChartOfAccounts.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GeneralLedger\ChartOfAccounts.aspx.vb">
+      <DependentUpon>ChartOfAccounts.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="GeneralLedger\ChartOfAccountsList.aspx.designer.vb">
+      <DependentUpon>ChartOfAccountsList.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GeneralLedger\ChartOfAccountsList.aspx.vb">
+      <DependentUpon>ChartOfAccountsList.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="GeneralLedger\GeneralLedger.aspx.designer.vb">
+      <DependentUpon>GeneralLedger.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GeneralLedger\GeneralLedger.aspx.vb">
+      <DependentUpon>GeneralLedger.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="GeneralLedger\GLDetails.aspx.designer.vb">
+      <DependentUpon>GLDetails.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GeneralLedger\GLDetails.aspx.vb">
+      <DependentUpon>GLDetails.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="GeneralLedger\glList.aspx.designer.vb">
+      <DependentUpon>glList.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GeneralLedger\glList.aspx.vb">
+      <DependentUpon>glList.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="LoanDisbursement.aspx.designer.vb">
+      <DependentUpon>LoanDisbursement.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="LoanDisbursement.aspx.vb">
+      <DependentUpon>LoanDisbursement.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ProcessRoutineEOD.aspx.designer.vb">
+      <DependentUpon>ProcessRoutineEOD.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ProcessRoutineEOD.aspx.vb">
+      <DependentUpon>ProcessRoutineEOD.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ProcessRoutineSOD.aspx.designer.vb">
+      <DependentUpon>ProcessRoutineSOD.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ProcessRoutineSOD.aspx.vb">
+      <DependentUpon>ProcessRoutineSOD.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ProductMaintenance.aspx.designer.vb">
+      <DependentUpon>ProductMaintenance.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ProductMaintenance.aspx.vb">
+      <DependentUpon>ProductMaintenance.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CreateTransactionCode.aspx.designer.vb">
+      <DependentUpon>CreateTransactionCode.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CreateTransactionCode.aspx.vb">
+      <DependentUpon>CreateTransactionCode.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DeleteLoanAccount.aspx.designer.vb">
+      <DependentUpon>DeleteLoanAccount.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="DeleteLoanAccount.aspx.vb">
+      <DependentUpon>DeleteLoanAccount.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DeleteLoanDetails.aspx.designer.vb">
+      <DependentUpon>DeleteLoanDetails.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="DeleteLoanDetails.aspx.vb">
+      <DependentUpon>DeleteLoanDetails.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EditLoanAccount.aspx.designer.vb">
+      <DependentUpon>EditLoanAccount.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="EditLoanAccount.aspx.vb">
+      <DependentUpon>EditLoanAccount.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EditCustomerDetails.aspx.designer.vb">
+      <DependentUpon>EditCustomerDetails.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="EditCustomerDetails.aspx.vb">
+      <DependentUpon>EditCustomerDetails.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Reports.aspx.designer.vb">
+      <DependentUpon>Reports.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Reports.aspx.vb">
+      <DependentUpon>Reports.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MixedPosting.aspx.designer.vb">
+      <DependentUpon>MixedPosting.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MixedPosting.aspx.vb">
+      <DependentUpon>MixedPosting.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Reports\GL_REPORTS\CHART_OF_ACCOUNTS.aspx.designer.vb">
+      <DependentUpon>CHART_OF_ACCOUNTS.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Reports\GL_REPORTS\CHART_OF_ACCOUNTS.aspx.vb">
+      <DependentUpon>CHART_OF_ACCOUNTS.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Reports\GL_REPORTS\GL_ACCOUNT_STATEMENT.aspx.designer.vb">
+      <DependentUpon>GL_ACCOUNT_STATEMENT.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Reports\GL_REPORTS\GL_ACCOUNT_STATEMENT.aspx.vb">
+      <DependentUpon>GL_ACCOUNT_STATEMENT.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="RetailPosting.aspx.designer.vb">
+      <DependentUpon>RetailPosting.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="RetailPosting.aspx.vb">
+      <DependentUpon>RetailPosting.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="SODProcess.aspx.designer.vb">
+      <DependentUpon>SODProcess.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="SODProcess.aspx.vb">
+      <DependentUpon>SODProcess.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ViewAccount.aspx.designer.vb">
+      <DependentUpon>ViewAccount.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ViewAccount.aspx.vb">
+      <DependentUpon>ViewAccount.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ViewAccountStatus.aspx.designer.vb">
+      <DependentUpon>ViewAccountStatus.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ViewAccountStatus.aspx.vb">
+      <DependentUpon>ViewAccountStatus.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ViewSelfReg.aspx.designer.vb">
+      <DependentUpon>ViewSelfReg.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ViewSelfReg.aspx.vb">
+      <DependentUpon>ViewSelfReg.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ViewSavingAccount.aspx.designer.vb">
+      <DependentUpon>ViewSavingAccount.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ViewSavingAccount.aspx.vb">
+      <DependentUpon>ViewSavingAccount.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ViewTransactions.aspx.designer.vb">
+      <DependentUpon>ViewTransactions.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ViewTransactions.aspx.vb">
+      <DependentUpon>ViewTransactions.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Dashboard.aspx.designer.vb">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Dashboard.aspx.vb">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ViewCustomer.aspx.designer.vb">
+      <DependentUpon>ViewCustomer.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ViewCustomer.aspx.vb">
+      <DependentUpon>ViewCustomer.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="App_Start\BundleConfig.vb" />
+    <Compile Include="App_Start\RouteConfig.vb" />
+    <Compile Include="About.aspx.designer.vb">
+      <DependentUpon>About.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="About.aspx.vb">
+      <DependentUpon>About.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Contact.aspx.designer.vb">
+      <DependentUpon>Contact.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Contact.aspx.vb">
+      <DependentUpon>Contact.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Default.aspx.vb">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Default.aspx.designer.vb">
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Global.asax.vb">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="My Project\AssemblyInfo.vb" />
+    <Compile Include="My Project\Application.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Application.myapp</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="My Project\MyExtensions\MyWebExtension.vb">
+      <VBMyExtensionTemplateID>Microsoft.VisualBasic.Web.MyExtension</VBMyExtensionTemplateID>
+      <VBMyExtensionTemplateVersion>1.0.0.0</VBMyExtensionTemplateVersion>
+    </Compile>
+    <Compile Include="My Project\Resources.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="My Project\Settings.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="Site.Master.designer.vb">
+      <DependentUpon>Site.Master</DependentUpon>
+    </Compile>
+    <Compile Include="Site.Master.vb">
+      <DependentUpon>Site.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ViewSwitcher.ascx.vb">
+      <DependentUpon>ViewSwitcher.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ViewSwitcher.ascx.designer.vb">
+      <DependentUpon>ViewSwitcher.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Site.Mobile.Master.vb">
+      <DependentUpon>Site.Mobile.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Site.Mobile.Master.designer.vb">
+      <DependentUpon>Site.Mobile.Master</DependentUpon>
+    </Compile>
+    <Compile Include="CreateOrganization.aspx.designer.vb">
+      <DependentUpon>CreateOrganization.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CreateOrganization.aspx.vb">
+      <DependentUpon>CreateOrganization.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CreateArea.aspx.designer.vb">
+      <DependentUpon>CreateArea.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CreateArea.aspx.vb">
+      <DependentUpon>CreateArea.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="SOD.aspx.designer.vb">
+      <DependentUpon>SOD.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="SOD.aspx.vb">
+      <DependentUpon>SOD.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="BulkUploadPosting.aspx.designer.vb">
+      <DependentUpon>BulkUploadPosting.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="BulkUploadPosting.aspx.vb">
+      <DependentUpon>BulkUploadPosting.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="ComingSoon.aspx.designer.vb">
+      <DependentUpon>ComingSoon.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ComingSoon.aspx.vb">
+      <DependentUpon>ComingSoon.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="WithdrawalRequest.aspx.designer.vb">
+      <DependentUpon>WithdrawalRequest.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WithdrawalRequest.aspx.vb">
+      <DependentUpon>WithdrawalRequest.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="My Project\Resources.resx">
+      <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
+      <CustomToolNamespace>My.Resources</CustomToolNamespace>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="RDLC\GL_REPORTS\CHART_OF_ACCOUNTS.rdlc" />
+    <EmbeddedResource Include="RDLC\GL_REPORTS\GL_ACCOUNT_STATEMENT.rdlc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="My Project\Application.myapp">
+      <Generator>MyApplicationCodeGenerator</Generator>
+      <LastGenOutput>Application.Designer.vb</LastGenOutput>
+    </None>
+    <None Include="My Project\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <CustomToolNamespace>My</CustomToolNamespace>
+      <LastGenOutput>Settings.Designer.vb</LastGenOutput>
+    </None>
+    <Content Include="Site.Master" />
+    <Content Include="Site.Mobile.Master" />
+    <Content Include="ViewSwitcher.ascx" />
+    <None Include="packages.config" />
+    <Content Include="Scripts\jquery-3.4.1.slim.min.map" />
+    <Content Include="Scripts\jquery-3.4.1.min.map" />
+    <Content Include="Scripts\jquery-ui-1.12.1\package.json" />
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="AccountManager\" />
+    <Folder Include="App_Code\" />
+    <Folder Include="App_Data\" />
+    <Folder Include="CustomerManager\" />
+    <Folder Include="Loans\" />
+    <Folder Include="Security\" />
+    <Folder Include="SystemParams\" />
+    <Folder Include="TransactionManager\" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionExplicit>On</OptionExplicit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionCompare>Binary</OptionCompare>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionStrict>Off</OptionStrict>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionInfer>On</OptionInfer>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>1068</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>https://localhost:44361/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

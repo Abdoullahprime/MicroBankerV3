@@ -1,0 +1,262 @@
+@* Views/EmailConfig/Settings.cshtml *@
+@model BaseTemplate.Web.Models.EmailConfigFormModel
+@{
+    ViewData["Title"]        = "Email Configuration";
+    ViewData["PageTitle"]    = "Security";
+    ViewData["PageSubTitle"] = "Email Configuration";
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mb-3">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show mb-3">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@{ var current = Model.Channels.FirstOrDefault(c => c.Key == Model.Channel); }
+@{ var core = Model.Channels.FirstOrDefault(c => c.Key == "Core"); }
+<div class="card shadow-sm border-0 mb-3">
+    <div class="card-header bg-transparent border-bottom py-3">
+        <h6 class="mb-0 fw-semibold"><i class="fas fa-server me-2 text-primary"></i>Mail servers by channel</h6>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-sm table-hover mb-0 fs--1 align-middle">
+                <thead class="bg-200"><tr><th>Channel</th><th>Used for</th><th>Server</th><th>Sends as</th><th>Status</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var c in Model.Channels)
+                    {
+                        <tr class="@(c.Key == Model.Channel ? "table-active" : "")">
+                            <td class="fw-semibold text-nowrap">@c.Label</td>
+                            <td class="text-muted" style="min-width:220px">@c.Purpose</td>
+                            @if (c.Configured)
+                            {
+                                <td class="text-nowrap">@c.Host<span class="text-muted">:@c.Port</span></td>
+                                <td>@c.FromName<div class="text-muted fs--2">@c.FromEmail</div></td>
+                                <td class="text-nowrap"><span class="badge badge-subtle-success">Own settings</span>
+                                    @if (c.UpdatedAt != null) { <div class="text-muted fs--2">updated @c.UpdatedAt?.ToLocalTime().ToString("dd MMM yyyy")</div> }</td>
+                            }
+                            else if (c.Key == "Core")
+                            {
+                                <td colspan="2" class="text-danger">Not set up — no emails can be sent until this is configured.</td>
+                                <td><span class="badge badge-subtle-danger">Missing</span></td>
+                            }
+                            else
+                            {
+                                <td colspan="2" class="text-muted">@(core?.Configured == true ? $"Uses Core: {core.Host} as {core.FromEmail}" : "Uses Core (not set up yet)")</td>
+                                <td><span class="badge badge-subtle-secondary">Uses Core</span></td>
+                            }
+                            <td class="text-end"><a asp-action="Settings" asp-route-channel="@c.Key" class="btn btn-falcon-default btn-sm py-0 px-2">@(c.Configured ? "Edit" : "Set up")</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<ul class="nav nav-tabs mb-3">
+    @foreach (var c in Model.Channels)
+    {
+        <li class="nav-item">
+            <a class="nav-link @(c.Key == Model.Channel ? "active" : "")" asp-action="Settings" asp-route-channel="@c.Key">
+                @c.Label
+                @if (c.Configured) { <i class="fas fa-check-circle text-success ms-1" title="Configured"></i> }
+                else if (c.Key != "Core") { <span class="badge badge-subtle-secondary ms-1 fw-normal">uses Core</span> }
+            </a>
+        </li>
+    }
+</ul>
+
+<div class="alert alert-info fs--1 py-2 mb-3">
+    <i class="fas fa-info-circle me-1"></i>@current?.Purpose
+    @if (!Model.IsCore && !Model.HasExistingConfig)
+    {
+        <div class="mt-1 fw-semibold">Not set up yet, so these emails currently go out through the Core mail server. Save settings below to give this channel its own.</div>
+    }
+</div>
+
+<div class="row g-3">
+
+    @* ── SMTP Settings ─────────────────────────────────────────────────────── *@
+    <div class="col-lg-7">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-transparent border-bottom py-3">
+                <h6 class="mb-0 fw-semibold">
+                    <i class="fas fa-envelope-open-text me-2 text-primary"></i>SMTP Settings
+                </h6>
+            </div>
+            <div class="card-body">
+                <form asp-action="Settings" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Channel" />
+
+                    <div class="row g-3">
+                        <div class="col-sm-8">
+                            <label asp-for="SmtpHost" class="form-label fw-medium fs--1"></label>
+                            <input asp-for="SmtpHost" class="form-control form-control-sm"
+                                   placeholder="e.g. smtp.gmail.com or mail.company.gm" />
+                            <span asp-validation-for="SmtpHost" class="text-danger fs--2"></span>
+                        </div>
+                        <div class="col-sm-4">
+                            <label asp-for="SmtpPort" class="form-label fw-medium fs--1"></label>
+                            <input asp-for="SmtpPort" type="number" class="form-control form-control-sm"
+                                   placeholder="587" />
+                            <span asp-validation-for="SmtpPort" class="text-danger fs--2"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                <input asp-for="EnableSsl" class="form-check-input" type="checkbox" role="switch" />
+                                <label asp-for="EnableSsl" class="form-check-label fw-medium fs--1">
+                                    Enable SSL / TLS Encryption
+                                </label>
+                            </div>
+                            <div class="form-text fs--2 text-muted">
+                                Use port 587 with TLS (recommended) or 465 with SSL. Port 25 is usually unencrypted.
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <label asp-for="FromEmail" class="form-label fw-medium fs--1"></label>
+                            <input asp-for="FromEmail" type="email" class="form-control form-control-sm"
+                                   placeholder="noreply@company.gm" />
+                            <span asp-validation-for="FromEmail" class="text-danger fs--2"></span>
+                        </div>
+                        <div class="col-sm-6">
+                            <label asp-for="FromName" class="form-label fw-medium fs--1"></label>
+                            <input asp-for="FromName" class="form-control form-control-sm"
+                                   placeholder="HR Department" />
+                            <span asp-validation-for="FromName" class="text-danger fs--2"></span>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <label asp-for="Username" class="form-label fw-medium fs--1"></label>
+                            <input asp-for="Username" class="form-control form-control-sm"
+                                   placeholder="your@email.com or SMTP username" autocomplete="username" />
+                            <span asp-validation-for="Username" class="text-danger fs--2"></span>
+                        </div>
+                        <div class="col-sm-6">
+                            <label asp-for="Password" class="form-label fw-medium fs--1">
+                                Password
+                                @if (Model.HasExistingConfig)
+                                {
+                                    <span class="text-muted fw-normal">(leave blank to keep current)</span>
+                                }
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <input asp-for="Password" type="password" id="smtpPassword"
+                                       class="form-control form-control-sm"
+                                       autocomplete="new-password"
+                                       placeholder="@(Model.HasExistingConfig ? "••••••••" : "SMTP password")" />
+                                <button class="btn btn-outline-secondary btn-sm" type="button"
+                                        onclick="togglePassword()">
+                                    <i class="fas fa-eye" id="eyeIcon"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="Password" class="text-danger fs--2"></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-save me-1"></i>Save Configuration
+                        </button>
+                    </div>
+                </form>
+                @if (!Model.IsCore && Model.HasExistingConfig)
+                {
+                    <form asp-action="Remove" method="post" class="mt-2" onsubmit="return confirm('Remove these settings? This channel will send through the Core mail server instead.');">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="channel" value="@Model.Channel" />
+                        <button type="submit" class="btn btn-link btn-sm text-danger px-0"><i class="fas fa-undo me-1"></i>Remove and use Core settings</button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* ── Right column: info + test ─────────────────────────────────────────── *@
+    <div class="col-lg-5">
+
+        @* Test email *@
+        <div class="card shadow-sm border-0 mb-3">
+            <div class="card-header bg-transparent border-bottom py-3">
+                <h6 class="mb-0 fw-semibold">
+                    <i class="fas fa-paper-plane me-2 text-success"></i>Send Test Email
+                </h6>
+            </div>
+            <div class="card-body">
+                @if (Model.HasExistingConfig || Model.Channels.Any(c => c.Key == "Core" && c.Configured))
+                {
+                    <p class="text-muted fs--1 mb-3">
+                        Send a test message to verify your settings work correctly before going live.
+                    </p>
+                    <form asp-action="SendTest" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="channel" value="@Model.Channel" />
+                        <div class="mb-3">
+                            <label class="form-label fw-medium fs--1">Test Recipient Email</label>
+                            <input type="email" name="testEmail" class="form-control form-control-sm"
+                                   placeholder="your@email.com" required />
+                        </div>
+                        <button type="submit" class="btn btn-falcon-success btn-sm">
+                            <i class="fas fa-paper-plane me-1"></i>Send Test
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <p class="text-muted fs--1">Save your configuration first before sending a test email.</p>
+                }
+            </div>
+        </div>
+
+        @* Common provider guide *@
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-transparent border-bottom py-2">
+                <h6 class="mb-0 fw-semibold fs--1">
+                    <i class="fas fa-info-circle me-2 text-info"></i>Common Provider Settings
+                </h6>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0 fs--2">
+                    <thead class="table-light">
+                        <tr><th>Provider</th><th>Host</th><th>Port</th><th>SSL</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Gmail</td><td>smtp.gmail.com</td><td>587</td><td>TLS</td></tr>
+                        <tr><td>Outlook/365</td><td>smtp.office365.com</td><td>587</td><td>TLS</td></tr>
+                        <tr><td>Yahoo</td><td>smtp.mail.yahoo.com</td><td>587</td><td>TLS</td></tr>
+                        <tr><td>Sendinblue</td><td>smtp-relay.brevo.com</td><td>587</td><td>TLS</td></tr>
+                        <tr><td class="text-muted fst-italic" colspan="4">For Gmail use an App Password, not your Google password.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function togglePassword() {
+    var inp = document.getElementById('smtpPassword');
+    var ico = document.getElementById('eyeIcon');
+    if (inp.type === 'password') {
+        inp.type = 'text';
+        ico.className = 'fas fa-eye-slash';
+    } else {
+        inp.type = 'password';
+        ico.className = 'fas fa-eye';
+    }
+}
+</script>
+}

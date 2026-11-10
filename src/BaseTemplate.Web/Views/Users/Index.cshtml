@@ -1,0 +1,93 @@
+@model BaseTemplate.Web.Models.UserListViewModel
+@{
+    ViewData["Title"] = "Users";
+}
+
+<div class="row mb-3 align-items-center">
+    <div class="col">
+        <h4 class="mb-0"><i class="fas fa-user-cog me-2 text-primary"></i>Users</h4>
+        <small class="text-muted">Manage system users and access</small>
+    </div>
+    <div class="col-auto">
+        <a asp-action="Create" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus me-1"></i> Add User
+        </a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show py-2" role="alert">
+        <i class="fas fa-check-circle me-1"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show py-2" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover table-sm mb-0 fs--1">
+            <thead class="bg-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Last Login</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var u in Model.Users)
+                {
+                    <tr>
+                        <td class="fw-semibold">
+                            @u.FullName
+                            @if (u.MustChangePassword)
+                            {
+                                <span class="badge bg-warning text-dark ms-1" title="Must change password">
+                                    <i class="fas fa-key"></i>
+                                </span>
+                            }
+                        </td>
+                        <td>@u.Username</td>
+                        <td>@u.Email</td>
+                        <td><span class="badge bg-soft-primary text-primary">@u.RoleName</span></td>
+                        <td>@(u.LastLoginAt?.ToString("dd MMM yyyy HH:mm") ?? "Never")</td>
+                        <td>
+                            @if (u.IsActive)
+                            { <span class="badge bg-success">Active</span> }
+                            else
+                            { <span class="badge bg-secondary">Inactive</span> }
+                        </td>
+                        <td class="text-end">
+                            <a asp-action="Edit" asp-route-id="@u.EncryptedId"
+                               class="btn btn-sm btn-outline-primary py-0">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form method="post" asp-action="Delete" asp-route-id="@u.EncryptedId"
+                                  class="d-inline"
+                                  onsubmit="return confirm('Delete this user?')">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger py-0">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Users.Any())
+                {
+                    <tr><td colspan="7" class="text-center text-muted py-4">No users found.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

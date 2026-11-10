@@ -1,0 +1,36 @@
+@* Notification bell + PWA install button. Behaviour lives in /js/app-push.js *@
+<li class="nav-item" id="pwa-install-item">
+    <a class="nav-link px-2" href="#" id="pwa-install" title="Install app" aria-label="Install app" hidden>
+        <span class="fas fa-download fs-1"></span>
+    </a>
+</li>
+<li class="nav-item dropdown">
+    <a class="nav-link px-2 position-relative" href="#" role="button" id="notifDropdown"
+       data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false"
+       aria-label="Notifications">
+        <span class="fas fa-bell fs-1"></span>
+        <span id="notif-bell-count"
+              class="badge rounded-pill bg-danger position-absolute translate-middle fs--2"
+              style="top:6px;left:calc(100% - 8px);" hidden>0</span>
+    </a>
+    <div class="dropdown-menu dropdown-menu-end dropdown-menu-card dropdown-caret border py-0 mt-3"
+         aria-labelledby="notifDropdown" style="width:22rem;max-width:calc(100vw - 2rem);">
+        <div class="card shadow-none">
+            <div class="card-header d-flex justify-content-between align-items-center py-2">
+                <h6 class="mb-0">Notifications</h6>
+                <a href="#" class="fs--1" id="notif-mark-all" hidden>Mark all as read</a>
+            </div>
+            <div class="list-group list-group-flush" id="notif-list" style="max-height:20rem;overflow-y:auto;">
+                <div class="p-4 text-center text-600">Loading…</div>
+            </div>
+            <div class="card-footer text-center border-top py-2">
+                <button type="button" id="notif-enable-push" class="btn btn-sm btn-falcon-primary mb-2" hidden>
+                    <span class="fas fa-bell me-1"></span>Enable push notifications
+                </button>
+                <div id="notif-push-hint" class="fs--2 text-600 mb-2" hidden></div>
+                <a class="fs--1" asp-controller="Notifications" asp-action="Index">View all</a>
+            </div>
+        </div>
+    </div>
+    <div id="notif-antiforgery" hidden>@Html.AntiForgeryToken()</div>
+</li>

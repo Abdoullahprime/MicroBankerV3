@@ -1,0 +1,8 @@
+@model BaseTemplate.Web.ViewComponents.OrgLogoModel?
+@if (!string.IsNullOrEmpty(Model?.Logo))
+{
+    <div class="d-none d-sm-flex align-items-center border-start ps-3 ms-1" style="height:40px;">
+        <img src="/uploads/org-logos/@Model.Logo" alt="@Model.Name" title="@Model.Name"
+             style="max-height:36px;max-width:160px;object-fit:contain;" />
+    </div>
+}

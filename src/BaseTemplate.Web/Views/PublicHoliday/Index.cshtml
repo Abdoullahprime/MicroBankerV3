@@ -1,0 +1,115 @@
+@* Views/PublicHoliday/Index.cshtml *@
+@model BaseTemplate.Web.Models.PublicHolidayListViewModel
+@{
+    ViewData["Title"]        = "Public Holidays";
+    ViewData["PageTitle"]    = "Attendance Setup";
+    ViewData["PageSubTitle"] = "Public Holidays";
+    var currentYear = Model.FilterYear ?? DateTime.Today.Year;
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mb-3">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-transparent border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h6 class="mb-0 fw-semibold">
+            <i class="fas fa-calendar-alt me-2 text-primary"></i>Holidays — @currentYear
+            <span class="badge badge-subtle-secondary ms-2">@Model.Holidays.Count</span>
+        </h6>
+        <div class="d-flex gap-2 align-items-center">
+            <!-- Year navigation -->
+            <a asp-action="Index" asp-route-year="@(currentYear - 1)"
+               class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            <span class="fw-semibold fs--1">@currentYear</span>
+            <a asp-action="Index" asp-route-year="@(currentYear + 1)"
+               class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+            <a asp-action="Create" asp-route-year="@currentYear" class="btn btn-sm btn-primary ms-2">
+                <i class="fas fa-plus me-1"></i>Add Holiday
+            </a>
+        </div>
+    </div>
+
+    <div class="card-body p-0">
+        @if (!Model.Holidays.Any())
+        {
+            <div class="text-center py-5 text-muted fs--1">
+                <i class="fas fa-calendar-alt fa-2x mb-2 opacity-25"></i>
+                <p class="mb-0">No holidays defined for @currentYear.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover table-sm mb-0 fs--1">
+                    <thead class="bg-200">
+                        <tr>
+                            <th>Date</th>
+                            <th>Day</th>
+                            <th>Holiday</th>
+                            <th>Type</th>
+                            <th class="text-center">Recurring</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-end"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var h in Model.Holidays)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@h.Date</td>
+                                <td class="text-muted">@h.DayOfWeek</td>
+                                <td>
+                                    <div>@h.Name</div>
+                                    @if (!string.IsNullOrEmpty(h.Description))
+                                    {
+                                        <div class="text-muted fs--2">@h.Description</div>
+                                    }
+                                </td>
+                                <td><span class="badge @h.TypeBadge">@h.Type</span></td>
+                                <td class="text-center">
+                                    @if (h.IsRecurring)
+                                    {
+                                        <i class="fas fa-sync-alt text-info" title="Repeats yearly"></i>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (h.IsActive)
+                                    {
+                                        <span class="badge badge-subtle-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-subtle-secondary">Inactive</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <a asp-action="Edit" asp-route-id="@h.EncryptedId"
+                                       class="btn btn-sm btn-outline-secondary me-1">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form asp-action="Delete" method="post" class="d-inline"
+                                          onsubmit="return confirm('Delete this holiday?')">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@h.EncryptedId" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

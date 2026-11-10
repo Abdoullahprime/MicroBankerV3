@@ -1,0 +1,292 @@
+﻿<%@ Master Language="VB" AutoEventWireup="true" CodeBehind="Site.master.vb" Inherits="MicroBankerAdmin.SiteMaster" %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head runat="server">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%: Page.Title %> - Micro Banker Admin</title>
+    <asp:PlaceHolder runat="server">
+        <%: Scripts.Render("~/bundles/modernizr") %>
+    </asp:PlaceHolder>
+    <webopt:BundleReference runat="server" Path="~/Content/css" />
+    <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+
+    <asp:ContentPlaceHolder ID="Header" runat="server"></asp:ContentPlaceHolder>
+    <%--   <script>  
+$(function ()  
+{  
+    $('#txtDatePicker').datepicker(  
+    {  
+        dateFormat: 'dd/mm/yy',  
+        changeMonth: true,  
+        changeYear: true,  
+        yearRange: '1950:2100'  
+    });  
+})  
+</script> --%>
+</head>
+<body>
+    <form runat="server">
+        <asp:ScriptManager runat="server">
+            <Scripts>
+                <%--To learn more about bundling scripts in ScriptManager see https://go.microsoft.com/fwlink/?LinkID=301884 --%>
+                <%--Framework Scripts--%>
+                <asp:ScriptReference Name="MsAjaxBundle" />
+                <asp:ScriptReference Name="jquery" />
+                <asp:ScriptReference Name="bootstrap" />
+                <asp:ScriptReference Name="WebForms.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebForms.js" />
+                <asp:ScriptReference Name="WebUIValidation.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebUIValidation.js" />
+                <asp:ScriptReference Name="MenuStandards.js" Assembly="System.Web" Path="~/Scripts/WebForms/MenuStandards.js" />
+                <asp:ScriptReference Name="GridView.js" Assembly="System.Web" Path="~/Scripts/WebForms/GridView.js" />
+                <asp:ScriptReference Name="DetailsView.js" Assembly="System.Web" Path="~/Scripts/WebForms/DetailsView.js" />
+                <asp:ScriptReference Name="TreeView.js" Assembly="System.Web" Path="~/Scripts/WebForms/TreeView.js" />
+                <asp:ScriptReference Name="WebParts.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebParts.js" />
+                <asp:ScriptReference Name="Focus.js" Assembly="System.Web" Path="~/Scripts/WebForms/Focus.js" />
+                <asp:ScriptReference Name="WebFormsBundle" />
+                <%--Site Scripts--%>
+            </Scripts>
+        </asp:ScriptManager>
+        <div class="navbar navbar-inverse navbar-fixed-top navbar-top">
+            <div class="logo-holder">
+                <a runat="server" href="~/Default">
+                    <img src="Img/Matrix.png" class="logo" />
+                    <h3 class="header-text">Matrix Micro Banker</h3>
+                </a>
+            </div>
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <%--<a class="navbar-brand" runat="server" href="~/Default">Admin Module</a>--%>
+                </div>
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">System Parameter
+                        <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a runat="server" href="~/CreateOrganization">Organization</a></li>
+                                <li><a runat="server" href="~/CreatBranch">Branch</a></li>
+                                <li><a runat="server" href="~/CreateRegions">Regions</a></li>
+                                <li><a runat="server" href="~/CreateDistrict">District/Municipality</a></li>
+                                <li><a runat="server" href="~/CreateArea">Area</a></li>
+                                <li class="dropdown-submenu">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                        <span class="nav-label">Products</span></a>
+                                    <ul class="dropdown-menu">
+                                        <li><a runat="server" href="~/CreateProductDefinition">Product Definition</a></li>
+                                        <li><a runat="server" href="~/ProductMaintenance">Product Maintenance</a></li>
+                                        <li><a runat="server" visible="false" href="~/CreateLoanAccount">Loan Product</a></li>
+                                        <li><a runat="server" visible="false" href="~/CreateCurrentAccount">Current Product</a></li>
+                                        <li><a runat="server" visible="false" href="~/CreateFixedDepositAc">Fixed Deposit Product</a></li>
+                                    </ul>
+                                </li>
+                                <li><a runat="server"  visible="false" href="~/CreateSector">Sectors</a></li>
+                                <li><a runat="server" visible="false" href="~/CreateSubSector">Sub Sectors</a></li>
+
+
+                                <li><a runat="server" href="~/CreateTransactionCode">Transactions Code</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Customer Manager
+                        <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li class="dropdown-submenu">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                        <span class="nav-label">Customer Maintenance</span></a>
+                                    <ul class="dropdown-menu">
+                                        <li><a runat="server" href="~/CreateCustomer">Create Customer</a></li>
+                                        <li><a runat="server" href="~/EditCustomerDetails">Edit Customer Details</a></li>
+                                        <li><a runat="server" href="~/DeleteCustomerDetails">Delete Customer Details</a></li>
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu">
+                                    <a runat="server" href="#" visible="false" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                        <span class="nav-label">Mobile Customer Maintenance</span></a>
+                                    <ul class="dropdown-menu">
+                                        <li><a runat="server" href="~/ApproveSelfReg">Approve Self Registration</a></li>
+                                        <li><a runat="server" href="~/LoanRequest">Approve Loan Request</a></li>
+                                        <li><a runat="server" href="~/WithdrawalRequest">Approve Withdrawal Request</a></li>
+                                    </ul>
+                                </li>
+                                <li><a runat="server" href="~/ViewCustomer">Customer Enquiry</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Account Manager
+                        <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li class="dropdown-submenu">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                        <span class="nav-label">Loans</span></a>
+                                    <ul class="dropdown-menu">
+
+                                        <li class="dropdown-submenu">
+                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                                <span class="nav-label">Account Maintenance</span></a>
+                                            <ul class="dropdown-menu">
+                                                <li><a runat="server" href="~/CreateLoanAccounts">Create Loan Account</a></li>
+                                                <li><a runat="server" href="~/EditLoanAccount">Edit Loan Account</a></li>
+                                                <li><a runat="server" href="~/DeleteLoanAccount">Delete Loan Account</a></li>
+                                                <li><a runat="server" href="~/LoanAccountApproval">Loan Account Approval</a></li>
+                                                <li><a runat="server" href="~/ViewLoans">View Loan</a></li>
+                                            </ul>
+                                        </li>
+
+                                        <li><a runat="server" visible="false" href="~/ViewAccount">Loan Account Enquiry</a></li>
+                                        <li><a runat="server" visible="false" href="~/ViewAccountStatus">Loan Account Status </a></li>
+                                    </ul>
+                                </li>
+
+                                <li class="dropdown-submenu">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                        <span class="nav-label">Savings</span></a>
+                                    <ul class="dropdown-menu">
+
+                                        <li class="dropdown-submenu">
+                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                                <span class="nav-label">Account Maintenance</span></a>
+                                            <ul class="dropdown-menu">
+                                                <li><a runat="server" href="~/CreateAccount">Create Savings Account</a></li>
+                                                <li><a runat="server" href="~/EditCustomerAccount">Edit Savings Account</a></li>
+                                                <li><a runat="server" href="~/DeleteCustomerAccount">Delete Savings Account</a></li>
+                                                <li><a runat="server" href="~/AccountEditRequest">Savings Account Edit Request</a></li>
+                                                <li><a runat="server" href="~/AccountApproval">Savings Account Approval</a></li>
+                                                <li><a runat="server" href="~/ViewSavingAccount">View Savings Account</a></li>
+                                            </ul>
+                                        </li>
+
+                                        <li><a runat="server" visible="false" href="~/ViewAccount">Account Enquiry</a></li>
+                                        <li><a runat="server" visible="false" href="~/ViewAccountStatus">Account Status </a></li>
+                                    </ul>
+                                </li>
+
+                                <li class="dropdown-submenu">
+                                    <a runat="server" visible="false" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" >
+                                        <span class="nav-label">Current Account</span></a>
+                                    <ul class="dropdown-menu">
+
+                                        <li class="dropdown-submenu">
+                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                                <span class="nav-label">Account Maintenance</span></a>
+                                            <ul class="dropdown-menu">
+                                                <li><a runat="server" href="~/CreateAccount">Create Customer Account</a></li>
+                                                <li><a runat="server" href="~/EditCustomerAccount">Edit Customer Account</a></li>
+                                                <li><a runat="server" href="~/DeleteCustomerAccount">Delete Customer Account</a></li>
+                                                <li><a runat="server" href="~/AccountEditRequest">Account Edit Request</a></li>
+                                                <li><a runat="server" href="~/AccountApproval">Account Approval</a></li>
+                                            </ul>
+                                        </li>
+                                        <li><a runat="server" href="~/ViewAccount">Account Enquiry</a></li>
+                                        <li><a runat="server" href="~/ViewAccountStatus">Account Status </a></li>
+                                    </ul>
+                                </li>
+
+                                <li class="dropdown-submenu">
+                                    <a runat="server" visible="false" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                        <span class="nav-label">Fixed Deposit</span></a>
+                                    <ul class="dropdown-menu">
+
+                                        <li class="dropdown-submenu">
+                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                                <span class="nav-label">Account Maintenance</span></a>
+                                            <ul class="dropdown-menu">
+                                                <li><a runat="server" href="~/CreateAccount">Create Customer Account</a></li>
+                                                <li><a runat="server" href="~/EditCustomerAccount">Edit Customer Account</a></li>
+                                                <li><a runat="server" href="~/DeleteCustomerAccount">Delete Customer Account</a></li>
+                                                <li><a runat="server" href="~/AccountEditRequest">Account Edit Request</a></li>
+                                                <li><a runat="server" href="~/AccountApproval">Account Approval</a></li>
+                                            </ul>
+                                        </li>
+
+                                        <li><a runat="server" href="~/ViewAccount">Account Enquiry</a></li>
+                                        <li><a runat="server" href="~/ViewAccountStatus">Account Status </a></li>
+                                    </ul>
+                                </li>
+                                <li><a runat="server" href="~/BalanceEnquiry">Balance Enquiry</a></li>
+                                <li><a runat="server" href="~/MiniStatement">MiniStatement</a></li>
+                                <li><a runat="server" href="~/BlockAmount">Block Amount</a></li>
+                                <li><a runat="server" href="~/UnBlockAmount">UnBlock Amount</a></li>
+
+
+                            </ul>
+                        </li>
+
+                        <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">General Ledger
+                        <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li class="dropdown-submenu">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                        <span class="nav-label">GL Account Maintenance</span></a>
+
+                                    <ul class="dropdown-menu">
+                                        <li><a runat="server" href="~/GeneralLedger/ChartOfAccounts">Chart Of Accounts</a></li>
+                                        <li><a runat="server" href="~/GeneralLedger/ChartOfAccountsList" visible ="false" >Chart Of Accounts List</a></li>
+                                        <li><a runat="server" href="~/GeneralLedger/GeneralLedger">GeneraL Ledger</a></li>
+                                        <li><a runat="server" href="~/GeneralLedger/glList">GL List</a></li>
+                                    </ul>
+
+                                </li>
+
+                                <li><a runat="server" href="~/GeneralLedger/CashGL" visible ="false">Cash GL</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Transaction Manager
+                        <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li class="dropdown-submenu">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                        <span class="nav-label">Teller Postings</span></a>
+                                    <ul class="dropdown-menu">
+                                        <li><a runat="server" href="~/CashDeposit">Cash Deposit</a></li>
+                                        <li><a runat="server" href="~/CashWithdrawal">Cash Withdrawal</a></li>
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu">
+                                    <a runat="server" visible="false" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                        <span class="nav-label">General Postings</span></a>
+                                    <ul class="dropdown-menu">
+                                        <li><a runat="server" href="~/RetailPosting">Retail Posting</a></li>
+                                        <li><a runat="server" href="~/MixedPosting">Mixed Posting</a></li>
+                                        <li><a runat="server" href="~/GeneralLedgersPosting">General Ledgers Posting</a></li>
+                                    </ul>
+                                </li>
+                                <li><a runat="server" href="~/LoanDisbursement">Loan Disbursement</a></li>
+                                <li><a runat="server" href="~/BulkUploadPosting">Bulk Upload Posting</a></li>
+                                <li><a runat="server" href="~/LoanAdvRepayment">Loan Advance Repayment</a></li>
+                            </ul>
+                        </li>
+                         <li><asp:LinkButton Text="Reports" runat="server" ID="lnk" OnClick="lnk_Click" /> </li>
+
+ <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Process Routine
+                        <span class="caret"></span></a>
+     <ul class="dropdown-menu">
+         <li><a runat="server" href="~/ProcessRoutineSOD">Start of Day</a></li>
+         <li><a runat="server" href="~/ProcessRoutineEOD">End of Day</a></li>
+         <li><a runat="server" href="~/ProcessRoutineEOM">End of Month</a></li>
+         <li><a runat="server" href="~/ProcessRoutineEOY">End of Year</a></li>
+         <li><a runat="server" href="">Backup</a></li>
+     </ul>
+ </li>
+
+                        <li><a runat="server" href="~/CreateProfile">Security</a></li>
+                        
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="container body-content">
+            <asp:ContentPlaceHolder ID="MainContent" runat="server">
+            </asp:ContentPlaceHolder>
+            <hr />
+            <footer>
+                <p>&copy; <%: DateTime.Now.Year %> - Matrix Solutions Limited</p>
+            </footer>
+        </div>
+
+    </form>
+</body>
+</html>

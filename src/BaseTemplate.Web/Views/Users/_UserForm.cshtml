@@ -1,0 +1,64 @@
+@model BaseTemplate.Web.Models.UserFormModel
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 d-none"></div>
+
+@if (!ViewData.ModelState.IsValid && ViewData.ModelState.Values.Any(v => v.Errors.Any()))
+{
+    <div class="alert alert-danger py-2">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        { <div>@error.ErrorMessage</div> }
+    </div>
+}
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">First Name <span class="text-danger">*</span></label>
+        <input asp-for="FirstName" class="form-control" />
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">Last Name <span class="text-danger">*</span></label>
+        <input asp-for="LastName" class="form-control" />
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">Username <span class="text-danger">*</span></label>
+        @if (Model.EncryptedId != null)
+        {
+            <input asp-for="Username" class="form-control" readonly />
+        }
+        else
+        {
+            <input asp-for="Username" class="form-control" />
+        }
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
+        <input asp-for="Email" type="email" class="form-control" />
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">
+            Password @(Model.EncryptedId == null ? "*" : "(leave blank to keep)")
+        </label>
+        <input asp-for="Password" type="password" class="form-control" autocomplete="new-password" />
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">Phone</label>
+        <input asp-for="Phone" class="form-control" />
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">Role</label>
+        <select asp-for="RoleId" class="form-select">
+            <option value="">— No Role —</option>
+            @foreach (var r in Model.AvailableRoles)
+            {
+                <option value="@r.Id" selected="@(Model.RoleId == r.Id)">@r.Name</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">Status</label>
+        <div class="form-check form-switch mt-2">
+            <input asp-for="IsActive" type="checkbox" class="form-check-input" role="switch" />
+            <label asp-for="IsActive" class="form-check-label">Active</label>
+        </div>
+    </div>
+</div>

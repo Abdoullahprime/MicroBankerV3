@@ -1,0 +1,84 @@
+@* src/BaseTemplate.Web/Views/Home/Index.cshtml *@
+@model BaseTemplate.Web.Models.DashboardViewModel
+@inject BaseTemplate.Web.Services.IPermissionService PermissionService
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["ActivePage"] = "Dashboard";
+    var perms = await PermissionService.GetCurrentAsync();
+
+    var tiles = new[]
+    {
+        (Label: "Active Users", Value: Model.ActiveUsers, Icon: "fa-user-cog",    Color: "primary", Ctl: "Users",      Module: Modules.Users),
+        (Label: "Roles",        Value: Model.Roles,       Icon: "fa-shield-alt",  Color: "success", Ctl: "Roles",      Module: Modules.Roles),
+        (Label: "Branches",     Value: Model.Branches,    Icon: "fa-code-branch", Color: "info",    Ctl: "Branch",     Module: Modules.Branches),
+        (Label: "Departments",  Value: Model.Departments, Icon: "fa-sitemap",     Color: "warning", Ctl: "Department", Module: Modules.Departments),
+        (Label: "Units",        Value: Model.Units,       Icon: "fa-layer-group", Color: "danger",  Ctl: "Unit",       Module: Modules.Units),
+        (Label: "Positions",    Value: Model.Positions,   Icon: "fa-user-tag",    Color: "secondary", Ctl: "Position", Module: Modules.Positions),
+    };
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+        <h4 class="mb-0 fw-bold">Dashboard</h4>
+        <p class="text-600 fs--1 mb-0">Welcome back, @ViewData["FullName"]</p>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    @foreach (var t in tiles)
+    {
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar avatar-xl me-3">
+                            <div class="avatar-name rounded-circle bg-@(t.Color)-subtle text-@t.Color">
+                                <span class="fas @t.Icon"></span>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-600 fs--2 mb-0 fw-semibold text-uppercase">@t.Label</p>
+                            @if (perms.Can(t.Module))
+                            {
+                                <a asp-controller="@t.Ctl" asp-action="Index" class="stretched-link text-decoration-none">
+                                    <h4 class="mb-0 text-dark">@t.Value</h4>
+                                </a>
+                            }
+                            else
+                            {
+                                <h4 class="mb-0 text-dark">@t.Value</h4>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="card">
+    <div class="card-header bg-light">
+        <h6 class="mb-0"><span class="fas fa-clock me-2 text-primary"></span>Recent sign-ins</h6>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-sm table-striped fs--1 mb-0">
+                <thead class="bg-200"><tr><th class="ps-3">User</th><th>Username</th><th>Last sign-in (UTC)</th></tr></thead>
+                <tbody>
+                @foreach (var r in Model.RecentLogins)
+                {
+                    <tr>
+                        <td class="ps-3 fw-semibold">@r.FullName</td>
+                        <td>@r.Username</td>
+                        <td>@r.LastLoginAt.ToString("dd MMM yyyy HH:mm")</td>
+                    </tr>
+                }
+                @if (!Model.RecentLogins.Any())
+                {
+                    <tr><td colspan="3" class="text-center text-muted py-3">No sign-ins recorded yet.</td></tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,183 @@
+﻿.TableAddChartOfAccountsStyle {
+    /*width:95%;
+         background-color:white;*/
+    font-family: Verdana;
+    font-size: 16px;
+    width: 95%;
+    text-align: right;
+    vertical-align: bottom;
+    border-collapse: separate;
+    border-spacing: 2px;
+    background-color: white;
+    border: 1px solid #C1C1C1;
+    border-radius: 3px 3px 3px 3px;
+}
+    /*font-family:Verdana;
+    font-size:13px;
+    width:100%;
+    text-align: right;
+    vertical-align:bottom;
+    border-collapse: separate;
+    border-spacing:2px;
+    background-color: #F6F6F6;
+    /*background-color: #C1C1C1;
+    border:1px solid #C1C1C1;
+    border-radius: 3px 3px 3px 3px;*/
+    .TableAddChartOfAccountsStyle td:first-child {
+        width: 15%;
+        padding-right: 5px;
+        height: 25px;
+    }
+
+        .TableAddChartOfAccountsStyle td:first-child + td {
+            width: 25%;
+            padding-right: 5px;
+            padding-left: 5px;
+            height: 25px;
+            text-align:right;
+        }
+
+            .TableAddChartOfAccountsStyle td:first-child + td + td {
+                width: 15%;
+                padding-right: 5px;
+                padding-left: 5px;
+                height: 25px;
+                text-align: left;
+            }
+
+                .TableAddChartOfAccountsStyle td:first-child + td + td + td {
+                    width: 25%;
+                    padding-right: 5px;
+                    padding-left: 5px;
+                    height: 25px;
+                }
+
+                    .TableAddChartOfAccountsStyle td:first-child + td + td + td + td {
+                        width: 20%;
+                        padding-right: 5px;
+                        padding-left: 5px;
+                        height: 25px;
+                    }
+.GeneralLedgerTableStyle {
+    /*width:95%;
+         background-color:white;*/
+    margin-top: 2px;
+    font-family: Verdana;
+    font-size: 13px;
+    width: 70%;
+    text-align: right;
+    vertical-align: bottom;
+    border-collapse: separate;
+    border-spacing: 2px;
+    margin-left: 10%;
+    background-color: white;
+    border: 1px solid #C1C1C1;
+    border-radius: 3px 3px 3px 3px;
+}
+
+    .GeneralLedgerTableStyle td:first-child {
+        width: 30%;
+        padding-right: 2px;
+        height: 25px;
+        text-align:right;
+    }
+
+        .GeneralLedgerTableStyle td:first-child + td {
+            width: 30%;
+            padding-right: 5px;
+            padding-left: 5px;
+            height: 25px;
+            text-align: left;
+        }
+
+            .GeneralLedgerTableStyle td:first-child + td + td {
+                width: 40%;
+                padding-right: 5px;
+                padding-left: 5px;
+                height: 25px;
+            }
+.GeneralLedgerListTableStyle {
+    /*width:95%;
+         background-color:white;*/
+    margin-top: 2px;
+    font-family: Verdana;
+    font-size: 13px;
+    width: 98%;
+    text-align: right;
+    vertical-align: bottom;
+    border-collapse: separate;
+    border-spacing: 2px;
+    /*margin-left: 10%;*/
+    background-color: white;
+    border: 1px solid #C1C1C1;
+    border-radius: 3px 3px 3px 3px;
+}
+
+    .GeneralLedgerListTableStyle td:first-child {
+        width: 30%;
+        padding-right: 2px;
+        height: 25px;
+        text-align: right;
+    }
+
+        .GeneralLedgerListTableStyle td:first-child + td {
+            width: 30%;
+            padding-right: 5px;
+            padding-left: 5px;
+            height: 25px;
+            text-align: left;
+        }
+
+            .GeneralLedgerListTableStyle td:first-child + td + td {
+                width: 40%;
+                padding-right: 5px;
+                padding-left: 5px;
+                height: 25px;
+            }
+
+  .EmptyDataRowStyle
+  {
+      text-align:center !important;
+      font-size:large;
+      font-weight:bold;
+      color:red;
+      vertical-align:bottom;
+  }
+.ReportsTableStyle {
+    /*width:95%;
+         background-color:white;*/
+    font-family: Verdana;
+    font-size: 16px;
+    width: 95%;
+    text-align: right;
+    vertical-align: bottom;
+    border-collapse: separate;
+    border-spacing: 2px;
+    background-color: white;
+    border: 1px solid #C1C1C1;
+    border-radius: 3px 3px 3px 3px;
+}
+    .ReportsTableStyle td:first-child {
+        width: 20%;
+        padding-right: 5px;
+        height: 25px;
+    }
+
+        .ReportsTableStyle td:first-child + td {
+            width: 80%;
+            padding-right: 5px;
+            padding-left: 5px;
+            height: 25px;
+            text-align: right;
+        }
+
+            .ReportsTableStyle td:first-child + td + td {
+                width: 15%;
+                padding-right: 5px;
+                padding-left: 5px;
+                height: 20px;
+                text-align: left;
+            }
+
+
+
