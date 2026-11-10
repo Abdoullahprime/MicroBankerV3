@@ -1,0 +1,142 @@
+@model Microbanker.Web.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+@if (!Model.HasOrganization)
+{
+    <div class="card mb-3">
+        <div class="card-body text-center py-5">
+            <div class="display-1 text-300 fs-error"><span class="fas fa-building"></span></div>
+            <h4 class="mt-3">No organisation set up yet</h4>
+            <p class="text-500">Create your organisation profile to get started.</p>
+            <a class="btn btn-primary" asp-controller="Organization" asp-action="Create">
+                <span class="fas fa-plus me-1"></span>Set up organisation
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h5 class="mb-1">@Model.OrganizationName</h5>
+                    <p class="fs--1 text-600 mb-0">Welcome back, @ViewData["FullName"].</p>
+                </div>
+                <div class="col-auto">
+                    <a class="btn btn-sm btn-falcon-default" asp-controller="Organization" asp-action="Index">
+                        <span class="fas fa-cog me-1"></span>Organisation setup
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        @{
+            var tiles = new[]
+            {
+                ("Branches",    Model.BranchCount,     "fas fa-code-branch", "primary", "Branch"),
+                ("Departments", Model.DepartmentCount, "fas fa-sitemap",     "info",    "Department"),
+                ("Units",       Model.UnitCount,       "fas fa-layer-group", "success", "Unit"),
+                ("Banks",       Model.BankCount,       "fas fa-university",  "warning", "Bank"),
+            };
+        }
+        @foreach (var (label, count, icon, colour, controller) in tiles)
+        {
+            <div class="col-md-6 col-xxl-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h6 class="mb-2 text-600">@label</h6>
+                                <h3 class="mb-0 fw-normal">@count</h3>
+                            </div>
+                            <div class="col-auto">
+                                <span class="@icon fs-2 text-@colour opacity-50"></span>
+                            </div>
+                        </div>
+                        <a class="fs--1 stretched-link" asp-controller="@controller" asp-action="Index">Manage</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-7">
+            <div class="card h-100">
+                <div class="card-header bg-light py-2">
+                    <h6 class="mb-0">Branch structure</h6>
+                </div>
+                <div class="card-body p-0">
+                    @if (!Model.BranchBreakdown.Any())
+                    {
+                        <p class="text-center text-500 fs--1 my-4 mb-4">No branches created yet.</p>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped mb-0 fs--1">
+                                <thead class="bg-200">
+                                    <tr>
+                                        <th>Branch</th>
+                                        <th class="text-end">Departments</th>
+                                        <th class="text-end">Units</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var row in Model.BranchBreakdown)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @row.BranchName
+                                                @if (row.IsHeadOffice)
+                                                {
+                                                    <span class="badge badge-subtle-primary ms-1">Head Office</span>
+                                                }
+                                            </td>
+                                            <td class="text-end">@row.DepartmentCount</td>
+                                            <td class="text-end">@row.UnitCount</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card h-100">
+                <div class="card-header bg-light py-2">
+                    <h6 class="mb-0">Security</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                        <span class="text-600">Total users</span>
+                        <span class="fw-semi-bold">@Model.UserCount</span>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                        <span class="text-600">Active users</span>
+                        <span class="fw-semi-bold">@Model.ActiveUserCount</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-600">Roles defined</span>
+                        <span class="fw-semi-bold">@Model.RoleCount</span>
+                    </div>
+                </div>
+                <div class="card-footer bg-light py-2">
+                    <a class="fs--1" asp-controller="Users" asp-action="Index">Manage users</a>
+                    <span class="text-300 mx-1">|</span>
+                    <a class="fs--1" asp-controller="Roles" asp-action="Index">Roles</a>
+                    <span class="text-300 mx-1">|</span>
+                    <a class="fs--1" asp-controller="Permissions" asp-action="Index">Permissions</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}

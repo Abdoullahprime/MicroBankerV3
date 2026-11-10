@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Microbanker.Domain/Microbanker.Domain.csproj" />
+    <Project Path="src/Microbanker.Application/Microbanker.Application.csproj" />
+    <Project Path="src/Microbanker.Infrastructure/Microbanker.Infrastructure.csproj" />
+    <Project Path="src/Microbanker.Web/Microbanker.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Microbanker.Tests/Microbanker.Tests.csproj" />
+  </Folder>
+</Solution>

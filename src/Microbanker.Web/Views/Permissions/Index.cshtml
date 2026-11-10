@@ -1,0 +1,151 @@
+@model Microbanker.Web.Models.PermissionViewModel
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    ViewData["Title"] = "Permissions";
+    var allRoles = ViewData["AllRoles"] as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var selectedRole = ViewData["SelectedRole"] as string ?? "";
+    var actionOrder = new[] { "VIEW", "CREATE", "EDIT", "DELETE", "APPROVE", "EXPORT" };
+    var orderedActions = actionOrder.Where(a => Model.Actions.Contains(a))
+        .Concat(Model.Actions.Except(actionOrder)).ToList();
+}
+
+<div class="row mb-3 align-items-center">
+    <div class="col">
+        <h4 class="mb-0"><i class="fas fa-key me-2 text-primary"></i>Role Permissions</h4>
+        <small class="text-muted">Assign module-level access per role</small>
+    </div>
+    <div class="col-auto">
+        <a asp-controller="Roles" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-shield-alt me-1"></i> Roles
+        </a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show py-2">
+        <i class="fas fa-check-circle me-1"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Role selector -->
+<div class="card shadow-sm mb-3">
+    <div class="card-body py-2">
+        <form method="get" asp-action="Index" class="d-flex align-items-center gap-2">
+            <label class="fw-semibold mb-0 me-2 text-nowrap">Select Role:</label>
+            <select name="roleId" class="form-select form-select-sm" style="max-width:280px"
+                    onchange="this.form.submit()">
+                @foreach (dynamic r in allRoles)
+                {
+                    <option value="@r.Id" selected="@(r.Id == selectedRole ? "selected" : null)">@r.Name</option>
+                }
+            </select>
+            @if (Model.IsSystemRole)
+            {
+                <span class="badge bg-info ms-2">System Role — All permissions are read-only</span>
+            }
+        </form>
+    </div>
+</div>
+
+<!-- Permission matrix -->
+<form method="post" asp-action="Save" id="permForm">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="EncryptedRoleId" value="@Model.EncryptedRoleId" />
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm mb-0 fs--1 align-middle">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th style="min-width:200px">Module</th>
+                            <th class="text-center" style="width:60px">Group</th>
+                            @foreach (var ac in orderedActions)
+                            {
+                                <th class="text-center" style="width:80px">@ac</th>
+                            }
+                            <th class="text-center" style="width:90px">All</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                                        @foreach (var grp in Model.Modules.GroupBy(m => m.Group ?? ""))
+                        {
+                            <tr class="table-light">
+                                <td colspan="@(orderedActions.Count + 3)" class="fw-bold text-uppercase text-muted small py-1 ps-3">
+                                    <i class="fas fa-folder-open me-1"></i>@(grp.Key == "" ? "General" : grp.Key)
+                                </td>
+                            </tr>
+                            foreach (var module in grp)
+                            {
+                                <tr>
+                                    <td class="ps-4 fw-semibold">@module.ModuleName</td>
+                                    <td class="text-center"><code class="fs--2">@module.ModuleCode</code></td>
+                                    @foreach (var ac in orderedActions)
+                                    {
+                                        <td class="text-center">
+                                            @if (module.ActionMap.TryGetValue(ac, out var perm))
+                                            {
+                                                var key = $"{module.ModuleId}|{perm.ActionId}";
+                                                <input type="checkbox" name="Granted"
+                                                       value="@key"
+                                                       class="form-check-input module-cb"
+                                                       data-module="@module.ModuleId"
+                                                       @(perm.IsGranted ? "checked" : "")
+                                                       @(Model.IsSystemRole ? "disabled" : "") />
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">—</span>
+                                            }
+                                        </td>
+                                    }
+                                    <td class="text-center">
+                                        @if (!Model.IsSystemRole)
+                                        {
+                                            <button type="button" class="btn btn-link btn-sm p-0 text-primary"
+                                                    onclick="toggleRow(this, '@module.ModuleId')">
+                                                All
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @if (!Model.IsSystemRole)
+        {
+            <div class="card-footer d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i> Save Permissions
+                </button>
+                <button type="button" class="btn btn-outline-success btn-sm"
+                        onclick="toggleAll(true)">
+                    <i class="fas fa-check-double me-1"></i> Grant All
+                </button>
+                <button type="button" class="btn btn-outline-danger btn-sm"
+                        onclick="toggleAll(false)">
+                    <i class="fas fa-times me-1"></i> Revoke All
+                </button>
+            </div>
+        }
+    </div>
+</form>
+
+@section Scripts {
+<script>
+function toggleRow(btn, moduleId) {
+    const cbs = document.querySelectorAll(`.module-cb[data-module="${moduleId}"]`);
+    const anyUnchecked = Array.from(cbs).some(cb => !cb.checked);
+    cbs.forEach(cb => cb.checked = anyUnchecked);
+}
+
+function toggleAll(state) {
+    document.querySelectorAll('.module-cb').forEach(cb => cb.checked = state);
+}
+</script>
+}
