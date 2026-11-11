@@ -1,0 +1,102 @@
+@* src/Microbanker.Web/Views/Loan/Requests.cshtml *@
+@model Microbanker.Web.Models.LoanRequestListViewModel
+@{
+    ViewData["Title"]        = "Loan Requests";
+    ViewData["PageTitle"]    = "Loan Requests";
+    ViewData["PageSubTitle"] = "Requests awaiting review";
+}
+@functions {
+    static string Badge(string status) => status switch
+    {
+        "ACTIVE" or "APPROVED" or "PAID"  => "badge-subtle-success",
+        "PENDING" or "PARTIAL"            => "badge-subtle-warning",
+        "REJECTED" or "WRITTEN_OFF"       => "badge-subtle-danger",
+        "CONVERTED"                       => "badge-subtle-info",
+        _                                 => "badge-subtle-secondary"
+    };
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-transparent border-bottom py-2 d-flex flex-wrap gap-2 justify-content-between align-items-center">
+        <form method="get" class="d-flex gap-2 align-items-center">
+            <select name="status" asp-items="Model.Statuses" class="form-select form-select-sm" style="width:150px"><option value="">All statuses</option></select>
+            <button class="btn btn-falcon-default btn-sm" type="submit"><i class="fas fa-filter me-1"></i>Filter</button>
+        </form>
+        <a asp-action="CreateRequest" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i> New Request</a>
+    </div>
+    <div class="card-body p-0">
+        @if (!Model.Rows.Any())
+        {
+            <div class="text-center py-5 text-muted"><i class="fas fa-file-invoice-dollar fa-3x mb-3 opacity-25"></i><p class="mb-0 fs--1">No loan requests found.</p></div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-sm mb-0 fs--1">
+                    <thead class="bg-200"><tr><th>Customer</th><th>Product</th><th class="text-end">Amount</th><th>Purpose</th><th>Submitted</th><th class="text-center">Status</th><th class="text-end">Actions</th></tr></thead>
+                    <tbody>
+                    @foreach (var r in Model.Rows)
+                    {
+                        <tr>
+                            <td class="fw-medium">@r.CustomerNo <span class="text-muted fw-normal">@r.CustomerName</span></td>
+                            <td class="text-muted">@r.ProductName</td>
+                            <td class="text-end">@r.RequestedAmount.ToString("N2")</td>
+                            <td class="text-muted">@r.Purpose</td>
+                            <td class="text-muted">@r.CreatedAt.ToString("dd MMM yyyy")</td>
+                            <td class="text-center"><span class="badge @Badge(r.Status)">@r.Status</span>@if (!string.IsNullOrEmpty(r.ReviewRemarks)) { <div class="fs--2 text-muted">@r.ReviewRemarks</div> }</td>
+                            <td class="text-end">
+                                @if (r.Status == "PENDING")
+                                {
+                                    <form asp-action="ApproveRequest" asp-route-id="@r.EncryptedId" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button class="btn btn-falcon-success btn-sm py-0 px-2" type="submit" title="Approve"><i class="fas fa-check"></i></button>
+                                    </form>
+                                    <form asp-action="RejectRequest" asp-route-id="@r.EncryptedId" method="post" class="d-inline"
+                                          onsubmit="var r = prompt('Reason for rejecting this request?'); if (!r) return false; this.remarks.value = r; return true;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="remarks" />
+                                        <button class="btn btn-falcon-danger btn-sm py-0 px-2" type="submit" title="Reject"><i class="fas fa-times"></i></button>
+                                    </form>
+                                }
+                                @if (r.Status == "APPROVED")
+                                {
+                                    <a asp-action="Create" asp-route-requestId="@r.EncryptedId" class="btn btn-primary btn-sm py-0 px-2">Create loan</a>
+                                }
+                                @if (r.Status != "CONVERTED")
+                                {
+                                    <form asp-action="DeleteRequest" asp-route-id="@r.EncryptedId" method="post" class="d-inline" onsubmit="return confirm('Delete this request?');">
+                                        @Html.AntiForgeryToken()
+                                        <button class="btn btn-falcon-default btn-sm py-0 px-2" type="submit" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            <div class="d-flex justify-content-between align-items-center px-3 py-2 border-top fs--1">
+                <span class="text-muted">@Model.TotalCount request(s) · page @Model.Page of @Model.TotalPages</span>
+                <div class="btn-group">
+                    <a class="btn btn-falcon-default btn-sm @(Model.Page <= 1 ? "disabled" : "")" asp-action="Requests" asp-route-page="@(Model.Page - 1)" asp-route-status="@Model.Status">Previous</a>
+                    <a class="btn btn-falcon-default btn-sm @(Model.Page >= Model.TotalPages ? "disabled" : "")" asp-action="Requests" asp-route-page="@(Model.Page + 1)" asp-route-status="@Model.Status">Next</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -2,6 +2,7 @@
 using Microbanker.Domain.Entities.Auth;
 using Microbanker.Domain.Entities.Accounts;
 using Microbanker.Domain.Entities.Customers;
+using Microbanker.Domain.Entities.Loans;
 using Microbanker.Domain.Entities.Organization;
 using Microbanker.Domain.Entities.Setup;
 using Microsoft.EntityFrameworkCore;
@@ -48,6 +49,12 @@ public class MicrobankerDbContext : DbContext
     // ── Accounts ───────────────────────────────────────────────────
     public DbSet<MemberAccount>      MemberAccounts      { get; set; }
     public DbSet<AccountEditRequest> AccountEditRequests { get; set; }
+
+    // ── Loans ──────────────────────────────────────────────────────
+    public DbSet<LoanAccount>   LoanAccounts   { get; set; }
+    public DbSet<LoanRepayment> LoanRepayments { get; set; }
+    public DbSet<LoanPayment>   LoanPayments   { get; set; }
+    public DbSet<LoanRequest>   LoanRequests   { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -399,6 +406,90 @@ public class MicrobankerDbContext : DbContext
             e.HasOne<Organization>().WithMany().HasForeignKey(x => x.OrganizationId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne(x => x.Account).WithMany().HasForeignKey(x => x.AccountId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(x => new { x.AccountId, x.Status });
+        });
+
+        // ═══ Loans ═════════════════════════════════════════════════
+        builder.Entity<LoanAccount>(e =>
+        {
+            e.ToTable("LoanAccounts", t =>
+            {
+                t.HasCheckConstraint("CK_LoanAccounts_Status", "[Status] IN ('PENDING','APPROVED','ACTIVE','CLOSED','WRITTEN_OFF')");
+                t.HasCheckConstraint("CK_LoanAccounts_Method", "[InterestCalcMethod] IN ('FLAT','REDUCING')");
+                t.HasCheckConstraint("CK_LoanAccounts_Frequency", "[RepaymentFrequency] IN ('DAILY','WEEKLY','MONTHLY','QUARTERLY')");
+                t.HasCheckConstraint("CK_LoanAccounts_Mode", "[RepaymentMode] IN ('CASH','DEDUCTION','STANDING_ORDER')");
+                t.HasCheckConstraint("CK_LoanAccounts_Outstanding", "[OutstandingBalance] >= 0");
+            });
+            e.HasKey(x => x.Id);
+            e.Property(x => x.LoanNo).IsRequired().HasMaxLength(30);
+            e.Property(x => x.LoanName).IsRequired().HasMaxLength(200);
+            e.Property(x => x.Currency).IsRequired().HasMaxLength(3);
+            e.Property(x => x.Status).IsRequired().HasMaxLength(20);
+            e.Property(x => x.InterestCalcMethod).IsRequired().HasMaxLength(20);
+            e.Property(x => x.RepaymentFrequency).IsRequired().HasMaxLength(20);
+            e.Property(x => x.RepaymentMode).IsRequired().HasMaxLength(20);
+            e.Property(x => x.Collateral).HasMaxLength(500);
+            e.Property(x => x.GuarantorsAccountNo).HasMaxLength(40);
+            e.Property(x => x.SettlementAccountNo).HasMaxLength(40);
+            e.Property(x => x.LoanAmount).HasColumnType("decimal(18,2)");
+            e.Property(x => x.OutstandingBalance).HasColumnType("decimal(18,2)");
+            e.Property(x => x.DisbursedAmount).HasColumnType("decimal(18,2)");
+            e.Property(x => x.Charges).HasColumnType("decimal(18,2)");
+            e.Property(x => x.InterestRate).HasColumnType("decimal(9,4)");
+            e.Property(x => x.ConcurrencyStamp).IsConcurrencyToken();
+
+            e.HasOne<Organization>().WithMany().HasForeignKey(x => x.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Branch).WithMany().HasForeignKey(x => x.BranchId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Customer).WithMany().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.ProductDefinition).WithMany().HasForeignKey(x => x.ProductDefinitionId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<LoanRequest>().WithMany().HasForeignKey(x => x.LoanRequestId).OnDelete(DeleteBehavior.NoAction);
+            e.HasOne<Sector>().WithMany().HasForeignKey(x => x.SectorId).OnDelete(DeleteBehavior.NoAction);
+            e.HasOne<SubSector>().WithMany().HasForeignKey(x => x.SubSectorId).OnDelete(DeleteBehavior.NoAction);
+
+            // Loan numbers are never reused, so this index deliberately ignores IsDeleted.
+            e.HasIndex(x => new { x.OrganizationId, x.LoanNo }).IsUnique();
+            e.HasIndex(x => x.CustomerId);
+            e.HasIndex(x => new { x.OrganizationId, x.Status });
+        });
+
+        builder.Entity<LoanRepayment>(e =>
+        {
+            e.ToTable("LoanRepayments", t => t.HasCheckConstraint("CK_LoanRepayments_Status", "[Status] IN ('PENDING','PARTIAL','PAID')"));
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Status).IsRequired().HasMaxLength(20);
+            foreach (var money in new[] { nameof(LoanRepayment.PrincipalDue), nameof(LoanRepayment.InterestDue), nameof(LoanRepayment.ChargesDue),
+                nameof(LoanRepayment.PrincipalPaid), nameof(LoanRepayment.InterestPaid), nameof(LoanRepayment.ChargesPaid) })
+                e.Property(money).HasColumnType("decimal(18,2)");
+            e.HasOne<Organization>().WithMany().HasForeignKey(x => x.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.LoanAccount).WithMany().HasForeignKey(x => x.LoanAccountId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.LoanAccountId, x.InstallmentNo }).IsUnique();
+        });
+
+        builder.Entity<LoanPayment>(e =>
+        {
+            e.ToTable("LoanPayments");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Mode).IsRequired().HasMaxLength(20);
+            e.Property(x => x.Reference).HasMaxLength(100);
+            foreach (var money in new[] { nameof(LoanPayment.Amount), nameof(LoanPayment.PrincipalPaid), nameof(LoanPayment.InterestPaid), nameof(LoanPayment.ChargesPaid) })
+                e.Property(money).HasColumnType("decimal(18,2)");
+            e.HasOne<Organization>().WithMany().HasForeignKey(x => x.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<LoanAccount>().WithMany().HasForeignKey(x => x.LoanAccountId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => x.LoanAccountId);
+        });
+
+        builder.Entity<LoanRequest>(e =>
+        {
+            e.ToTable("LoanRequests", t => t.HasCheckConstraint("CK_LoanRequests_Status", "[Status] IN ('PENDING','APPROVED','REJECTED','CONVERTED')"));
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Status).IsRequired().HasMaxLength(20);
+            e.Property(x => x.Purpose).HasMaxLength(500);
+            e.Property(x => x.ReviewRemarks).HasMaxLength(500);
+            e.Property(x => x.RequestedAmount).HasColumnType("decimal(18,2)");
+            e.HasOne<Organization>().WithMany().HasForeignKey(x => x.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Branch).WithMany().HasForeignKey(x => x.BranchId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Customer).WithMany().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.ProductDefinition).WithMany().HasForeignKey(x => x.ProductDefinitionId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.OrganizationId, x.Status });
         });
     }
 

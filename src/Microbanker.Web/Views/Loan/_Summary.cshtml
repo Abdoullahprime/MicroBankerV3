@@ -1,0 +1,22 @@
+@* src/Microbanker.Web/Views/Loan/_Summary.cshtml *@
+@model Microbanker.Web.Models.LoanDetailViewModel
+<div class="row g-3 mb-3">
+    <div class="col-md-3"><div class="card shadow-sm border-0 h-100"><div class="card-body">
+        <div class="fs--2 text-500 text-uppercase">Loan amount</div>
+        <div class="fs-3 fw-bold">@Model.LoanAmount.ToString("N2") <span class="fs--1 text-muted">@Model.Currency</span></div>
+    </div></div></div>
+    <div class="col-md-3"><div class="card shadow-sm border-0 h-100"><div class="card-body">
+        <div class="fs--2 text-500 text-uppercase">Principal outstanding</div>
+        <div class="fs-3 fw-bold">@Model.OutstandingBalance.ToString("N2")</div>
+    </div></div></div>
+    <div class="col-md-3"><div class="card shadow-sm border-0 h-100"><div class="card-body">
+        <div class="fs--2 text-500 text-uppercase">Total still to pay</div>
+        <div class="fs-3 fw-bold text-primary">@Model.TotalRemaining.ToString("N2")</div>
+        <div class="fs--2 text-muted">principal + interest + charges</div>
+    </div></div></div>
+    <div class="col-md-3"><div class="card shadow-sm border-0 h-100"><div class="card-body">
+        <div class="fs--2 text-500 text-uppercase">Overdue</div>
+        <div class="fs-3 fw-bold @(Model.OverdueAmount > 0 ? "text-danger" : "")">@Model.OverdueAmount.ToString("N2")</div>
+        <div class="fs--2 text-muted">@Model.OverdueInstallments installment(s)</div>
+    </div></div></div>
+</div>

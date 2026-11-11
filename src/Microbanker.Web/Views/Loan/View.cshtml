@@ -1,0 +1,128 @@
+@* src/Microbanker.Web/Views/Loan/View.cshtml *@
+@model Microbanker.Web.Models.LoanDetailViewModel
+@{
+    ViewData["Title"]        = Model.LoanNo;
+    ViewData["PageTitle"]    = Model.LoanNo;
+    ViewData["PageSubTitle"] = Model.LoanName;
+    void Row(string label, string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) { return; }
+        <div class="col-md-4 mb-3"><div class="fs--2 text-500 text-uppercase">@label</div><div class="fw-medium">@value</div></div>
+    }
+    string Pretty(string s) => string.Join(' ', s.Split('_').Select(w => char.ToUpper(w[0]) + w[1..].ToLower()));
+}
+@functions {
+    static string Badge(string status) => status switch
+    {
+        "ACTIVE" or "APPROVED" or "PAID"  => "badge-subtle-success",
+        "PENDING" or "PARTIAL"            => "badge-subtle-warning",
+        "REJECTED" or "WRITTEN_OFF"       => "badge-subtle-danger",
+        "CONVERTED"                       => "badge-subtle-info",
+        _                                 => "badge-subtle-secondary"
+    };
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm border-0 mb-3">
+    <div class="card-body d-flex flex-wrap gap-3 justify-content-between align-items-center">
+        <div>
+            <h5 class="mb-1">@Model.LoanName <span class="badge @Badge(Model.Status) ms-2">@Model.Status.Replace("_", " ")</span></h5>
+            <div class="fs--1 text-muted">
+                @Model.LoanNo · @Model.ProductName · @Model.BranchName ·
+                <a asp-controller="Customer" asp-action="View" asp-route-id="@Model.CustomerEncryptedId">@Model.CustomerNo @Model.CustomerName</a>
+            </div>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a asp-action="Index" class="btn btn-falcon-default btn-sm">Back</a>
+            @if (Model.Status == "PENDING")
+            {
+                <a asp-action="Edit" asp-route-id="@Model.EncryptedId" class="btn btn-falcon-default btn-sm"><i class="fas fa-pencil-alt me-1"></i>Edit</a>
+                <form asp-action="Delete" asp-route-id="@Model.EncryptedId" method="post" class="d-inline" onsubmit="return confirm('Delete this pending loan?');">
+                    @Html.AntiForgeryToken()
+                    <button class="btn btn-falcon-danger btn-sm" type="submit"><i class="fas fa-trash-alt me-1"></i>Delete</button>
+                </form>
+            }
+            @if (Model.Status == "APPROVED")
+            {
+                <a asp-action="Disburse" asp-route-id="@Model.EncryptedId" class="btn btn-success btn-sm"><i class="fas fa-money-check-alt me-1"></i>Disburse</a>
+            }
+            @if (Model.Status == "ACTIVE")
+            {
+                <a asp-action="Repayment" asp-route-id="@Model.EncryptedId" class="btn btn-primary btn-sm"><i class="fas fa-coins me-1"></i>Take repayment</a>
+            }
+        </div>
+    </div>
+</div>
+
+@if (Model.Status == "PENDING")
+{
+    <div class="card shadow-sm border-0 mb-3 border-start border-warning border-3">
+        <div class="card-body d-flex flex-wrap gap-3 justify-content-between align-items-center">
+            <div><h6 class="fw-semibold mb-1"><i class="fas fa-hourglass-half me-2 text-warning"></i>Awaiting approval</h6>
+                <div class="fs--1 text-muted">Terms lock once the loan is approved.</div></div>
+            <form asp-action="Approve" asp-route-id="@Model.EncryptedId" method="post">
+                @Html.AntiForgeryToken()
+                <button class="btn btn-success btn-sm" type="submit"><i class="fas fa-check me-1"></i>Approve loan</button>
+            </form>
+        </div>
+    </div>
+}
+else if (Model.IsApproved)
+{
+    <div class="alert alert-light border fs--1 py-2">
+        <i class="fas fa-check-circle text-success me-2"></i>Approved @Model.ApprovedAt?.ToString("dd MMM yyyy HH:mm")
+        @if (!string.IsNullOrEmpty(Model.ApprovedByName)) { <span>by @Model.ApprovedByName</span> }
+        @if (Model.IsDisbursed) { <span> · disbursed @Model.DisbursedAt?.ToString("dd MMM yyyy") @(string.IsNullOrEmpty(Model.DisbursedByName) ? "" : "by " + Model.DisbursedByName)</span> }
+    </div>
+}
+
+@if (Model.IsDisbursed) { <partial name="_Summary" model="Model" /> }
+
+<div class="card shadow-sm border-0 mb-3">
+    <div class="card-header bg-transparent border-bottom py-2"><h6 class="mb-0 fw-semibold fs--1"><i class="fas fa-file-contract me-2 text-primary"></i>Terms</h6></div>
+    <div class="card-body pb-0"><div class="row">
+        @{ Row("Loan amount", Model.LoanAmount.ToString("N2") + " " + Model.Currency); Row("Interest rate", Model.InterestRate.ToString("0.####") + "% p.a. (" + Pretty(Model.InterestCalcMethod) + ")");
+           Row("Tenure", Model.Tenure + " months"); Row("Installments", Model.NoOfInstallments + " · " + Pretty(Model.RepaymentFrequency));
+           Row("Repayment mode", Pretty(Model.RepaymentMode)); Row("Grace period", Model.GracePeriod > 0 ? Model.GracePeriod + " months" : null);
+           Row("Skipped installments", Model.SkipInstallments > 0 ? Model.SkipInstallments.ToString() : null);
+           Row("Charges", Model.Charges > 0 ? Model.Charges.ToString("N2") : null);
+           Row("Start date", Model.LoanStartDate?.ToString("dd MMM yyyy")); Row("First installment", Model.FirstEMIDate?.ToString("dd MMM yyyy")); Row("End date", Model.LoanEndDate?.ToString("dd MMM yyyy"));
+           Row("Settlement account", Model.SettlementAccountNo); Row("Guarantor's account", Model.GuarantorsAccountNo);
+           Row("Sector", Model.SectorName); Row("Sub-sector", Model.SubSectorName); Row("Collateral", Model.Collateral); Row("Created by", Model.CreatedByName); }
+    </div></div>
+</div>
+
+<partial name="_Schedule" model="Model" />
+
+@if (Model.Payments.Any())
+{
+    <div class="card shadow-sm border-0 mb-3">
+        <div class="card-header bg-transparent border-bottom py-2"><h6 class="mb-0 fw-semibold fs--1"><i class="fas fa-receipt me-2 text-primary"></i>Payments received</h6></div>
+        <div class="table-responsive">
+            <table class="table table-sm mb-0 fs--1">
+                <thead class="bg-200"><tr><th>Date</th><th class="text-end">Amount</th><th class="text-end">Principal</th><th class="text-end">Interest</th><th class="text-end">Charges</th><th>Mode</th><th>Reference</th><th>By</th></tr></thead>
+                <tbody>
+                @foreach (var p in Model.Payments)
+                {
+                    <tr><td>@p.PaidOn.ToString("dd MMM yyyy")</td><td class="text-end fw-medium">@p.Amount.ToString("N2")</td><td class="text-end">@p.PrincipalPaid.ToString("N2")</td>
+                        <td class="text-end">@p.InterestPaid.ToString("N2")</td><td class="text-end">@p.ChargesPaid.ToString("N2")</td><td>@Pretty(p.Mode)</td><td>@p.Reference</td><td>@p.PostedByName</td></tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

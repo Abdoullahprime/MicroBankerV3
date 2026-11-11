@@ -1,0 +1,45 @@
+@* src/Microbanker.Web/Views/Loan/BalanceEnquiry.cshtml *@
+@model Microbanker.Web.Models.LoanEnquiryViewModel
+@{
+    ViewData["Title"]        = "Loan Enquiry";
+    ViewData["PageTitle"]    = "Loan Enquiry";
+    ViewData["PageSubTitle"] = "Look up a loan by number";
+}
+@functions {
+    static string Badge(string status) => status switch
+    {
+        "ACTIVE" or "APPROVED" or "PAID"  => "badge-subtle-success",
+        "PENDING" or "PARTIAL"            => "badge-subtle-warning",
+        "REJECTED" or "WRITTEN_OFF"       => "badge-subtle-danger",
+        "CONVERTED"                       => "badge-subtle-info",
+        _                                 => "badge-subtle-secondary"
+    };
+}
+
+<div class="card shadow-sm border-0 mb-3" style="max-width:640px;">
+    <div class="card-body">
+        <form method="get" class="d-flex gap-2">
+            <input name="loanNo" value="@Model.LoanNo" class="form-control" placeholder="Loan number, e.g. LN-2026-000001" autofocus />
+            <button class="btn btn-primary" type="submit"><i class="fas fa-search me-1"></i>Search</button>
+        </form>
+    </div>
+</div>
+@if (Model.Searched && Model.Loan == null)
+{
+    <div class="alert alert-warning fs--1" style="max-width:640px;"><i class="fas fa-exclamation-triangle me-2"></i>No loan found with number <strong>@Model.LoanNo</strong>.</div>
+}
+else if (Model.Loan != null)
+{
+    var l = Model.Loan;
+    <div class="card shadow-sm border-0 mb-3">
+        <div class="card-body d-flex flex-wrap justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-1">@l.LoanName <span class="badge @Badge(l.Status) ms-2">@l.Status.Replace("_", " ")</span></h5>
+                <div class="fs--1 text-muted">@l.LoanNo · @l.ProductName · @l.CustomerNo @l.CustomerName</div>
+            </div>
+            <a asp-action="View" asp-route-id="@l.EncryptedId" class="btn btn-falcon-default btn-sm">Full details</a>
+        </div>
+    </div>
+    @if (l.IsDisbursed) { <partial name="_Summary" model="l" /> }
+    <partial name="_Schedule" model="l" />
+}

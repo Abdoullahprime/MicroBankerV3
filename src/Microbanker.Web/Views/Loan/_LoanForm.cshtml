@@ -1,0 +1,208 @@
+@* src/Microbanker.Web/Views/Loan/_LoanForm.cshtml — shared by Create and Edit *@
+@model Microbanker.Web.Models.LoanFormModel
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 fs--1"></div>
+<input type="hidden" asp-for="LoanRequestId" />
+
+@if (Model.RequestedAmount != null)
+{
+    <div class="alert alert-light border fs--1 py-2"><i class="fas fa-file-invoice-dollar me-2 text-primary"></i>From an approved loan request of <strong>@Model.RequestedAmount.Value.ToString("N2")</strong>. The loan cannot be more than this.</div>
+}
+
+<h6 class="fw-semibold text-700 mb-3"><i class="fas fa-user me-2 text-primary"></i>Borrower</h6>
+<div class="row g-3 mb-4">
+@if (Model.IsEdit)
+{
+    <div class="col-md-4"><label class="form-label fw-medium">Loan No.</label><input class="form-control" value="@Model.LoanNo" disabled /></div>
+    <div class="col-md-8"><label class="form-label fw-medium">Customer</label><input class="form-control" value="@Model.CustomerLabel" disabled /></div>
+}
+else
+{
+    <div class="col-md-4">
+        <label asp-for="CustomerNo" class="form-label fw-medium"></label> <span class="text-danger">*</span>
+        <input asp-for="CustomerNo" class="form-control" placeholder="CUST-2026-000001" autocomplete="off" />
+        <span asp-validation-for="CustomerNo" class="text-danger small"></span>
+    </div>
+    <div class="col-md-8">
+        <label class="form-label fw-medium">Customer</label>
+        <div id="customerPreview" class="form-control bg-200 text-muted">@(Model.CustomerName ?? "Type a customer number")</div>
+    </div>
+}
+    <div class="col-md-6">
+        <label asp-for="BranchId" class="form-label fw-medium"></label>
+        @if (Model.IsEdit)
+        {
+            <input type="hidden" asp-for="BranchId" />
+            <input class="form-control" value="@(Model.Branches.FirstOrDefault(b => b.Value == Model.BranchId.ToString())?.Text)" disabled />
+        }
+        else
+        {
+            <select asp-for="BranchId" asp-items="Model.Branches" class="form-select"><option value="">— Select branch —</option></select>
+        }
+        <span asp-validation-for="BranchId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="ProductDefinitionId" class="form-label fw-medium"></label>
+        <select asp-for="ProductDefinitionId" class="form-select">
+            <option value="">— Select product —</option>
+            @foreach (var p in Model.Products) { <option value="@p.Id" data-rate="@p.Rate.ToString(System.Globalization.CultureInfo.InvariantCulture)">@p.Name</option> }
+        </select>
+        <span asp-validation-for="ProductDefinitionId" class="text-danger small"></span>
+    </div>
+</div>
+
+<h6 class="fw-semibold text-700 mb-3"><i class="fas fa-file-contract me-2 text-primary"></i>Loan terms</h6>
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <label asp-for="LoanName" class="form-label fw-medium"></label>
+        <input asp-for="LoanName" class="form-control" />
+        <span asp-validation-for="LoanName" class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="LoanAmount" class="form-label fw-medium"></label>
+        <input asp-for="LoanAmount" class="form-control" type="number" step="0.01" min="0" />
+        <span asp-validation-for="LoanAmount" class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Currency" class="form-label fw-medium"></label>
+        <input asp-for="Currency" class="form-control text-uppercase" maxlength="3" />
+        <span asp-validation-for="Currency" class="text-danger small"></span>
+    </div>
+
+    <div class="col-md-3">
+        <label asp-for="InterestRate" class="form-label fw-medium"></label>
+        <input asp-for="InterestRate" class="form-control" type="number" step="0.0001" min="0" id="InterestRate" />
+        <span asp-validation-for="InterestRate" class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="InterestCalcMethod" class="form-label fw-medium"></label>
+        <select asp-for="InterestCalcMethod" asp-items="Model.CalcMethods" class="form-select"></select>
+        <span asp-validation-for="InterestCalcMethod" class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Tenure" class="form-label fw-medium"></label>
+        <input asp-for="Tenure" class="form-control" type="number" step="1" min="1" />
+        <span asp-validation-for="Tenure" class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="NoOfInstallments" class="form-label fw-medium"></label>
+        <input asp-for="NoOfInstallments" class="form-control" type="number" step="1" min="1" />
+        <span asp-validation-for="NoOfInstallments" class="text-danger small"></span>
+    </div>
+
+    <div class="col-md-3">
+        <label asp-for="RepaymentFrequency" class="form-label fw-medium"></label>
+        <select asp-for="RepaymentFrequency" asp-items="Model.Frequencies" class="form-select"></select>
+        <span asp-validation-for="RepaymentFrequency" class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="RepaymentMode" class="form-label fw-medium"></label>
+        <select asp-for="RepaymentMode" asp-items="Model.Modes" class="form-select"></select>
+        <span asp-validation-for="RepaymentMode" class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="GracePeriod" class="form-label fw-medium"></label>
+        <input asp-for="GracePeriod" class="form-control" type="number" step="1" min="0" />
+        <span asp-validation-for="GracePeriod" class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="SkipInstallments" class="form-label fw-medium"></label>
+        <input asp-for="SkipInstallments" class="form-control" type="number" step="1" min="0" />
+        <span asp-validation-for="SkipInstallments" class="text-danger small"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="FirstEMIDate" class="form-label fw-medium"></label>
+        <input asp-for="FirstEMIDate" class="form-control" type="date" />
+        <span asp-validation-for="FirstEMIDate" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Charges" class="form-label fw-medium"></label>
+        <input asp-for="Charges" class="form-control" type="number" step="0.01" min="0" />
+        <span asp-validation-for="Charges" class="text-danger small"></span>
+    </div>
+
+    <div class="col-md-4 d-flex align-items-end"><div class="form-text">Leave the first installment date empty to calculate it from the disbursement date, grace period and skipped installments. Charges are collected in equal parts with the installments.</div></div>
+</div>
+
+<h6 class="fw-semibold text-700 mb-3"><i class="fas fa-shield-alt me-2 text-primary"></i>Security &amp; settlement</h6>
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <label asp-for="SettlementAccountNo" class="form-label fw-medium"></label>
+        <input asp-for="SettlementAccountNo" class="form-control" />
+        <span asp-validation-for="SettlementAccountNo" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="GuarantorsAccountNo" class="form-label fw-medium"></label>
+        <input asp-for="GuarantorsAccountNo" class="form-control" />
+        <span asp-validation-for="GuarantorsAccountNo" class="text-danger small"></span>
+    </div>
+
+    <div class="col-md-2">
+        <label asp-for="SectorId" class="form-label fw-medium"></label>
+        <select asp-for="SectorId" asp-items="Model.Sectors" class="form-select"><option value="">—</option></select>
+        <span asp-validation-for="SectorId" class="text-danger small"></span>
+    </div>
+
+    <div class="col-md-2">
+        <label asp-for="SubSectorId" class="form-label fw-medium"></label>
+        <select asp-for="SubSectorId" class="form-select" data-parent="SectorId">
+            <option value="">—</option>
+            @foreach (var s in Model.SubSectors) { <option value="@s.Id" data-parent-id="@s.ParentId">@s.Name</option> }
+        </select>
+        <span asp-validation-for="SubSectorId" class="text-danger small"></span>
+    </div>
+    <div class="col-12">
+        <label asp-for="Collateral" class="form-label fw-medium"></label>
+        <textarea asp-for="Collateral" class="form-control" rows="2"></textarea>
+        <span asp-validation-for="Collateral" class="text-danger small"></span>
+    </div>
+</div>
+
+<script>
+    (function () {
+        document.querySelectorAll('select[data-parent]').forEach(function (child) {
+            var parent = document.getElementById(child.getAttribute('data-parent'));
+            function filter() {
+                var pv = parent.value;
+                Array.prototype.forEach.call(child.options, function (o) {
+                    if (!o.value) return;
+                    var show = pv !== '' && o.getAttribute('data-parent-id') === pv;
+                    o.hidden = !show; o.disabled = !show;
+                });
+                var sel = child.options[child.selectedIndex];
+                if (sel && sel.disabled) child.value = '';
+            }
+            parent.addEventListener('change', filter);
+            filter();
+        });
+
+        // Choosing a product pre-fills the interest rate while the rate is still zero.
+        var product = document.getElementById('ProductDefinitionId');
+        var rate = document.getElementById('InterestRate');
+        product.addEventListener('change', function () {
+            var o = product.options[product.selectedIndex];
+            if (o && o.getAttribute('data-rate') && (!rate.value || parseFloat(rate.value) === 0)) rate.value = o.getAttribute('data-rate');
+        });
+
+        var no = document.getElementById('CustomerNo');
+        var preview = document.getElementById('customerPreview');
+        if (no && preview) {
+            var timer;
+            function lookup() {
+                var v = no.value.trim();
+                if (!v) { preview.textContent = 'Type a customer number'; preview.className = 'form-control bg-200 text-muted'; return; }
+                fetch('@Url.Action("LookupCustomer", "Loan")?customerNo=' + encodeURIComponent(v))
+                    .then(function (r) { return r.json(); })
+                    .then(function (d) {
+                        if (!d.found) { preview.textContent = 'No customer found'; preview.className = 'form-control bg-200 text-danger'; return; }
+                        preview.textContent = d.name + ' (' + d.status + ')';
+                        preview.className = 'form-control bg-200 ' + (d.status === 'ACTIVE' ? 'text-success' : 'text-warning');
+                    })
+                    .catch(function () { });
+            }
+            no.addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(lookup, 350); });
+            if (no.value) lookup();
+        }
+    })();
+</script>

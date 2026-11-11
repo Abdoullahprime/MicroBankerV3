@@ -1,0 +1,76 @@
+@* src/Microbanker.Web/Views/Loan/CreateRequest.cshtml *@
+@model Microbanker.Web.Models.LoanRequestFormModel
+@{
+    ViewData["Title"]        = "New Loan Request";
+    ViewData["PageTitle"]    = "New Loan Request";
+    ViewData["PageSubTitle"] = "Record a customer's request for review";
+}
+<div class="card shadow-sm border-0" style="max-width:760px;">
+    <div class="card-body">
+        <form asp-action="CreateRequest" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 fs--1"></div>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label asp-for="CustomerNo" class="form-label fw-medium"></label>
+                    <input asp-for="CustomerNo" class="form-control" placeholder="CUST-2026-000001" autocomplete="off" />
+                    <span asp-validation-for="CustomerNo" class="text-danger small"></span>
+                </div>
+                <div class="col-md-8">
+                    <label class="form-label fw-medium">Customer</label>
+                    <div id="customerPreview" class="form-control bg-200 text-muted">Type a customer number</div>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="BranchId" class="form-label fw-medium"></label>
+                    <select asp-for="BranchId" asp-items="Model.Branches" class="form-select"><option value="">— Select branch —</option></select>
+                    <span asp-validation-for="BranchId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ProductDefinitionId" class="form-label fw-medium"></label>
+                    <select asp-for="ProductDefinitionId" asp-items="Model.Products" class="form-select"><option value="">— Select product —</option></select>
+                    <span asp-validation-for="ProductDefinitionId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="RequestedAmount" class="form-label fw-medium"></label>
+                    <input asp-for="RequestedAmount" class="form-control" type="number" step="0.01" min="0.01" />
+                    <span asp-validation-for="RequestedAmount" class="text-danger small"></span>
+                </div>
+                <div class="col-md-8">
+                    <label asp-for="Purpose" class="form-label fw-medium"></label>
+                    <input asp-for="Purpose" class="form-control" />
+                    <span asp-validation-for="Purpose" class="text-danger small"></span>
+                </div>
+            </div>
+            <hr class="my-4" />
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Submit request</button>
+                <a asp-action="Requests" class="btn btn-falcon-default">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            var no = document.getElementById('CustomerNo');
+            var preview = document.getElementById('customerPreview');
+            var timer;
+            function lookup() {
+                var v = no.value.trim();
+                if (!v) { preview.textContent = 'Type a customer number'; preview.className = 'form-control bg-200 text-muted'; return; }
+                fetch('@Url.Action("LookupCustomer", "Loan")?customerNo=' + encodeURIComponent(v))
+                    .then(function (r) { return r.json(); })
+                    .then(function (d) {
+                        if (!d.found) { preview.textContent = 'No customer found'; preview.className = 'form-control bg-200 text-danger'; return; }
+                        preview.textContent = d.name + ' (' + d.status + ')';
+                        preview.className = 'form-control bg-200 ' + (d.status === 'ACTIVE' ? 'text-success' : 'text-warning');
+                    })
+                    .catch(function () { });
+            }
+            no.addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(lookup, 350); });
+            if (no.value) lookup();
+        })();
+    </script>
+}

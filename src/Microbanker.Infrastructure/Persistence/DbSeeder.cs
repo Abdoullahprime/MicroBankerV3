@@ -40,6 +40,8 @@ public static class DbSeeder
         ("SELF_REG",            "Self Registration",    "fas fa-user-plus",      "Banking", 31),
         ("ACCOUNTS",            "Accounts",             "fas fa-piggy-bank",     "Banking", 32),
         ("BAL_ENQUIRY",         "Balance Enquiry",      "fas fa-search-dollar",  "Banking", 33),
+        ("LOANS",               "Loans",                "fas fa-hand-holding-usd",   "Lending", 40),
+        ("LOAN_REQ",            "Loan Requests",        "fas fa-file-invoice-dollar","Lending", 41),
         ("USERS",        "Users",        "fas fa-user-cog",       "Administration", 60),
         ("ROLES",        "Roles",        "fas fa-shield-alt",     "Administration", 61),
         ("PERMISSIONS",  "Permissions",  "fas fa-key",            "Administration", 62),

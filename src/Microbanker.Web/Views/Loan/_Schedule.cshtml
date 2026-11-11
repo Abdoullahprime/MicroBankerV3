@@ -1,0 +1,62 @@
+@* src/Microbanker.Web/Views/Loan/_Schedule.cshtml *@
+@model Microbanker.Web.Models.LoanDetailViewModel
+@if (Model.Schedule.Any())
+{
+    <div class="card shadow-sm border-0 mb-3">
+        <div class="card-header bg-transparent border-bottom py-2 d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 fw-semibold fs--1"><i class="fas fa-calendar-alt me-2 text-primary"></i>Repayment schedule@(Model.ScheduleIsPreview ? " (preview)" : "")</h6>
+            @if (Model.ScheduleIsPreview)
+            {
+                <span class="fs--2 text-muted">Dates are recalculated from the actual disbursement date.</span>
+            }
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm mb-0 fs--1">
+                <thead class="bg-200">
+                    <tr>
+                        <th>#</th><th>Due date</th><th class="text-end">Principal</th><th class="text-end">Interest</th><th class="text-end">Charges</th>
+                        <th class="text-end">Total</th>
+                        @if (!Model.ScheduleIsPreview) { <th class="text-end">Paid</th><th class="text-end">Remaining</th><th class="text-center">Status</th> }
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var r in Model.Schedule)
+                {
+                    <tr class="@(r.IsOverdue ? "table-danger" : "")">
+                        <td>@r.No</td>
+                        <td>@r.DueDate.ToString("dd MMM yyyy")</td>
+                        <td class="text-end">@r.PrincipalDue.ToString("N2")</td>
+                        <td class="text-end">@r.InterestDue.ToString("N2")</td>
+                        <td class="text-end">@r.ChargesDue.ToString("N2")</td>
+                        <td class="text-end fw-medium">@r.TotalDue.ToString("N2")</td>
+                        @if (!Model.ScheduleIsPreview)
+                        {
+                            <td class="text-end">@r.TotalPaid.ToString("N2")</td>
+                            <td class="text-end">@r.Remaining.ToString("N2")</td>
+                            <td class="text-center">
+                                <span class="badge @(r.Status == "PAID" ? "badge-subtle-success" : r.Status == "PARTIAL" ? "badge-subtle-warning" : "badge-subtle-secondary")">@r.Status</span>
+                                @if (r.IsOverdue) { <span class="badge badge-subtle-danger">OVERDUE</span> }
+                            </td>
+                        }
+                    </tr>
+                }
+                </tbody>
+                <tfoot class="bg-200 fw-semibold">
+                    <tr>
+                        <td colspan="2">Total</td>
+                        <td class="text-end">@Model.Schedule.Sum(x => x.PrincipalDue).ToString("N2")</td>
+                        <td class="text-end">@Model.Schedule.Sum(x => x.InterestDue).ToString("N2")</td>
+                        <td class="text-end">@Model.Schedule.Sum(x => x.ChargesDue).ToString("N2")</td>
+                        <td class="text-end">@Model.Schedule.Sum(x => x.TotalDue).ToString("N2")</td>
+                        @if (!Model.ScheduleIsPreview)
+                        {
+                            <td class="text-end">@Model.TotalPaid.ToString("N2")</td>
+                            <td class="text-end">@Model.TotalRemaining.ToString("N2")</td>
+                            <td></td>
+                        }
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+}

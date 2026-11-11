@@ -979,6 +979,377 @@ namespace Microbanker.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Microbanker.Domain.Entities.Loans.LoanAccount", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ApprovedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Charges")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Collateral")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("DisbursedAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("DisbursedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DisbursedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly?>("FirstEMIDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("GracePeriod")
+                        .HasColumnType("int");
+
+                    b.Property<string>("GuarantorsAccountNo")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("InterestCalcMethod")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal>("InterestRate")
+                        .HasColumnType("decimal(9,4)");
+
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDisbursed")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("LoanAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateOnly?>("LoanEndDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("LoanName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("LoanNo")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<Guid?>("LoanRequestId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly?>("LoanStartDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("NoOfInstallments")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("OutstandingBalance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("ProductDefinitionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RepaymentFrequency")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("RepaymentMode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid?>("SectorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("SettlementAccountNo")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<int>("SkipInstallments")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid?>("SubSectorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Tenure")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("LoanRequestId");
+
+                    b.HasIndex("ProductDefinitionId");
+
+                    b.HasIndex("SectorId");
+
+                    b.HasIndex("SubSectorId");
+
+                    b.HasIndex("OrganizationId", "LoanNo")
+                        .IsUnique();
+
+                    b.HasIndex("OrganizationId", "Status");
+
+                    b.ToTable("LoanAccounts", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_LoanAccounts_Frequency", "[RepaymentFrequency] IN ('DAILY','WEEKLY','MONTHLY','QUARTERLY')");
+
+                            t.HasCheckConstraint("CK_LoanAccounts_Method", "[InterestCalcMethod] IN ('FLAT','REDUCING')");
+
+                            t.HasCheckConstraint("CK_LoanAccounts_Mode", "[RepaymentMode] IN ('CASH','DEDUCTION','STANDING_ORDER')");
+
+                            t.HasCheckConstraint("CK_LoanAccounts_Outstanding", "[OutstandingBalance] >= 0");
+
+                            t.HasCheckConstraint("CK_LoanAccounts_Status", "[Status] IN ('PENDING','APPROVED','ACTIVE','CLOSED','WRITTEN_OFF')");
+                        });
+                });
+
+            modelBuilder.Entity("Microbanker.Domain.Entities.Loans.LoanPayment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("ChargesPaid")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("InterestPaid")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("LoanAccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Mode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly>("PaidOn")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("PostedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("PrincipalPaid")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Reference")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LoanAccountId");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.ToTable("LoanPayments", (string)null);
+                });
+
+            modelBuilder.Entity("Microbanker.Domain.Entities.Loans.LoanRepayment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("ChargesDue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("ChargesPaid")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateOnly>("DueDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("InstallmentNo")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("InterestDue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("InterestPaid")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("LoanAccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("PaidAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("PostedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("PrincipalDue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("PrincipalPaid")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.HasIndex("LoanAccountId", "InstallmentNo")
+                        .IsUnique();
+
+                    b.ToTable("LoanRepayments", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_LoanRepayments_Status", "[Status] IN ('PENDING','PARTIAL','PAID')");
+                        });
+                });
+
+            modelBuilder.Entity("Microbanker.Domain.Entities.Loans.LoanRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProductDefinitionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Purpose")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("RequestedAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("ReviewRemarks")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("ReviewedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ReviewedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("ProductDefinitionId");
+
+                    b.HasIndex("OrganizationId", "Status");
+
+                    b.ToTable("LoanRequests", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_LoanRequests_Status", "[Status] IN ('PENDING','APPROVED','REJECTED','CONVERTED')");
+                        });
+                });
+
             modelBuilder.Entity("Microbanker.Domain.Entities.Organization.Bank", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1905,6 +2276,119 @@ namespace Microbanker.Infrastructure.Migrations
                     b.Navigation("Sector");
 
                     b.Navigation("SubSector");
+                });
+
+            modelBuilder.Entity("Microbanker.Domain.Entities.Loans.LoanAccount", b =>
+                {
+                    b.HasOne("Microbanker.Domain.Entities.Organization.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microbanker.Domain.Entities.Customers.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microbanker.Domain.Entities.Loans.LoanRequest", null)
+                        .WithMany()
+                        .HasForeignKey("LoanRequestId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Microbanker.Domain.Entities.Organization.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microbanker.Domain.Entities.Setup.ProductDefinition", "ProductDefinition")
+                        .WithMany()
+                        .HasForeignKey("ProductDefinitionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microbanker.Domain.Entities.Setup.Sector", null)
+                        .WithMany()
+                        .HasForeignKey("SectorId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Microbanker.Domain.Entities.Setup.SubSector", null)
+                        .WithMany()
+                        .HasForeignKey("SubSectorId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("ProductDefinition");
+                });
+
+            modelBuilder.Entity("Microbanker.Domain.Entities.Loans.LoanPayment", b =>
+                {
+                    b.HasOne("Microbanker.Domain.Entities.Loans.LoanAccount", null)
+                        .WithMany()
+                        .HasForeignKey("LoanAccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microbanker.Domain.Entities.Organization.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microbanker.Domain.Entities.Loans.LoanRepayment", b =>
+                {
+                    b.HasOne("Microbanker.Domain.Entities.Loans.LoanAccount", "LoanAccount")
+                        .WithMany()
+                        .HasForeignKey("LoanAccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microbanker.Domain.Entities.Organization.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("LoanAccount");
+                });
+
+            modelBuilder.Entity("Microbanker.Domain.Entities.Loans.LoanRequest", b =>
+                {
+                    b.HasOne("Microbanker.Domain.Entities.Organization.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microbanker.Domain.Entities.Customers.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microbanker.Domain.Entities.Organization.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microbanker.Domain.Entities.Setup.ProductDefinition", "ProductDefinition")
+                        .WithMany()
+                        .HasForeignKey("ProductDefinitionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("ProductDefinition");
                 });
 
             modelBuilder.Entity("Microbanker.Domain.Entities.Organization.Bank", b =>
