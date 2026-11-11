@@ -5,6 +5,7 @@ using Microbanker.Domain.Entities.Customers;
 using Microbanker.Domain.Entities.Loans;
 using Microbanker.Domain.Entities.Organization;
 using Microbanker.Domain.Entities.Setup;
+using Microbanker.Domain.Entities.Transactions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -55,6 +56,10 @@ public class MicrobankerDbContext : DbContext
     public DbSet<LoanRepayment> LoanRepayments { get; set; }
     public DbSet<LoanPayment>   LoanPayments   { get; set; }
     public DbSet<LoanRequest>   LoanRequests   { get; set; }
+
+    // ── Transactions ───────────────────────────────────────────────
+    public DbSet<Transaction>       Transactions       { get; set; }
+    public DbSet<WithdrawalRequest> WithdrawalRequests { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -360,6 +365,8 @@ public class MicrobankerDbContext : DbContext
                 t.HasCheckConstraint("CK_MemberAccounts_AccountType", "[AccountType] IN ('SAVINGS','CURRENT','FIXED_DEPOSIT')");
                 t.HasCheckConstraint("CK_MemberAccounts_Status", "[Status] IN ('PENDING','ACTIVE','DORMANT','FROZEN','CLOSED')");
                 t.HasCheckConstraint("CK_MemberAccounts_Blocked", "[BlockedAmount] >= 0");
+                // No overdrafts: the book and available balances can never go below zero.
+                t.HasCheckConstraint("CK_MemberAccounts_NoOverdraft", "[BookBalance] >= 0 AND [AvailableBalance] >= 0");
             });
             e.HasKey(x => x.Id);
             e.Property(x => x.AccountNo).IsRequired().HasMaxLength(40);
@@ -489,6 +496,59 @@ public class MicrobankerDbContext : DbContext
             e.HasOne(x => x.Branch).WithMany().HasForeignKey(x => x.BranchId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne(x => x.Customer).WithMany().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne(x => x.ProductDefinition).WithMany().HasForeignKey(x => x.ProductDefinitionId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.OrganizationId, x.Status });
+        });
+
+        // ═══ Transactions ══════════════════════════════════════════
+        builder.Entity<Transaction>(e =>
+        {
+            e.ToTable("Transactions", t =>
+            {
+                t.HasCheckConstraint("CK_Transactions_DrCr", "[DrCr] IN ('DR','CR')");
+                t.HasCheckConstraint("CK_Transactions_Status", "[Status] IN ('PENDING','POSTED','REVERSED')");
+                t.HasCheckConstraint("CK_Transactions_AccountType", "[AccountType] IN ('SAVINGS','CURRENT','FIXED_DEPOSIT','LOAN')");
+                t.HasCheckConstraint("CK_Transactions_Amount", "[Amount] > 0");
+            });
+            e.HasKey(x => x.Id);
+            e.Property(x => x.TransactionRef).IsRequired().HasMaxLength(30);
+            e.Property(x => x.AccountType).IsRequired().HasMaxLength(20);
+            e.Property(x => x.DrCr).IsRequired().HasMaxLength(2);
+            e.Property(x => x.Currency).IsRequired().HasMaxLength(3);
+            e.Property(x => x.Narration).IsRequired().HasMaxLength(250);
+            e.Property(x => x.TellerRef).HasMaxLength(50);
+            e.Property(x => x.BatchRef).HasMaxLength(40);
+            e.Property(x => x.Status).IsRequired().HasMaxLength(20);
+            e.Property(x => x.ReversalRef).HasMaxLength(30);
+            e.Property(x => x.GLAccountNo).HasMaxLength(30);
+            e.Property(x => x.ReversalReason).HasMaxLength(500);
+            e.Property(x => x.Amount).HasColumnType("decimal(18,2)");
+            e.Property(x => x.BalanceAfter).HasColumnType("decimal(18,2)");
+
+            e.HasOne<Organization>().WithMany().HasForeignKey(x => x.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<Branch>().WithMany().HasForeignKey(x => x.BranchId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<TransactionCode>().WithMany().HasForeignKey(x => x.TransactionCodeId).OnDelete(DeleteBehavior.Restrict);
+
+            // References are never reused, so this index deliberately ignores IsDeleted (transactions are never deleted anyway).
+            e.HasIndex(x => new { x.OrganizationId, x.TransactionRef }).IsUnique();
+            e.HasIndex(x => new { x.AccountId, x.PostingDate });
+            e.HasIndex(x => new { x.OrganizationId, x.BatchRef });
+            e.HasIndex(x => new { x.OrganizationId, x.ValueDate });
+        });
+
+        builder.Entity<WithdrawalRequest>(e =>
+        {
+            e.ToTable("WithdrawalRequests", t => t.HasCheckConstraint("CK_WithdrawalRequests_Status",
+                "[Status] IN ('PENDING','APPROVED','REJECTED','COMPLETED')"));
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Status).IsRequired().HasMaxLength(20);
+            e.Property(x => x.Purpose).HasMaxLength(500);
+            e.Property(x => x.ReviewRemarks).HasMaxLength(500);
+            e.Property(x => x.CompletedTransactionRef).HasMaxLength(30);
+            e.Property(x => x.Amount).HasColumnType("decimal(18,2)");
+            e.HasOne<Organization>().WithMany().HasForeignKey(x => x.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<Branch>().WithMany().HasForeignKey(x => x.BranchId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<MemberAccount>().WithMany().HasForeignKey(x => x.AccountId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<TransactionCode>().WithMany().HasForeignKey(x => x.TransactionCodeId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(x => new { x.OrganizationId, x.Status });
         });
     }

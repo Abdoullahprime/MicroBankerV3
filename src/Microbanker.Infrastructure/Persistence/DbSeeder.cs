@@ -42,6 +42,8 @@ public static class DbSeeder
         ("BAL_ENQUIRY",         "Balance Enquiry",      "fas fa-search-dollar",  "Banking", 33),
         ("LOANS",               "Loans",                "fas fa-hand-holding-usd",   "Lending", 40),
         ("LOAN_REQ",            "Loan Requests",        "fas fa-file-invoice-dollar","Lending", 41),
+        ("TELLER",              "Teller",               "fas fa-cash-register",  "Teller", 50),
+        ("TRANS_VIEW",          "Transactions",         "fas fa-list-alt",       "Teller", 51),
         ("USERS",        "Users",        "fas fa-user-cog",       "Administration", 60),
         ("ROLES",        "Roles",        "fas fa-shield-alt",     "Administration", 61),
         ("PERMISSIONS",  "Permissions",  "fas fa-key",            "Administration", 62),

@@ -442,9 +442,7 @@ public class AccountController : SetupControllerBase
         return View(vm);
     }
 
-    /// <summary>
-    /// Transactions are introduced in Phase 5, so for now this shows the account and its balances only.
-    /// </summary>
+    /// <summary>The account with its ten most recent transactions, newest first.</summary>
     [HttpGet]
     public async Task<IActionResult> MiniStatement(string id)
     {
@@ -456,7 +454,17 @@ public class AccountController : SetupControllerBase
         var account = await Detailed(org.Id).FirstOrDefaultAsync(a => a.Id == accountId);
         if (account == null) return NotFound();
 
-        return View(new MiniStatementViewModel { Account = await BuildDetailAsync(account, id, includeAudit: false) });
+        var lines = await _db.Transactions
+            .Where(t => t.OrganizationId == org.Id && t.AccountId == account.Id)
+            .OrderByDescending(t => t.PostingDate).ThenByDescending(t => t.TransactionRef)
+            .Take(10)
+            .Select(t => new StatementLineViewModel
+            {
+                ValueDate = t.ValueDate, TransactionRef = t.TransactionRef, Narration = t.Narration, DrCr = t.DrCr,
+                Amount = t.Amount, BalanceAfter = t.BalanceAfter, Status = t.Status, IsReversal = t.IsReversal
+            }).ToListAsync();
+
+        return View(new MiniStatementViewModel { Account = await BuildDetailAsync(account, id, includeAudit: false), Lines = lines });
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

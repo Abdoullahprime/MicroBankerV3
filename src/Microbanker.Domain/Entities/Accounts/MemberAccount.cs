@@ -211,6 +211,82 @@ public class MemberAccount : BaseEntity
         Touch();
     }
 
+    // ── Posting ───────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Adds money to the account. Allowed on active and dormant accounts; a credit ends dormancy.
+    /// Use through the posting service, which records the matching transaction.
+    /// </summary>
+    public void Credit(decimal amount, DateTime when)
+    {
+        RequirePostable(amount);
+        if (Status != AccountOptions.Active && Status != AccountOptions.Dormant)
+            throw new InvalidOperationException($"The account is {Status.ToLowerInvariant()} and cannot be credited.");
+
+        BookBalance += amount;
+        AvailableBalance += amount;
+        MonthlyCRTurnover += amount;
+        LastCRDate = when;
+        LastCRActivityDate = when;
+        if (Status == AccountOptions.Dormant) Status = AccountOptions.Active;
+        Touch();
+    }
+
+    /// <summary>Takes money out of the account, never beyond the available balance (there are no overdrafts).</summary>
+    public void Debit(decimal amount, DateTime when)
+    {
+        RequirePostable(amount);
+        if (Status != AccountOptions.Active)
+            throw new InvalidOperationException($"The account is {Status.ToLowerInvariant()} and cannot be debited.");
+        if (amount > AvailableBalance)
+            throw new InvalidOperationException("Insufficient available balance.");
+
+        BookBalance -= amount;
+        AvailableBalance -= amount;
+        MonthlyDRTurnover += amount;
+        LastDRDate = when;
+        LastDRActivityDate = when;
+        Touch();
+    }
+
+    /// <summary>Takes back a credit that is being reversed. Fails if the money has already been used or blocked.</summary>
+    public void UndoCredit(decimal amount)
+    {
+        RequirePostable(amount);
+        RequireOpenForReversal();
+        if (amount > AvailableBalance)
+            throw new InvalidOperationException("The credited money is no longer available, so the credit cannot be reversed.");
+
+        BookBalance -= amount;
+        AvailableBalance -= amount;
+        MonthlyCRTurnover = Math.Max(0m, MonthlyCRTurnover - amount);
+        Touch();
+    }
+
+    /// <summary>Puts back a debit that is being reversed.</summary>
+    public void UndoDebit(decimal amount)
+    {
+        RequirePostable(amount);
+        RequireOpenForReversal();
+
+        BookBalance += amount;
+        AvailableBalance += amount;
+        MonthlyDRTurnover = Math.Max(0m, MonthlyDRTurnover - amount);
+        Touch();
+    }
+
+    private static void RequirePostable(decimal amount)
+    {
+        if (amount <= 0 || decimal.Round(amount, 2) != amount)
+            throw new ArgumentOutOfRangeException(nameof(amount), "The amount must be greater than zero with at most two decimal places.");
+    }
+
+    private void RequireOpenForReversal()
+    {
+        if (Status == AccountOptions.Pending || Status == AccountOptions.Closed)
+            throw new InvalidOperationException($"The account is {Status.ToLowerInvariant()}, so postings on it cannot be reversed.");
+    }
+
     // ── Edit requests ─────────────────────────────────────────────────────────
 
     public void MarkEditRequested(string reason)

@@ -1,0 +1,30 @@
+@* src/Microbanker.Web/Views/Teller/_AccountLookup.cshtml
+   Shows the name, status and balance under any input marked data-account-lookup. *@
+<script>
+    (function () {
+        var url = '@Url.Action("AccountLookup", "Teller")';
+        var timers = new WeakMap();
+        function fmt(n) { return Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+        function lookup(input) {
+            var box = input.parentElement.querySelector('.acct-preview');
+            if (!box) return;
+            var v = input.value.trim();
+            if (!v) { box.textContent = ''; box.className = 'form-text acct-preview'; return; }
+            fetch(url + '?accountNo=' + encodeURIComponent(v))
+                .then(function (r) { return r.json(); })
+                .then(function (d) {
+                    if (!d.found) { box.textContent = 'Account not found'; box.className = 'form-text acct-preview text-danger'; return; }
+                    box.textContent = d.name + ' · ' + d.status + ' · available ' + fmt(d.available) + ' ' + d.currency;
+                    box.className = 'form-text acct-preview ' + (d.status === 'ACTIVE' ? 'text-success' : 'text-warning');
+                })
+                .catch(function () { });
+        }
+        document.addEventListener('input', function (e) {
+            var t = e.target;
+            if (!t.matches || !t.matches('[data-account-lookup]')) return;
+            clearTimeout(timers.get(t));
+            timers.set(t, setTimeout(function () { lookup(t); }, 350));
+        });
+        document.querySelectorAll('[data-account-lookup]').forEach(function (i) { if (i.value) lookup(i); });
+    })();
+</script>

@@ -1,0 +1,83 @@
+@* src/Microbanker.Web/Views/Teller/BulkUpload.cshtml *@
+@model Microbanker.Web.Models.BulkUploadFormModel
+@{
+    ViewData["Title"]        = "Bulk Upload";
+    ViewData["PageTitle"]    = "Bulk Upload Posting";
+    ViewData["PageSubTitle"] = "Post many lines from a CSV file";
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm border-0" style="max-width:880px;">
+    <div class="card-body">
+        <div class="alert alert-light border fs--1">
+            <div class="fw-semibold mb-1">File format</div>
+            One line per account: <code>AccountNo,DrCr,Amount,Narration</code> (narration optional, header row optional, at most 500 lines).
+            <pre class="mb-1 mt-2 fs--1">AccountNo,DrCr,Amount,Narration
+MN-SA-0000001,CR,1500.00,"Salary, March"
+MN-SA-0000002,CR,1200.00,Salary March</pre>
+            Either debits equal credits across the accounts, or every line goes the same way and a cash / contra account is chosen below.
+            The whole file posts or none of it does.
+        </div>
+
+        @if (Model.FileErrors.Any())
+        {
+            <div class="alert alert-danger fs--1">
+                <div class="fw-semibold mb-1">The file has problems; nothing was posted:</div>
+                <ul class="mb-0">@foreach (var e in Model.FileErrors) { <li>@e</li> }</ul>
+            </div>
+        }
+
+        <form asp-action="BulkUpload" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 fs--1"></div>
+            <div class="row g-3">
+                <div class="col-md-12">
+                    <label asp-for="File" class="form-label fw-medium"></label>
+                    <input asp-for="File" type="file" accept=".csv,text/csv,text/plain" class="form-control" />
+                    <span asp-validation-for="File" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="DebitCodeId" class="form-label fw-medium"></label>
+                    <select asp-for="DebitCodeId" asp-items="Model.DebitCodes" class="form-select"><option value="">—</option></select>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="CreditCodeId" class="form-label fw-medium"></label>
+                    <select asp-for="CreditCodeId" asp-items="Model.CreditCodes" class="form-select"><option value="">—</option></select>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ContraGlAccountNo" class="form-label fw-medium"></label>
+                    <select asp-for="ContraGlAccountNo" asp-items="Model.ContraGLs" class="form-select"><option value="">— None (balanced file) —</option></select>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="ValueDate" class="form-label fw-medium"></label>
+                    <input asp-for="ValueDate" class="form-control" type="date" />
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="TellerRef" class="form-label fw-medium"></label>
+                    <input asp-for="TellerRef" class="form-control" maxlength="50" />
+                </div>
+                <div class="col-12">
+                    <label asp-for="Narration" class="form-label fw-medium"></label>
+                    <input asp-for="Narration" class="form-control" maxlength="250" />
+                    <span asp-validation-for="Narration" class="text-danger small"></span>
+                </div>
+            </div>
+            <hr class="my-4" />
+            <button type="submit" class="btn btn-primary" onclick="return confirm('Post every line in this file?');"><i class="fas fa-upload me-2"></i>Post file</button>
+        </form>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

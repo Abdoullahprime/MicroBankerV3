@@ -198,4 +198,6 @@ public class BlockAmountViewModel
 public class MiniStatementViewModel
 {
     public AccountDetailViewModel Account { get; set; } = new();
+    /// <summary>The most recent transactions, newest first.</summary>
+    public List<StatementLineViewModel> Lines { get; set; } = new();
 }

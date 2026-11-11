@@ -344,6 +344,83 @@
                 </ul>
               </li>
 
+              <!-- ════════════════════ TELLER ════════════════════ -->
+              <li class="nav-item">
+                <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
+                  <div class="col-auto navbar-vertical-label">Teller</div>
+                  <div class="col ps-0"><hr class="mb-0 navbar-vertical-divider" /></div>
+                </div>
+
+                <a class="nav-link dropdown-indicator"
+                   href="#nav-teller" role="button" data-bs-toggle="collapse"
+                   aria-expanded="@(ViewData["ActiveGroup"]?.ToString() == "Teller" ? "true" : "false")"
+                   aria-controls="nav-teller">
+                  <div class="d-flex align-items-center">
+                    <span class="nav-link-icon"><span class="fas fa-cash-register"></span></span>
+                    <span class="nav-link-text ps-1">Teller</span>
+                  </div>
+                </a>
+                <ul class="nav collapse @(ViewData["ActiveGroup"]?.ToString() == "Teller" ? "show" : "")"
+                    id="nav-teller">
+                  <li class="nav-item">
+                    <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Deposit" ? "active" : "")"
+                       asp-controller="Teller" asp-action="Deposit">
+                      <div class="d-flex align-items-center">
+                        <span class="nav-link-text ps-1">Deposit</span>
+                      </div>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Withdrawal" ? "active" : "")"
+                       asp-controller="Teller" asp-action="Withdrawal">
+                      <div class="d-flex align-items-center">
+                        <span class="nav-link-text ps-1">Withdrawal</span>
+                      </div>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "WithdrawalRequests" ? "active" : "")"
+                       asp-controller="Teller" asp-action="WithdrawalRequests">
+                      <div class="d-flex align-items-center">
+                        <span class="nav-link-text ps-1">Withdrawal Requests</span>
+                      </div>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "RetailPosting" ? "active" : "")"
+                       asp-controller="Teller" asp-action="RetailPosting">
+                      <div class="d-flex align-items-center">
+                        <span class="nav-link-text ps-1">Retail Posting</span>
+                      </div>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "MixedPosting" ? "active" : "")"
+                       asp-controller="Teller" asp-action="MixedPosting">
+                      <div class="d-flex align-items-center">
+                        <span class="nav-link-text ps-1">Mixed Posting</span>
+                      </div>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "BulkUpload" ? "active" : "")"
+                       asp-controller="Teller" asp-action="BulkUpload">
+                      <div class="d-flex align-items-center">
+                        <span class="nav-link-text ps-1">Bulk Upload</span>
+                      </div>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Transactions" ? "active" : "")"
+                       asp-controller="Transaction" asp-action="Index">
+                      <div class="d-flex align-items-center">
+                        <span class="nav-link-text ps-1">Transactions</span>
+                      </div>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+
               <!-- ════════════════════ ADMINISTRATION ════════════════════ -->
               <li class="nav-item">
                 <div class="row navbar-vertical-label-wrapper mt-3 mb-2">

@@ -261,6 +261,8 @@ namespace Microbanker.Infrastructure.Migrations
 
                             t.HasCheckConstraint("CK_MemberAccounts_Blocked", "[BlockedAmount] >= 0");
 
+                            t.HasCheckConstraint("CK_MemberAccounts_NoOverdraft", "[BookBalance] >= 0 AND [AvailableBalance] >= 0");
+
                             t.HasCheckConstraint("CK_MemberAccounts_Status", "[Status] IN ('PENDING','ACTIVE','DORMANT','FROZEN','CLOSED')");
                         });
                 });
@@ -2057,6 +2059,206 @@ namespace Microbanker.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Microbanker.Domain.Entities.Transactions.Transaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AccountType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("BalanceAfter")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("BatchRef")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.Property<string>("DrCr")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("nvarchar(2)");
+
+                    b.Property<string>("GLAccountNo")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsReversal")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Narration")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PostedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("PostingDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReversalReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ReversalRef")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<DateTime?>("ReversedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ReversedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("TellerRef")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid>("TransactionCodeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("TransactionRef")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateOnly>("ValueDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("TransactionCodeId");
+
+                    b.HasIndex("AccountId", "PostingDate");
+
+                    b.HasIndex("OrganizationId", "BatchRef");
+
+                    b.HasIndex("OrganizationId", "TransactionRef")
+                        .IsUnique();
+
+                    b.HasIndex("OrganizationId", "ValueDate");
+
+                    b.ToTable("Transactions", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Transactions_AccountType", "[AccountType] IN ('SAVINGS','CURRENT','FIXED_DEPOSIT','LOAN')");
+
+                            t.HasCheckConstraint("CK_Transactions_Amount", "[Amount] > 0");
+
+                            t.HasCheckConstraint("CK_Transactions_DrCr", "[DrCr] IN ('DR','CR')");
+
+                            t.HasCheckConstraint("CK_Transactions_Status", "[Status] IN ('PENDING','POSTED','REVERSED')");
+                        });
+                });
+
+            modelBuilder.Entity("Microbanker.Domain.Entities.Transactions.WithdrawalRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ApprovedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CompletedTransactionRef")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Purpose")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid>("RequestedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ReviewRemarks")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("TransactionCodeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("TransactionCodeId");
+
+                    b.HasIndex("OrganizationId", "Status");
+
+                    b.ToTable("WithdrawalRequests", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_WithdrawalRequests_Status", "[Status] IN ('PENDING','APPROVED','REJECTED','COMPLETED')");
+                        });
+                });
+
             modelBuilder.Entity("Microbanker.Domain.Entities.Accounts.AccountEditRequest", b =>
                 {
                     b.HasOne("Microbanker.Domain.Entities.Accounts.MemberAccount", "Account")
@@ -2547,6 +2749,54 @@ namespace Microbanker.Infrastructure.Migrations
                     b.HasOne("Microbanker.Domain.Entities.Organization.Organization", null)
                         .WithMany()
                         .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microbanker.Domain.Entities.Transactions.Transaction", b =>
+                {
+                    b.HasOne("Microbanker.Domain.Entities.Organization.Branch", null)
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microbanker.Domain.Entities.Organization.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microbanker.Domain.Entities.Setup.TransactionCode", null)
+                        .WithMany()
+                        .HasForeignKey("TransactionCodeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microbanker.Domain.Entities.Transactions.WithdrawalRequest", b =>
+                {
+                    b.HasOne("Microbanker.Domain.Entities.Accounts.MemberAccount", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microbanker.Domain.Entities.Organization.Branch", null)
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microbanker.Domain.Entities.Organization.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microbanker.Domain.Entities.Setup.TransactionCode", null)
+                        .WithMany()
+                        .HasForeignKey("TransactionCodeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

@@ -1,0 +1,144 @@
+@* src/Microbanker.Web/Views/Teller/MixedPosting.cshtml *@
+@model Microbanker.Web.Models.MixedPostingFormModel
+@{
+    ViewData["Title"]        = "Mixed Posting";
+    ViewData["PageTitle"]    = "Mixed Posting";
+    ViewData["PageSubTitle"] = "Several debits and credits in one posting";
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm border-0" style="max-width:1000px;">
+    <div class="card-body">
+        <form asp-action="MixedPosting" method="post" id="mixedForm">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 fs--1"></div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-3">
+                    <label asp-for="DebitCodeId" class="form-label fw-medium"></label>
+                    <select asp-for="DebitCodeId" asp-items="Model.DebitCodes" class="form-select"><option value="">—</option></select>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="CreditCodeId" class="form-label fw-medium"></label>
+                    <select asp-for="CreditCodeId" asp-items="Model.CreditCodes" class="form-select"><option value="">—</option></select>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="ValueDate" class="form-label fw-medium"></label>
+                    <input asp-for="ValueDate" class="form-control" type="date" />
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="TellerRef" class="form-label fw-medium"></label>
+                    <input asp-for="TellerRef" class="form-control" maxlength="50" />
+                </div>
+                <div class="col-md-12">
+                    <label asp-for="Narration" class="form-label fw-medium"></label>
+                    <input asp-for="Narration" class="form-control" maxlength="250" placeholder="Used for any line without its own narration" />
+                    <span asp-validation-for="Narration" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-sm align-middle" id="lines">
+                    <thead class="bg-200"><tr><th style="width:34%">Account No.</th><th style="width:9%">Dr / Cr</th><th style="width:16%">Amount</th><th>Line narration (optional)</th><th style="width:40px"></th></tr></thead>
+                    <tbody>
+                    @for (var i = 0; i < Model.Lines.Count; i++)
+                    {
+                        <tr class="line">
+                            <td>
+                                <input name="Lines[@i].AccountNo" value="@Model.Lines[i].AccountNo" class="form-control form-control-sm text-uppercase" autocomplete="off" data-account-lookup />
+                                <div class="form-text acct-preview"></div>
+                            </td>
+                            <td>
+                                <select name="Lines[@i].DrCr" class="form-select form-select-sm">
+                                    <option value="DR" selected="@(Model.Lines[i].DrCr == "DR")">DR</option>
+                                    <option value="CR" selected="@(Model.Lines[i].DrCr == "CR")">CR</option>
+                                </select>
+                            </td>
+                            <td><input name="Lines[@i].Amount" value="@(Model.Lines[i].Amount == 0 ? "" : Model.Lines[i].Amount.ToString(System.Globalization.CultureInfo.InvariantCulture))" type="number" step="0.01" min="0" class="form-control form-control-sm amount" /></td>
+                            <td><input name="Lines[@i].Narration" value="@Model.Lines[i].Narration" class="form-control form-control-sm" maxlength="250" /></td>
+                            <td><button type="button" class="btn btn-link btn-sm text-danger remove" title="Remove line"><i class="fas fa-times"></i></button></td>
+                        </tr>
+                    }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="5">
+                                <button type="button" class="btn btn-falcon-default btn-sm" id="addLine"><i class="fas fa-plus me-1"></i>Add line</button>
+                                <span class="ms-3 fs--1">Debits <strong id="totDr">0.00</strong> · Credits <strong id="totCr">0.00</strong> · Difference <strong id="totDiff">0.00</strong></span>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="row g-3 mb-2">
+                <div class="col-md-6">
+                    <label asp-for="ContraGlAccountNo" class="form-label fw-medium"></label>
+                    <select asp-for="ContraGlAccountNo" asp-items="Model.ContraGLs" class="form-select"><option value="">— None (debits must equal credits) —</option></select>
+                    <span asp-validation-for="ContraGlAccountNo" class="text-danger small"></span>
+                    <div class="form-text">Only for postings where every line goes the same way (all debits or all credits): the other side is posted here.</div>
+                </div>
+            </div>
+            <hr class="my-4" />
+            <button type="submit" class="btn btn-primary"><i class="fas fa-check me-2"></i>Post</button>
+        </form>
+    </div>
+</div>
+<partial name="_AccountLookup" />
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            var body = document.querySelector('#lines tbody');
+            function reindex() {
+                body.querySelectorAll('tr.line').forEach(function (tr, i) {
+                    tr.querySelectorAll('[name]').forEach(function (el) {
+                        el.name = el.name.replace(/Lines\[\d+\]/, 'Lines[' + i + ']');
+                    });
+                });
+                totals();
+            }
+            function totals() {
+                var dr = 0, cr = 0;
+                body.querySelectorAll('tr.line').forEach(function (tr) {
+                    var v = parseFloat(tr.querySelector('.amount').value) || 0;
+                    if (tr.querySelector('select').value === 'DR') dr += v; else cr += v;
+                });
+                document.getElementById('totDr').textContent = dr.toFixed(2);
+                document.getElementById('totCr').textContent = cr.toFixed(2);
+                var diff = document.getElementById('totDiff');
+                diff.textContent = (dr - cr).toFixed(2);
+                diff.className = Math.abs(dr - cr) < 0.005 ? 'text-success' : 'text-danger';
+            }
+            document.getElementById('addLine').addEventListener('click', function () {
+                var rows = body.querySelectorAll('tr.line');
+                var clone = rows[rows.length - 1].cloneNode(true);
+                clone.querySelectorAll('input').forEach(function (i) { i.value = ''; });
+                var preview = clone.querySelector('.acct-preview'); preview.textContent = ''; preview.className = 'form-text acct-preview';
+                body.appendChild(clone);
+                reindex();
+            });
+            body.addEventListener('click', function (e) {
+                var btn = e.target.closest('.remove');
+                if (!btn) return;
+                if (body.querySelectorAll('tr.line').length > 1) { btn.closest('tr').remove(); reindex(); }
+            });
+            body.addEventListener('input', totals);
+            body.addEventListener('change', totals);
+            totals();
+        })();
+    </script>
+}

@@ -28,9 +28,36 @@
 </div>
 <partial name="_Balances" model="a" />
 <div class="card shadow-sm border-0">
-    <div class="card-header bg-transparent border-bottom py-2"><h6 class="mb-0 fw-semibold fs--1"><i class="fas fa-receipt me-2 text-primary"></i>Recent transactions</h6></div>
-    <div class="card-body text-center text-muted py-5">
-        <i class="fas fa-receipt fa-3x mb-3 opacity-25"></i>
-        <p class="mb-0 fs--1">No transactions yet. Deposits, withdrawals and postings arrive with the transaction module (Phase 5), and will be listed here.</p>
+    <div class="card-header bg-transparent border-bottom py-2 d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-semibold fs--1"><i class="fas fa-receipt me-2 text-primary"></i>Recent transactions</h6>
+        <a asp-controller="Transaction" asp-action="Index" asp-route-q="@a.AccountNo" class="fs--1">All transactions</a>
     </div>
+    @if (!Model.Lines.Any())
+    {
+        <div class="card-body text-center text-muted py-5">
+            <i class="fas fa-receipt fa-3x mb-3 opacity-25"></i>
+            <p class="mb-0 fs--1">No transactions on this account yet.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-sm mb-0 fs--1">
+                <thead class="bg-200"><tr><th>Date</th><th>Ref</th><th>Narration</th><th class="text-center">Dr/Cr</th><th class="text-end">Amount</th><th class="text-end">Balance</th></tr></thead>
+                <tbody>
+                @foreach (var l in Model.Lines)
+                {
+                    <tr class="@(l.Status == "REVERSED" ? "text-decoration-line-through text-muted" : "")">
+                        <td>@l.ValueDate.ToString("dd MMM yyyy")</td>
+                        <td>@l.TransactionRef@(l.IsReversal ? " (reversal)" : "")</td>
+                        <td>@l.Narration</td>
+                        <td class="text-center"><span class="badge @(l.DrCr == "DR" ? "badge-subtle-warning" : "badge-subtle-success")">@l.DrCr</span></td>
+                        <td class="text-end">@l.Amount.ToString("N2")</td>
+                        <td class="text-end">@l.BalanceAfter.ToString("N2")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
 </div>

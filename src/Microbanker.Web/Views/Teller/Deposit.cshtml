@@ -1,0 +1,72 @@
+@* src/Microbanker.Web/Views/Teller/Deposit.cshtml *@
+@model Microbanker.Web.Models.CashPostingFormModel
+@{
+    ViewData["Title"]        = "Cash Deposit";
+    ViewData["PageTitle"]    = "Cash Deposit";
+    ViewData["PageSubTitle"] = "Credit a customer account and take cash in";
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm border-0" style="max-width:880px;">
+    <div class="card-header bg-transparent border-bottom py-3"><h6 class="mb-0 fw-semibold"><i class="fas fa-arrow-down me-2 text-primary"></i>Cash Deposit</h6></div>
+    <div class="card-body">
+        <form asp-action="Deposit" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 fs--1"></div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="AccountNo" class="form-label fw-medium"></label>
+                    <input asp-for="AccountNo" class="form-control text-uppercase" autocomplete="off" data-account-lookup />
+            <div class="form-text acct-preview"></div>
+            <span asp-validation-for="AccountNo" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Amount" class="form-label fw-medium"></label>
+                    <input asp-for="Amount" class="form-control" type="number" step="0.01" min="0.01" />
+                    <span asp-validation-for="Amount" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="ValueDate" class="form-label fw-medium"></label>
+                    <input asp-for="ValueDate" class="form-control" type="date" />
+                    <span asp-validation-for="ValueDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="TransactionCodeId" class="form-label fw-medium"></label>
+                    <select asp-for="TransactionCodeId" asp-items="Model.Codes" class="form-select"><option value="">— Select code —</option></select>
+                    <span asp-validation-for="TransactionCodeId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="CashGlAccountNo" class="form-label fw-medium"></label>
+                    <select asp-for="CashGlAccountNo" asp-items="Model.CashGLs" class="form-select"><option value="">— Select cash account —</option></select>
+                    <span asp-validation-for="CashGlAccountNo" class="text-danger small"></span>
+                </div>
+                <div class="col-md-8">
+                    <label asp-for="Narration" class="form-label fw-medium"></label>
+                    <input asp-for="Narration" class="form-control" maxlength="250" />
+                    <span asp-validation-for="Narration" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="TellerRef" class="form-label fw-medium"></label>
+                    <input asp-for="TellerRef" class="form-control" maxlength="50" />
+                </div>
+            </div>
+            <hr class="my-4" />
+            <button type="submit" class="btn btn-primary"><i class="fas fa-check me-2"></i>Post deposit</button>
+        </form>
+    </div>
+</div>
+<partial name="_AccountLookup" />
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
