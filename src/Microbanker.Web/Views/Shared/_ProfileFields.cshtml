@@ -1,0 +1,281 @@
+@* src/Microbanker.Web/Views/Shared/_ProfileFields.cshtml
+   Form body shared by Customer and SelfRegistration. Set ViewData["TypeLocked"] = true on edit. *@
+@model Microbanker.Web.Models.ProfileFormModel
+@{
+    var typeLocked = ViewData["TypeLocked"] as bool? == true;
+}
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 fs--1"></div>
+
+@* ── Basics ── *@
+<h6 class="fw-semibold text-700 mb-3"><i class="fas fa-id-card me-2 text-primary"></i>Basics</h6>
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <label asp-for="BranchId" class="form-label fw-medium"></label> <span class="text-danger">*</span>
+        <select asp-for="BranchId" asp-items="Model.Branches" class="form-select">
+            <option value="">— Select branch —</option>
+        </select>
+        <span asp-validation-for="BranchId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="CustomerType" class="form-label fw-medium"></label> <span class="text-danger">*</span>
+        @if (typeLocked)
+        {
+            <input type="hidden" asp-for="CustomerType" />
+            <select id="CustomerTypeDisplay" class="form-select" disabled>
+                <option value="@Model.CustomerType" selected>@Model.CustomerType</option>
+            </select>
+            <div class="form-text">The customer type cannot be changed after creation.</div>
+        }
+        else
+        {
+            <select asp-for="CustomerType" asp-items="Model.CustomerTypes" class="form-select"></select>
+        }
+        <span asp-validation-for="CustomerType" class="text-danger small"></span>
+    </div>
+</div>
+
+@* ── Individual ── *@
+<div data-types="INDIVIDUAL">
+    <h6 class="fw-semibold text-700 mb-3"><i class="fas fa-user me-2 text-primary"></i>Personal Details</h6>
+    <div class="row g-3 mb-4">
+        <div class="col-md-2">
+            <label asp-for="Prefix" class="form-label fw-medium"></label>
+            <select asp-for="Prefix" asp-items="Model.Prefixes" class="form-select"><option value="">—</option></select>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="FirstName" class="form-label fw-medium"></label> <span class="text-danger">*</span>
+            <input asp-for="FirstName" class="form-control" />
+            <span asp-validation-for="FirstName" class="text-danger small"></span>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="MiddleName" class="form-label fw-medium"></label>
+            <input asp-for="MiddleName" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label asp-for="LastName" class="form-label fw-medium"></label> <span class="text-danger">*</span>
+            <input asp-for="LastName" class="form-control" />
+            <span asp-validation-for="LastName" class="text-danger small"></span>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="DateOfBirth" class="form-label fw-medium"></label>
+            <input asp-for="DateOfBirth" class="form-control" type="date" />
+            <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
+        </div>
+        <div class="col-md-2">
+            <label asp-for="Sex" class="form-label fw-medium"></label>
+            <select asp-for="Sex" asp-items="Model.Sexes" class="form-select"><option value="">—</option></select>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="MaritalStatus" class="form-label fw-medium"></label>
+            <select asp-for="MaritalStatus" asp-items="Model.MaritalStatuses" class="form-select"><option value="">—</option></select>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="SpouseName" class="form-label fw-medium"></label>
+            <input asp-for="SpouseName" class="form-control" />
+        </div>
+        <div class="col-md-2">
+            <label asp-for="Dependants" class="form-label fw-medium"></label>
+            <input asp-for="Dependants" class="form-control" type="number" min="0" step="1" />
+            <span asp-validation-for="Dependants" class="text-danger small"></span>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="Nationality" class="form-label fw-medium"></label>
+            <input asp-for="Nationality" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label asp-for="ResidenceStatus" class="form-label fw-medium"></label>
+            <select asp-for="ResidenceStatus" asp-items="Model.ResidenceStatuses" class="form-select"><option value="">—</option></select>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="Language" class="form-label fw-medium"></label>
+            <input asp-for="Language" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label asp-for="Occupation" class="form-label fw-medium"></label>
+            <input asp-for="Occupation" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="EmployerName" class="form-label fw-medium"></label>
+            <input asp-for="EmployerName" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="NationalId" class="form-label fw-medium"></label>
+            <input asp-for="NationalId" class="form-control" />
+            <span asp-validation-for="NationalId" class="text-danger small"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="PassportNo" class="form-label fw-medium"></label>
+            <input asp-for="PassportNo" class="form-control" />
+        </div>
+    </div>
+</div>
+
+@* ── Business ── *@
+<div data-types="BUSINESS">
+    <h6 class="fw-semibold text-700 mb-3"><i class="fas fa-briefcase me-2 text-primary"></i>Business Details</h6>
+    <div class="row g-3 mb-4">
+        <div class="col-md-8">
+            <label asp-for="BusinessName" class="form-label fw-medium"></label> <span class="text-danger">*</span>
+            <input asp-for="BusinessName" class="form-control" />
+            <span asp-validation-for="BusinessName" class="text-danger small"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="BusinessRegDate" class="form-label fw-medium"></label>
+            <input asp-for="BusinessRegDate" class="form-control" type="date" />
+            <span asp-validation-for="BusinessRegDate" class="text-danger small"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="BusinessRegNo" class="form-label fw-medium"></label>
+            <input asp-for="BusinessRegNo" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="BusinessTelephone" class="form-label fw-medium"></label>
+            <input asp-for="BusinessTelephone" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="DirectorName" class="form-label fw-medium"></label>
+            <input asp-for="DirectorName" class="form-control" />
+        </div>
+        <div class="col-12">
+            <label asp-for="NatureOfBusiness" class="form-label fw-medium"></label>
+            <input asp-for="NatureOfBusiness" class="form-control" />
+        </div>
+    </div>
+</div>
+
+@* ── Group ── *@
+<div data-types="GROUP">
+    <h6 class="fw-semibold text-700 mb-3"><i class="fas fa-users me-2 text-primary"></i>Group Details</h6>
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <label asp-for="GroupName" class="form-label fw-medium"></label> <span class="text-danger">*</span>
+            <input asp-for="GroupName" class="form-control" />
+            <span asp-validation-for="GroupName" class="text-danger small"></span>
+        </div>
+        <div class="col-md-2">
+            <label asp-for="NoOfMembers" class="form-label fw-medium"></label>
+            <input asp-for="NoOfMembers" class="form-control" type="number" min="0" step="1" />
+            <span asp-validation-for="NoOfMembers" class="text-danger small"></span>
+        </div>
+        <div class="col-md-2">
+            <label asp-for="NoOfMale" class="form-label fw-medium"></label>
+            <input asp-for="NoOfMale" class="form-control" type="number" min="0" step="1" />
+        </div>
+        <div class="col-md-2">
+            <label asp-for="NoOfFemale" class="form-label fw-medium"></label>
+            <input asp-for="NoOfFemale" class="form-control" type="number" min="0" step="1" />
+        </div>
+    </div>
+</div>
+
+@* ── Contact ── *@
+<h6 class="fw-semibold text-700 mb-3"><i class="fas fa-phone me-2 text-primary"></i>Contact</h6>
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <label asp-for="MobileNo" class="form-label fw-medium"></label>
+        <input asp-for="MobileNo" class="form-control" />
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Telephone" class="form-label fw-medium"></label>
+        <input asp-for="Telephone" class="form-control" />
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Email" class="form-label fw-medium"></label>
+        <input asp-for="Email" class="form-control" type="email" />
+        <span asp-validation-for="Email" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Address1" class="form-label fw-medium"></label>
+        <input asp-for="Address1" class="form-control" />
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Address2" class="form-label fw-medium"></label>
+        <input asp-for="Address2" class="form-control" />
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Address3" class="form-label fw-medium"></label>
+        <input asp-for="Address3" class="form-control" />
+    </div>
+</div>
+
+@* ── Location & classification ── *@
+<h6 class="fw-semibold text-700 mb-3"><i class="fas fa-map-marker-alt me-2 text-primary"></i>Location &amp; Classification</h6>
+<div class="row g-3 mb-2">
+    <div class="col-md-4">
+        <label asp-for="RegionId" class="form-label fw-medium"></label>
+        <select asp-for="RegionId" asp-items="Model.Regions" class="form-select"><option value="">— Select —</option></select>
+        <span asp-validation-for="RegionId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="DistrictId" class="form-label fw-medium"></label>
+        <select asp-for="DistrictId" class="form-select" data-parent="RegionId">
+            <option value="">— Select —</option>
+            @foreach (var d in Model.Districts) { <option value="@d.Id" data-parent-id="@d.ParentId">@d.Name</option> }
+        </select>
+        <span asp-validation-for="DistrictId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="AreaId" class="form-label fw-medium"></label>
+        <select asp-for="AreaId" class="form-select" data-parent="DistrictId">
+            <option value="">— Select —</option>
+            @foreach (var a in Model.Areas) { <option value="@a.Id" data-parent-id="@a.ParentId">@a.Name</option> }
+        </select>
+        <span asp-validation-for="AreaId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="SectorId" class="form-label fw-medium"></label>
+        <select asp-for="SectorId" asp-items="Model.Sectors" class="form-select"><option value="">— Select —</option></select>
+        <span asp-validation-for="SectorId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="SubSectorId" class="form-label fw-medium"></label>
+        <select asp-for="SubSectorId" class="form-select" data-parent="SectorId">
+            <option value="">— Select —</option>
+            @foreach (var s in Model.SubSectors) { <option value="@s.Id" data-parent-id="@s.ParentId">@s.Name</option> }
+        </select>
+        <span asp-validation-for="SubSectorId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="TinNo" class="form-label fw-medium"></label>
+        <input asp-for="TinNo" class="form-control" />
+    </div>
+    <div class="col-md-6">
+        <label asp-for="RelationshipOfficer" class="form-label fw-medium"></label>
+        <input asp-for="RelationshipOfficer" class="form-control" />
+    </div>
+</div>
+
+<script>
+    (function () {
+        // Show only the section for the chosen customer type.
+        var typeEl = document.getElementById('CustomerType');
+        function applyType() {
+            var t = typeEl.value;
+            document.querySelectorAll('[data-types]').forEach(function (s) {
+                s.classList.toggle('d-none', s.getAttribute('data-types').split(' ').indexOf(t) === -1);
+            });
+        }
+        typeEl.addEventListener('change', applyType);
+        applyType();
+
+        // Child dropdowns (district, area, sub-sector) list only the options under the chosen parent.
+        document.querySelectorAll('select[data-parent]').forEach(function (child) {
+            var parent = document.getElementById(child.getAttribute('data-parent'));
+            function filter() {
+                var pv = parent.value;
+                Array.prototype.forEach.call(child.options, function (o) {
+                    if (!o.value) return;
+                    var show = pv !== '' && o.getAttribute('data-parent-id') === pv;
+                    o.hidden = !show;
+                    o.disabled = !show;
+                });
+                var sel = child.options[child.selectedIndex];
+                if (sel && sel.disabled) child.value = '';
+                child.dispatchEvent(new Event('change'));
+            }
+            parent.addEventListener('change', filter);
+            filter();
+        });
+    })();
+</script>

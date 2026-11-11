@@ -1,0 +1,25 @@
+@* src/Microbanker.Web/Views/SelfRegistration/Edit.cshtml *@
+@model Microbanker.Web.Models.SelfRegFormModel
+@{
+    ViewData["Title"]        = "Edit Registration";
+    ViewData["PageTitle"]    = "Edit Registration";
+    ViewData["PageSubTitle"] = "Only pending registrations can be edited";
+    ViewData["TypeLocked"] = true;
+}
+
+<div class="card shadow-sm border-0" style="max-width:960px;">
+    <div class="card-body">
+        <form asp-action="Edit" asp-route-id="@Model.EncryptedId" method="post">
+            @Html.AntiForgeryToken()
+            <partial name="_ProfileFields" model="Model" />
+
+            <hr class="my-4" />
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Update</button>
+                <a asp-action="Index" class="btn btn-falcon-default">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

@@ -1,9 +1,11 @@
 // src/Microbanker.Infrastructure/Persistence/MicrobankerDbContext.cs
 using Microbanker.Domain.Entities.Auth;
+using Microbanker.Domain.Entities.Customers;
 using Microbanker.Domain.Entities.Organization;
 using Microbanker.Domain.Entities.Setup;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using OrgUnit = Microbanker.Domain.Entities.Organization.Unit;
 
 namespace Microbanker.Infrastructure.Persistence;
@@ -37,6 +39,10 @@ public class MicrobankerDbContext : DbContext
     public DbSet<ProductDefinition> ProductDefinitions { get; set; }
     public DbSet<TransactionCode>   TransactionCodes   { get; set; }
     public DbSet<GLAccount>         GLAccounts         { get; set; }
+
+    // ── Customers ──────────────────────────────────────────────────
+    public DbSet<Customer>          Customers          { get; set; }
+    public DbSet<SelfRegistration>  SelfRegistrations  { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -306,5 +312,74 @@ public class MicrobankerDbContext : DbContext
             e.HasOne(x => x.Parent).WithMany().HasForeignKey(x => x.ParentId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(x => new { x.OrganizationId, x.AccountNumber }).IsUnique().HasFilter("[IsDeleted] = 0");
         });
+
+        // ═══ Customers ═════════════════════════════════════════════
+        builder.Entity<Customer>(e =>
+        {
+            e.ToTable("Customers", t => t.HasCheckConstraint("CK_Customers_Status",
+                "[Status] IN ('PENDING','ACTIVE','SUSPENDED','CLOSED')"));
+            e.HasKey(x => x.Id);
+            ConfigureProfile(e);
+            e.Property(x => x.CustomerNo).IsRequired().HasMaxLength(30);
+            e.Property(x => x.Status).IsRequired().HasMaxLength(20);
+            e.Property(x => x.ApprovalRemarks).HasMaxLength(500);
+            // Numbers are never reused, so this index deliberately ignores IsDeleted.
+            e.HasIndex(x => new { x.OrganizationId, x.CustomerNo }).IsUnique();
+            e.HasIndex(x => new { x.OrganizationId, x.Status });
+            e.HasIndex(x => x.NationalId);
+        });
+
+        builder.Entity<SelfRegistration>(e =>
+        {
+            e.ToTable("SelfRegistrations", t => t.HasCheckConstraint("CK_SelfRegistrations_Status",
+                "[Status] IN ('PENDING','APPROVED','REJECTED')"));
+            e.HasKey(x => x.Id);
+            ConfigureProfile(e);
+            e.Property(x => x.Status).IsRequired().HasMaxLength(20);
+            e.Property(x => x.RejectionReason).HasMaxLength(500);
+            e.HasIndex(x => new { x.OrganizationId, x.Status });
+        });
+    }
+
+    /// <summary>Columns and relationships shared by Customer and SelfRegistration.</summary>
+    private static void ConfigureProfile<T>(EntityTypeBuilder<T> e) where T : PersonProfileBase
+    {
+        e.Property(x => x.CustomerType).IsRequired().HasMaxLength(20);
+        e.Property(x => x.Prefix).HasMaxLength(10);
+        e.Property(x => x.FirstName).IsRequired().HasMaxLength(100);
+        e.Property(x => x.MiddleName).HasMaxLength(100);
+        e.Property(x => x.LastName).IsRequired().HasMaxLength(100);
+        e.Property(x => x.Sex).HasMaxLength(1);
+        e.Property(x => x.MaritalStatus).HasMaxLength(20);
+        e.Property(x => x.SpouseName).HasMaxLength(200);
+        e.Property(x => x.Nationality).HasMaxLength(100);
+        e.Property(x => x.ResidenceStatus).HasMaxLength(20);
+        e.Property(x => x.Language).HasMaxLength(50);
+        e.Property(x => x.Occupation).HasMaxLength(100);
+        e.Property(x => x.EmployerName).HasMaxLength(200);
+        e.Property(x => x.NationalId).HasMaxLength(50);
+        e.Property(x => x.PassportNo).HasMaxLength(50);
+        e.Property(x => x.BusinessName).HasMaxLength(200);
+        e.Property(x => x.BusinessRegNo).HasMaxLength(50);
+        e.Property(x => x.BusinessTelephone).HasMaxLength(30);
+        e.Property(x => x.NatureOfBusiness).HasMaxLength(200);
+        e.Property(x => x.DirectorName).HasMaxLength(200);
+        e.Property(x => x.GroupName).HasMaxLength(200);
+        e.Property(x => x.Telephone).HasMaxLength(30);
+        e.Property(x => x.MobileNo).HasMaxLength(30);
+        e.Property(x => x.Email).HasMaxLength(200);
+        e.Property(x => x.Address1).HasMaxLength(200);
+        e.Property(x => x.Address2).HasMaxLength(200);
+        e.Property(x => x.Address3).HasMaxLength(200);
+        e.Property(x => x.TinNo).HasMaxLength(50);
+        e.Property(x => x.RelationshipOfficer).HasMaxLength(100);
+
+        e.HasOne<Organization>().WithMany().HasForeignKey(x => x.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+        e.HasOne(x => x.Branch).WithMany().HasForeignKey(x => x.BranchId).OnDelete(DeleteBehavior.Restrict);
+        e.HasOne(x => x.Region).WithMany().HasForeignKey(x => x.RegionId).OnDelete(DeleteBehavior.NoAction);
+        e.HasOne(x => x.District).WithMany().HasForeignKey(x => x.DistrictId).OnDelete(DeleteBehavior.NoAction);
+        e.HasOne(x => x.Area).WithMany().HasForeignKey(x => x.AreaId).OnDelete(DeleteBehavior.NoAction);
+        e.HasOne(x => x.Sector).WithMany().HasForeignKey(x => x.SectorId).OnDelete(DeleteBehavior.NoAction);
+        e.HasOne(x => x.SubSector).WithMany().HasForeignKey(x => x.SubSectorId).OnDelete(DeleteBehavior.NoAction);
     }
 }

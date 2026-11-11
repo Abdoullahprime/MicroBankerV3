@@ -1,0 +1,59 @@
+@* src/Microbanker.Web/Views/Shared/_ProfileDetails.cshtml — read-only details for Customer and SelfRegistration *@
+@model Microbanker.Web.Models.ProfileDetailViewModel
+@{
+    void Row(string label, string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) { return; }
+        <div class="col-md-4 mb-3">
+            <div class="fs--2 text-500 text-uppercase">@label</div>
+            <div class="fw-medium">@value</div>
+        </div>
+    }
+    string? Dt(DateOnly? d) => d?.ToString("dd MMM yyyy");
+    string? Num(int n) => n > 0 ? n.ToString() : null;
+    string? Sex = Model.Sex == "M" ? "Male" : Model.Sex == "F" ? "Female" : Model.Sex;
+}
+
+@if (Model.CustomerType == "INDIVIDUAL")
+{
+    <div class="card shadow-sm border-0 mb-3">
+        <div class="card-header bg-transparent border-bottom py-2"><h6 class="mb-0 fw-semibold fs--1"><i class="fas fa-user me-2 text-primary"></i>Personal Details</h6></div>
+        <div class="card-body pb-0"><div class="row">
+            @{ Row("Prefix", Model.Prefix); Row("First name", Model.FirstName); Row("Middle name", Model.MiddleName); Row("Last name", Model.LastName);
+               Row("Date of birth", Dt(Model.DateOfBirth)); Row("Sex", Sex); Row("Marital status", Model.MaritalStatus); Row("Spouse", Model.SpouseName);
+               Row("Dependants", Num(Model.Dependants)); Row("Nationality", Model.Nationality); Row("Residence status", Model.ResidenceStatus);
+               Row("Language", Model.Language); Row("Occupation", Model.Occupation); Row("Employer", Model.EmployerName);
+               Row("National ID", Model.NationalId); Row("Passport no.", Model.PassportNo); }
+        </div></div>
+    </div>
+}
+else if (Model.CustomerType == "BUSINESS")
+{
+    <div class="card shadow-sm border-0 mb-3">
+        <div class="card-header bg-transparent border-bottom py-2"><h6 class="mb-0 fw-semibold fs--1"><i class="fas fa-briefcase me-2 text-primary"></i>Business Details</h6></div>
+        <div class="card-body pb-0"><div class="row">
+            @{ Row("Business name", Model.BusinessName); Row("Registration date", Dt(Model.BusinessRegDate)); Row("Registration no.", Model.BusinessRegNo);
+               Row("Business telephone", Model.BusinessTelephone); Row("Nature of business", Model.NatureOfBusiness); Row("Director", Model.DirectorName); }
+        </div></div>
+    </div>
+}
+else
+{
+    <div class="card shadow-sm border-0 mb-3">
+        <div class="card-header bg-transparent border-bottom py-2"><h6 class="mb-0 fw-semibold fs--1"><i class="fas fa-users me-2 text-primary"></i>Group Details</h6></div>
+        <div class="card-body pb-0"><div class="row">
+            @{ Row("Group name", Model.GroupName); Row("Members", Model.NoOfMembers.ToString()); Row("Male", Model.NoOfMale.ToString()); Row("Female", Model.NoOfFemale.ToString()); }
+        </div></div>
+    </div>
+}
+
+<div class="card shadow-sm border-0 mb-3">
+    <div class="card-header bg-transparent border-bottom py-2"><h6 class="mb-0 fw-semibold fs--1"><i class="fas fa-phone me-2 text-primary"></i>Contact &amp; Location</h6></div>
+    <div class="card-body pb-0"><div class="row">
+        @{ Row("Mobile", Model.MobileNo); Row("Telephone", Model.Telephone); Row("Email", Model.Email);
+           Row("Address line 1", Model.Address1); Row("Address line 2", Model.Address2); Row("Address line 3", Model.Address3);
+           Row("Region", Model.RegionName); Row("District", Model.DistrictName); Row("Area", Model.AreaName);
+           Row("Sector", Model.SectorName); Row("Sub-sector", Model.SubSectorName);
+           Row("TIN", Model.TinNo); Row("Relationship officer", Model.RelationshipOfficer); }
+    </div></div>
+</div>

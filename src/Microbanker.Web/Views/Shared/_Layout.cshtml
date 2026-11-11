@@ -246,6 +246,43 @@
                 </ul>
               </li>
 
+              <!-- ════════════════════ BANKING ════════════════════ -->
+              <li class="nav-item">
+                <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
+                  <div class="col-auto navbar-vertical-label">Banking</div>
+                  <div class="col ps-0"><hr class="mb-0 navbar-vertical-divider" /></div>
+                </div>
+
+                <a class="nav-link dropdown-indicator"
+                   href="#nav-banking" role="button" data-bs-toggle="collapse"
+                   aria-expanded="@(ViewData["ActiveGroup"]?.ToString() == "Banking" ? "true" : "false")"
+                   aria-controls="nav-banking">
+                  <div class="d-flex align-items-center">
+                    <span class="nav-link-icon"><span class="fas fa-landmark"></span></span>
+                    <span class="nav-link-text ps-1">Banking</span>
+                  </div>
+                </a>
+                <ul class="nav collapse @(ViewData["ActiveGroup"]?.ToString() == "Banking" ? "show" : "")"
+                    id="nav-banking">
+                  <li class="nav-item">
+                    <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Customers" ? "active" : "")"
+                       asp-controller="Customer" asp-action="Index">
+                      <div class="d-flex align-items-center">
+                        <span class="nav-link-text ps-1">Customers</span>
+                      </div>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "SelfReg" ? "active" : "")"
+                       asp-controller="SelfRegistration" asp-action="Index">
+                      <div class="d-flex align-items-center">
+                        <span class="nav-link-text ps-1">Self Registration</span>
+                      </div>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+
               <!-- ════════════════════ ADMINISTRATION ════════════════════ -->
               <li class="nav-item">
                 <div class="row navbar-vertical-label-wrapper mt-3 mb-2">

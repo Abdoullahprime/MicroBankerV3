@@ -36,6 +36,8 @@ public static class DbSeeder
         ("PRODUCT_DEFINITIONS", "Product Definitions",  "fas fa-box-open",       "Setup", 26),
         ("TRANSACTION_CODES",   "Transaction Codes",    "fas fa-exchange-alt",   "Setup", 27),
         ("CHART_OF_ACCOUNTS",   "Chart of Accounts",    "fas fa-book",           "Setup", 28),
+        ("CUSTOMERS",           "Customers",            "fas fa-users",          "Banking", 30),
+        ("SELF_REG",            "Self Registration",    "fas fa-user-plus",      "Banking", 31),
         ("USERS",        "Users",        "fas fa-user-cog",       "Administration", 60),
         ("ROLES",        "Roles",        "fas fa-shield-alt",     "Administration", 61),
         ("PERMISSIONS",  "Permissions",  "fas fa-key",            "Administration", 62),
