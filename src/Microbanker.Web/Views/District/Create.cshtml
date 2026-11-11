@@ -1,0 +1,55 @@
+@* src/Microbanker.Web/Views/District/Create.cshtml *@
+@model Microbanker.Web.Models.DistrictFormModel
+@{
+    ViewData["Title"]        = "Add District";
+    ViewData["PageTitle"]    = "Add District";
+    ViewData["PageSubTitle"] = "Register a new district";
+}
+
+<div class="card shadow-sm border-0" style="max-width:720px;">
+    <div class="card-header bg-transparent border-bottom py-3">
+        <h6 class="mb-0 fw-semibold"><i class="fas fa-map me-2 text-primary"></i>District Details</h6>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 fs--1"></div>
+
+            <div class="row g-3">
+                <div class="col-md-12">
+                    <label asp-for="RegionId" class="form-label fw-medium"></label>
+                    <select asp-for="RegionId" asp-items="Model.Regions" class="form-select">
+                        <option value="">— Select —</option>
+                    </select>
+                    <span asp-validation-for="RegionId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-8">
+                    <label asp-for="Name" class="form-label fw-medium"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Code" class="form-label fw-medium"></label>
+                    <input asp-for="Code" class="form-control" />
+                    <span asp-validation-for="Code" class="text-danger small"></span>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-check form-switch">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsActive" class="form-check-label"></label>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4" />
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save District
+                </button>
+                <a asp-action="Index" class="btn btn-falcon-default">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

@@ -158,6 +158,94 @@
                 </ul>
               </li>
 
+              <!-- ════════════════════ SETUP ════════════════════ -->
+              <li class="nav-item">
+                <a class="nav-link dropdown-indicator"
+                   href="#nav-setup" role="button" data-bs-toggle="collapse"
+                   aria-expanded="@(ViewData["ActiveGroup"]?.ToString() == "Setup" ? "true" : "false")"
+                   aria-controls="nav-setup">
+                  <div class="d-flex align-items-center">
+                    <span class="nav-link-icon"><span class="fas fa-cogs"></span></span>
+                    <span class="nav-link-text ps-1">Setup</span>
+                  </div>
+                </a>
+                <ul class="nav collapse @(ViewData["ActiveGroup"]?.ToString() == "Setup" ? "show" : "")"
+                    id="nav-setup">
+                  <li class="nav-item">
+                    <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Regions" ? "active" : "")"
+                       asp-controller="Region" asp-action="Index">
+                      <div class="d-flex align-items-center">
+                        <span class="nav-link-text ps-1">Regions</span>
+                      </div>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Districts" ? "active" : "")"
+                       asp-controller="District" asp-action="Index">
+                      <div class="d-flex align-items-center">
+                        <span class="nav-link-text ps-1">Districts</span>
+                      </div>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Areas" ? "active" : "")"
+                       asp-controller="Area" asp-action="Index">
+                      <div class="d-flex align-items-center">
+                        <span class="nav-link-text ps-1">Areas</span>
+                      </div>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Sectors" ? "active" : "")"
+                       asp-controller="Sector" asp-action="Index">
+                      <div class="d-flex align-items-center">
+                        <span class="nav-link-text ps-1">Sectors</span>
+                      </div>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "SubSectors" ? "active" : "")"
+                       asp-controller="SubSector" asp-action="Index">
+                      <div class="d-flex align-items-center">
+                        <span class="nav-link-text ps-1">Sub-Sectors</span>
+                      </div>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "ProductTypes" ? "active" : "")"
+                       asp-controller="ProductType" asp-action="Index">
+                      <div class="d-flex align-items-center">
+                        <span class="nav-link-text ps-1">Product Types</span>
+                      </div>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "ProductDefinitions" ? "active" : "")"
+                       asp-controller="ProductDefinition" asp-action="Index">
+                      <div class="d-flex align-items-center">
+                        <span class="nav-link-text ps-1">Product Definitions</span>
+                      </div>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "TransactionCodes" ? "active" : "")"
+                       asp-controller="TransactionCode" asp-action="Index">
+                      <div class="d-flex align-items-center">
+                        <span class="nav-link-text ps-1">Transaction Codes</span>
+                      </div>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "ChartOfAccounts" ? "active" : "")"
+                       asp-controller="ChartOfAccounts" asp-action="Index">
+                      <div class="d-flex align-items-center">
+                        <span class="nav-link-text ps-1">Chart of Accounts</span>
+                      </div>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+
               <!-- ════════════════════ ADMINISTRATION ════════════════════ -->
               <li class="nav-item">
                 <div class="row navbar-vertical-label-wrapper mt-3 mb-2">

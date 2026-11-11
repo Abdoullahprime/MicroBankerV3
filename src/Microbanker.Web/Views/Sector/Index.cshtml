@@ -1,0 +1,80 @@
+@* src/Microbanker.Web/Views/Sector/Index.cshtml *@
+@model List<Microbanker.Web.Models.SectorViewModel>
+@{
+    ViewData["Title"]        = "Sectors";
+    ViewData["PageTitle"]    = "Sectors";
+    ViewData["PageSubTitle"] = "Economic sectors";
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-transparent border-bottom py-2 d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-semibold fs--1"><i class="fas fa-industry me-2 text-primary"></i>Sectors</h6>
+        <a asp-action="Create" class="btn btn-falcon-default btn-sm">
+            <i class="fas fa-plus me-1"></i> Add Sector
+        </a>
+    </div>
+    <div class="card-body p-0">
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5 text-muted">
+                <i class="fas fa-industry fa-3x mb-3 opacity-25"></i>
+                <p class="mb-0 fs--1">No records found. Click <strong>Add Sector</strong> to get started.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover table-sm mb-0 fs--1">
+                    <thead class="bg-200">
+                        <tr>
+                                <th>Sector</th>
+                                <th>Code</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in Model)
+                        {
+                            <tr>
+                                    <td class="fw-medium">@r.Name</td>
+                                    <td>@if (!string.IsNullOrEmpty(r.Code)) { <span class="badge badge-subtle-secondary">@r.Code</span> } else { <span class="text-muted">—</span> }</td>
+                                    <td class="text-center">
+                                        @if (r.IsActive) { <span class="badge badge-subtle-success">Active</span> }
+                                        else { <span class="badge badge-subtle-danger">Inactive</span> }
+                                    </td>
+                                    <td class="text-end">
+                                        <a asp-action="Edit" asp-route-id="@r.EncryptedId" class="btn btn-falcon-default btn-sm py-0 px-2">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </a>
+                                        <form asp-action="Delete" asp-route-id="@r.EncryptedId" method="post" class="d-inline"
+                                              onsubmit="return confirm('Delete this record?');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-falcon-danger btn-sm py-0 px-2">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

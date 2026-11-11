@@ -1,0 +1,73 @@
+@* src/Microbanker.Web/Views/ChartOfAccounts/Create.cshtml *@
+@model Microbanker.Web.Models.GLAccountFormModel
+@{
+    ViewData["Title"]        = "Add GL Account";
+    ViewData["PageTitle"]    = "Add GL Account";
+    ViewData["PageSubTitle"] = "Register a new gl account";
+}
+
+<div class="card shadow-sm border-0" style="max-width:720px;">
+    <div class="card-header bg-transparent border-bottom py-3">
+        <h6 class="mb-0 fw-semibold"><i class="fas fa-book me-2 text-primary"></i>GL Account Details</h6>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 fs--1"></div>
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label asp-for="AccountNumber" class="form-label fw-medium"></label>
+                    <input asp-for="AccountNumber" class="form-control" />
+                    <span asp-validation-for="AccountNumber" class="text-danger small"></span>
+                </div>
+                <div class="col-md-8">
+                    <label asp-for="AccountName" class="form-label fw-medium"></label>
+                    <input asp-for="AccountName" class="form-control" />
+                    <span asp-validation-for="AccountName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="AccountType" class="form-label fw-medium"></label>
+                    <select asp-for="AccountType" asp-items="Model.AccountTypes" class="form-select">
+                        <option value="">— Select —</option>
+                    </select>
+                    <span asp-validation-for="AccountType" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ParentId" class="form-label fw-medium"></label>
+                    <select asp-for="ParentId" asp-items="Model.Parents" class="form-select">
+                        <option value="">— Select —</option>
+                    </select>
+                    <span asp-validation-for="ParentId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-12">
+                    <label asp-for="Description" class="form-label fw-medium"></label>
+                    <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check form-switch">
+                        <input asp-for="IsControlAccount" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsControlAccount" class="form-check-label"></label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check form-switch">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsActive" class="form-check-label"></label>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4" />
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save GL Account
+                </button>
+                <a asp-action="Index" class="btn btn-falcon-default">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

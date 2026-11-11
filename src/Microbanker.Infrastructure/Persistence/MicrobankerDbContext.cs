@@ -1,6 +1,7 @@
 // src/Microbanker.Infrastructure/Persistence/MicrobankerDbContext.cs
 using Microbanker.Domain.Entities.Auth;
 using Microbanker.Domain.Entities.Organization;
+using Microbanker.Domain.Entities.Setup;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using OrgUnit = Microbanker.Domain.Entities.Organization.Unit;
@@ -25,6 +26,17 @@ public class MicrobankerDbContext : DbContext
     public DbSet<Bank> Banks { get; set; }
     public DbSet<Department> Departments { get; set; }
     public DbSet<OrgUnit> Units { get; set; }
+
+    // ── Setup / Reference Data ─────────────────────────────────────
+    public DbSet<Region>            Regions            { get; set; }
+    public DbSet<District>          Districts          { get; set; }
+    public DbSet<Area>              Areas              { get; set; }
+    public DbSet<Sector>            Sectors            { get; set; }
+    public DbSet<SubSector>         SubSectors         { get; set; }
+    public DbSet<ProductType>       ProductTypes       { get; set; }
+    public DbSet<ProductDefinition> ProductDefinitions { get; set; }
+    public DbSet<TransactionCode>   TransactionCodes   { get; set; }
+    public DbSet<GLAccount>         GLAccounts         { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -181,6 +193,118 @@ public class MicrobankerDbContext : DbContext
              .WithMany()
              .HasForeignKey(x => x.DepartmentId)
              .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ═══ Setup / Reference Data ════════════════════════════════
+        // Codes are unique per organisation among non-deleted rows.
+        builder.Entity<Region>(e =>
+        {
+            e.ToTable("Regions");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Name).IsRequired().HasMaxLength(200);
+            e.Property(x => x.Code).HasMaxLength(20);
+            e.HasOne<Organization>().WithMany().HasForeignKey(x => x.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.OrganizationId, x.Code }).IsUnique()
+             .HasFilter("[IsDeleted] = 0 AND [Code] IS NOT NULL");
+        });
+
+        builder.Entity<District>(e =>
+        {
+            e.ToTable("Districts");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Name).IsRequired().HasMaxLength(200);
+            e.Property(x => x.Code).HasMaxLength(20);
+            e.HasOne<Organization>().WithMany().HasForeignKey(x => x.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Region).WithMany().HasForeignKey(x => x.RegionId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.OrganizationId, x.Code }).IsUnique()
+             .HasFilter("[IsDeleted] = 0 AND [Code] IS NOT NULL");
+        });
+
+        builder.Entity<Area>(e =>
+        {
+            e.ToTable("Areas");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Name).IsRequired().HasMaxLength(200);
+            e.Property(x => x.Code).HasMaxLength(20);
+            e.HasOne<Organization>().WithMany().HasForeignKey(x => x.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.District).WithMany().HasForeignKey(x => x.DistrictId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.OrganizationId, x.Code }).IsUnique()
+             .HasFilter("[IsDeleted] = 0 AND [Code] IS NOT NULL");
+        });
+
+        builder.Entity<Sector>(e =>
+        {
+            e.ToTable("Sectors");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Name).IsRequired().HasMaxLength(200);
+            e.Property(x => x.Code).HasMaxLength(20);
+            e.HasOne<Organization>().WithMany().HasForeignKey(x => x.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.OrganizationId, x.Code }).IsUnique()
+             .HasFilter("[IsDeleted] = 0 AND [Code] IS NOT NULL");
+        });
+
+        builder.Entity<SubSector>(e =>
+        {
+            e.ToTable("SubSectors");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Name).IsRequired().HasMaxLength(200);
+            e.Property(x => x.Code).HasMaxLength(20);
+            e.HasOne<Organization>().WithMany().HasForeignKey(x => x.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Sector).WithMany().HasForeignKey(x => x.SectorId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.OrganizationId, x.Code }).IsUnique()
+             .HasFilter("[IsDeleted] = 0 AND [Code] IS NOT NULL");
+        });
+
+        builder.Entity<ProductType>(e =>
+        {
+            e.ToTable("ProductTypes");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Name).IsRequired().HasMaxLength(200);
+            e.Property(x => x.Code).IsRequired().HasMaxLength(20);
+            e.Property(x => x.Description).HasMaxLength(500);
+            e.HasOne<Organization>().WithMany().HasForeignKey(x => x.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.OrganizationId, x.Code }).IsUnique().HasFilter("[IsDeleted] = 0");
+        });
+
+        builder.Entity<ProductDefinition>(e =>
+        {
+            e.ToTable("ProductDefinitions");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Name).IsRequired().HasMaxLength(200);
+            e.Property(x => x.Code).IsRequired().HasMaxLength(20);
+            e.Property(x => x.MinBalance).HasColumnType("decimal(18,2)");
+            e.Property(x => x.InterestRate).HasColumnType("decimal(9,4)");
+            e.Property(x => x.InterestCalcMethod).HasMaxLength(30);
+            e.Property(x => x.Description).HasMaxLength(500);
+            e.HasOne<Organization>().WithMany().HasForeignKey(x => x.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.ProductType).WithMany().HasForeignKey(x => x.ProductTypeId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.OrganizationId, x.Code }).IsUnique().HasFilter("[IsDeleted] = 0");
+        });
+
+        builder.Entity<TransactionCode>(e =>
+        {
+            e.ToTable("TransactionCodes", t => t.HasCheckConstraint("CK_TransactionCodes_DrCr", "[DrCr] IN ('DR','CR')"));
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Code).IsRequired().HasMaxLength(20);
+            e.Property(x => x.Name).IsRequired().HasMaxLength(200);
+            e.Property(x => x.DrCr).IsRequired().HasMaxLength(2);
+            e.Property(x => x.Description).HasMaxLength(500);
+            e.HasOne<Organization>().WithMany().HasForeignKey(x => x.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.OrganizationId, x.Code }).IsUnique().HasFilter("[IsDeleted] = 0");
+        });
+
+        builder.Entity<GLAccount>(e =>
+        {
+            e.ToTable("GLAccounts", t => t.HasCheckConstraint("CK_GLAccounts_AccountType",
+                "[AccountType] IN ('ASSET','LIABILITY','INCOME','EXPENSE','EQUITY')"));
+            e.HasKey(x => x.Id);
+            e.Property(x => x.AccountNumber).IsRequired().HasMaxLength(30);
+            e.Property(x => x.AccountName).IsRequired().HasMaxLength(200);
+            e.Property(x => x.AccountType).IsRequired().HasMaxLength(20);
+            e.Property(x => x.Description).HasMaxLength(500);
+            e.HasOne<Organization>().WithMany().HasForeignKey(x => x.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Parent).WithMany().HasForeignKey(x => x.ParentId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.OrganizationId, x.AccountNumber }).IsUnique().HasFilter("[IsDeleted] = 0");
         });
     }
 }
