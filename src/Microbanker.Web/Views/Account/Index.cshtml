@@ -1,0 +1,93 @@
+@* src/Microbanker.Web/Views/Account/Index.cshtml *@
+@model Microbanker.Web.Models.AccountListViewModel
+@{
+    ViewData["Title"]        = "Accounts";
+    ViewData["PageTitle"]    = "Accounts";
+    ViewData["PageSubTitle"] = "Savings, current and fixed deposit accounts";
+}
+@functions {
+    static string Badge(string status) => status switch
+    {
+        "ACTIVE" or "APPROVED"            => "badge-subtle-success",
+        "PENDING"                         => "badge-subtle-warning",
+        "FROZEN" or "REJECTED"            => "badge-subtle-danger",
+        "DORMANT"                         => "badge-subtle-info",
+        _                                 => "badge-subtle-secondary"
+    };
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-transparent border-bottom py-2">
+        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
+            <form method="get" class="d-flex flex-wrap gap-2 align-items-center">
+                <input name="q" value="@Model.Q" class="form-control form-control-sm" style="width:230px" placeholder="Search account, name, customer…" />
+                <select name="type" asp-items="Model.Types" class="form-select form-select-sm" style="width:150px"><option value="">All types</option></select>
+                <select name="status" asp-items="Model.Statuses" class="form-select form-select-sm" style="width:140px"><option value="">All statuses</option></select>
+                <button class="btn btn-falcon-default btn-sm" type="submit"><i class="fas fa-search me-1"></i>Filter</button>
+                @if (!string.IsNullOrEmpty(Model.Q) || !string.IsNullOrEmpty(Model.Status) || !string.IsNullOrEmpty(Model.Type))
+                {
+                    <a asp-action="Index" class="btn btn-link btn-sm">Clear</a>
+                }
+            </form>
+            <a asp-action="Create" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i> New Account</a>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        @if (!Model.Rows.Any())
+        {
+            <div class="text-center py-5 text-muted">
+                <i class="fas fa-piggy-bank fa-3x mb-3 opacity-25"></i>
+                <p class="mb-0 fs--1">No accounts found.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover table-sm mb-0 fs--1">
+                    <thead class="bg-200">
+                        <tr><th>Account No.</th><th>Name</th><th>Customer</th><th>Type</th><th class="text-end">Book Balance</th><th class="text-end">Available</th><th class="text-center">Status</th><th class="text-end">Actions</th></tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var r in Model.Rows)
+                    {
+                        <tr>
+                            <td><a asp-action="View" asp-route-id="@r.EncryptedId" class="fw-medium">@r.AccountNo</a></td>
+                            <td>@r.AccountName</td>
+                            <td class="text-muted">@r.CustomerNo</td>
+                            <td class="text-muted">@r.AccountType.Replace("_", " ")</td>
+                            <td class="text-end">@r.BookBalance.ToString("N2") <span class="text-muted">@r.Currency</span></td>
+                            <td class="text-end">@r.AvailableBalance.ToString("N2")</td>
+                            <td class="text-center"><span class="badge @Badge(r.Status)">@r.Status</span></td>
+                            <td class="text-end">
+                                <a asp-action="View" asp-route-id="@r.EncryptedId" class="btn btn-falcon-default btn-sm py-0 px-2" title="View"><i class="fas fa-eye"></i></a>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            <div class="d-flex justify-content-between align-items-center px-3 py-2 border-top fs--1">
+                <span class="text-muted">@Model.TotalCount account(s) · page @Model.Page of @Model.TotalPages</span>
+                <div class="btn-group">
+                    <a class="btn btn-falcon-default btn-sm @(Model.Page <= 1 ? "disabled" : "")" asp-action="Index" asp-route-page="@(Model.Page - 1)" asp-route-status="@Model.Status" asp-route-type="@Model.Type" asp-route-q="@Model.Q">Previous</a>
+                    <a class="btn btn-falcon-default btn-sm @(Model.Page >= Model.TotalPages ? "disabled" : "")" asp-action="Index" asp-route-page="@(Model.Page + 1)" asp-route-status="@Model.Status" asp-route-type="@Model.Type" asp-route-q="@Model.Q">Next</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,16 @@
+@* src/Microbanker.Web/Views/Account/_Balances.cshtml *@
+@model Microbanker.Web.Models.AccountDetailViewModel
+<div class="row g-3 mb-3">
+    <div class="col-md-4"><div class="card shadow-sm border-0 h-100"><div class="card-body">
+        <div class="fs--2 text-500 text-uppercase">Book balance</div>
+        <div class="fs-2 fw-bold">@Model.BookBalance.ToString("N2") <span class="fs--1 text-muted">@Model.Currency</span></div>
+    </div></div></div>
+    <div class="col-md-4"><div class="card shadow-sm border-0 h-100"><div class="card-body">
+        <div class="fs--2 text-500 text-uppercase">Available balance</div>
+        <div class="fs-2 fw-bold text-success">@Model.AvailableBalance.ToString("N2") <span class="fs--1 text-muted">@Model.Currency</span></div>
+    </div></div></div>
+    <div class="col-md-4"><div class="card shadow-sm border-0 h-100"><div class="card-body">
+        <div class="fs--2 text-500 text-uppercase">Blocked amount</div>
+        <div class="fs-2 fw-bold @(Model.BlockedAmount > 0 ? "text-warning" : "")">@Model.BlockedAmount.ToString("N2") <span class="fs--1 text-muted">@Model.Currency</span></div>
+    </div></div></div>
+</div>

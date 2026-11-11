@@ -38,6 +38,8 @@ public static class DbSeeder
         ("CHART_OF_ACCOUNTS",   "Chart of Accounts",    "fas fa-book",           "Setup", 28),
         ("CUSTOMERS",           "Customers",            "fas fa-users",          "Banking", 30),
         ("SELF_REG",            "Self Registration",    "fas fa-user-plus",      "Banking", 31),
+        ("ACCOUNTS",            "Accounts",             "fas fa-piggy-bank",     "Banking", 32),
+        ("BAL_ENQUIRY",         "Balance Enquiry",      "fas fa-search-dollar",  "Banking", 33),
         ("USERS",        "Users",        "fas fa-user-cog",       "Administration", 60),
         ("ROLES",        "Roles",        "fas fa-shield-alt",     "Administration", 61),
         ("PERMISSIONS",  "Permissions",  "fas fa-key",            "Administration", 62),

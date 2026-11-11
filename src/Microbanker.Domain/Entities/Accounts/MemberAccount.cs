@@ -1,0 +1,243 @@
+using Microbanker.Domain.Entities.Customers;
+using Microbanker.Domain.Entities.Organization;
+using Microbanker.Domain.Entities.Setup;
+
+namespace Microbanker.Domain.Entities.Accounts;
+
+/// <summary>
+/// A customer's savings, current or fixed-deposit account. The AccountType column is the discriminator.
+///
+/// Balances: <see cref="BookBalance"/> is the ledger balance; <see cref="AvailableBalance"/> is what the
+/// customer can use, i.e. book balance minus <see cref="BlockedAmount"/>. Balances only move through the
+/// methods on this class so that block/unblock can never leave the three figures inconsistent.
+/// </summary>
+public class MemberAccount : BaseEntity
+{
+    public Guid OrganizationId { get; private set; }
+    public Guid BranchId { get; private set; }
+    public Guid CustomerId { get; private set; }
+    public Guid ProductDefinitionId { get; private set; }
+
+    /// <summary>{BranchCode}-{TypePrefix}-{seq:D7}; never changes once issued.</summary>
+    public string AccountNo { get; private set; } = string.Empty;
+    public string AccountName { get; private set; } = string.Empty;
+    public string AccountType { get; private set; } = AccountOptions.Savings;
+    public string Currency { get; private set; } = AccountOptions.DefaultCurrency;
+    public string Status { get; private set; } = AccountOptions.Pending;
+
+    // ── Balances ──
+    public decimal OpeningBalance { get; private set; }
+    public decimal BookBalance { get; private set; }
+    public decimal AvailableBalance { get; private set; }
+    public decimal BlockedAmount { get; private set; }
+    public decimal UnauthorizedDR { get; private set; }
+    public decimal UnauthorizedCR { get; private set; }
+    public decimal MonthlyDRTurnover { get; private set; }
+    public decimal MonthlyCRTurnover { get; private set; }
+    public decimal InterestAccruedDR { get; private set; }
+    public decimal InterestAccruedCR { get; private set; }
+
+    // ── Activity (maintained by posting / end-of-day processing in later phases) ──
+    public DateTime? LastDRDate { get; private set; }
+    public DateTime? LastCRDate { get; private set; }
+    public DateTime? LastDRActivityDate { get; private set; }
+    public DateTime? LastCRActivityDate { get; private set; }
+
+    // ── ATM ──
+    public string? AtmAccountNo { get; private set; }
+    public decimal AtmDailyLimit { get; private set; }
+
+    // ── Classification ──
+    public Guid? SectorId { get; private set; }
+    public Guid? SubSectorId { get; private set; }
+
+    // ── GL mapping (GLAccount.AccountNumber values) ──
+    public string? GLAssetControl { get; private set; }
+    public string? GLLiabilityControl { get; private set; }
+    public string? GLIncomeAccount { get; private set; }
+    public string? GLExpenseAccount { get; private set; }
+    public string? GLChargeAccount { get; private set; }
+    public string? GLFeeAccount { get; private set; }
+
+    // ── Approval / maintenance ──
+    public bool IsApproved { get; private set; }
+    public Guid? ApprovedBy { get; private set; }
+    public DateTime? ApprovedAt { get; private set; }
+    public bool EditRequestPending { get; private set; }
+    public string? EditRequestReason { get; private set; }
+    public Guid? CreatedByUserId { get; private set; }
+    public DateOnly OpenDate { get; private set; }
+    public DateTime? ClosedAt { get; private set; }
+
+    /// <summary>
+    /// Optimistic-concurrency token, replaced on every change. Two users blocking amounts on the same
+    /// account at once cannot both win: the second save fails instead of silently overwriting.
+    /// </summary>
+    public Guid ConcurrencyStamp { get; private set; } = Guid.NewGuid();
+
+    public Customer Customer { get; private set; } = null!;
+    public Branch Branch { get; private set; } = null!;
+    public ProductDefinition ProductDefinition { get; private set; } = null!;
+
+    private MemberAccount() { }
+
+    public MemberAccount(Guid orgId, Guid branchId, Guid customerId, Guid productDefId,
+        string accountNo, string accountName, string accountType, Guid? createdByUserId = null)
+    {
+        if (!AccountOptions.AccountTypes.Contains(accountType))
+            throw new ArgumentOutOfRangeException(nameof(accountType), accountType, "Unknown account type.");
+
+        OrganizationId = orgId;
+        BranchId = branchId;
+        CustomerId = customerId;
+        ProductDefinitionId = productDefId;
+        AccountNo = accountNo;
+        AccountName = accountName;
+        AccountType = accountType;
+        Status = AccountOptions.Pending;
+        CreatedByUserId = createdByUserId;
+        OpenDate = DateOnly.FromDateTime(DateTime.UtcNow);
+    }
+
+    // ── Editing ───────────────────────────────────────────────────────────────
+
+    /// <summary>The terms that are fixed once the account is approved: product, currency, opening balance, open date.</summary>
+    public void UpdateTerms(Guid productDefinitionId, string currency, decimal openingBalance, DateOnly openDate)
+    {
+        if (Status != AccountOptions.Pending)
+            throw new InvalidOperationException("The terms of an approved account cannot be changed.");
+        if (openingBalance < 0)
+            throw new ArgumentOutOfRangeException(nameof(openingBalance), "Opening balance cannot be negative.");
+
+        ProductDefinitionId = productDefinitionId;
+        Currency = currency;
+        OpenDate = openDate;
+        OpeningBalance = openingBalance;
+        BookBalance = openingBalance;
+        AvailableBalance = openingBalance - BlockedAmount;
+        Touch();
+    }
+
+    /// <summary>Everything that stays editable after approval (through an approved edit request).</summary>
+    public void Update(string accountName, string? atmAccountNo, decimal atmDailyLimit,
+        Guid? sectorId, Guid? subSectorId,
+        string? glAssetControl, string? glLiabilityControl, string? glIncomeAccount,
+        string? glExpenseAccount, string? glChargeAccount, string? glFeeAccount)
+    {
+        if (Status == AccountOptions.Closed)
+            throw new InvalidOperationException("A closed account cannot be edited.");
+        if (atmDailyLimit < 0)
+            throw new ArgumentOutOfRangeException(nameof(atmDailyLimit), "ATM limit cannot be negative.");
+
+        AccountName = accountName;
+        AtmAccountNo = atmAccountNo;
+        AtmDailyLimit = atmDailyLimit;
+        SectorId = sectorId;
+        SubSectorId = subSectorId;
+        GLAssetControl = glAssetControl;
+        GLLiabilityControl = glLiabilityControl;
+        GLIncomeAccount = glIncomeAccount;
+        GLExpenseAccount = glExpenseAccount;
+        GLChargeAccount = glChargeAccount;
+        GLFeeAccount = glFeeAccount;
+        Touch();
+    }
+
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
+
+    public void Approve(Guid approvedBy)
+    {
+        if (Status != AccountOptions.Pending)
+            throw new InvalidOperationException("Only a pending account can be approved.");
+        IsApproved = true;
+        ApprovedBy = approvedBy;
+        ApprovedAt = DateTime.UtcNow;
+        Status = AccountOptions.Active;
+        Touch();
+    }
+
+    public void Freeze()
+    {
+        if (Status != AccountOptions.Active && Status != AccountOptions.Dormant)
+            throw new InvalidOperationException("Only an active or dormant account can be frozen.");
+        Status = AccountOptions.Frozen;
+        Touch();
+    }
+
+    public void Unfreeze()
+    {
+        if (Status != AccountOptions.Frozen)
+            throw new InvalidOperationException("Only a frozen account can be unfrozen.");
+        Status = AccountOptions.Active;
+        Touch();
+    }
+
+    /// <summary>An account can close only when nothing is held in it and nothing is owed on it.</summary>
+    public void Close()
+    {
+        if (Status == AccountOptions.Pending || Status == AccountOptions.Closed)
+            throw new InvalidOperationException("Only an approved, open account can be closed.");
+        if (BookBalance != 0 || BlockedAmount != 0 || InterestAccruedDR != 0 || InterestAccruedCR != 0
+            || UnauthorizedDR != 0 || UnauthorizedCR != 0)
+            throw new InvalidOperationException("The account still has a balance, a blocked amount, accrued interest or unauthorised items.");
+        Status = AccountOptions.Closed;
+        ClosedAt = DateTime.UtcNow;
+        Touch();
+    }
+
+    // ── Blocking ──────────────────────────────────────────────────────────────
+
+    public void BlockAmount(decimal amount)
+    {
+        if (amount <= 0) throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be greater than zero.");
+        if (Status != AccountOptions.Active)
+            throw new InvalidOperationException("Amounts can only be blocked on an active account.");
+        if (amount > AvailableBalance)
+            throw new InvalidOperationException("The amount exceeds the available balance.");
+        BlockedAmount += amount;
+        AvailableBalance -= amount;
+        Touch();
+    }
+
+    public void UnblockAmount(decimal amount)
+    {
+        if (amount <= 0) throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be greater than zero.");
+        if (Status == AccountOptions.Closed || Status == AccountOptions.Pending)
+            throw new InvalidOperationException("Amounts can only be released on an open account.");
+        if (amount > BlockedAmount)
+            throw new InvalidOperationException("The amount exceeds the blocked amount.");
+        BlockedAmount -= amount;
+        AvailableBalance += amount;
+        Touch();
+    }
+
+    // ── Edit requests ─────────────────────────────────────────────────────────
+
+    public void MarkEditRequested(string reason)
+    {
+        EditRequestPending = true;
+        EditRequestReason = reason;
+        Touch();
+    }
+
+    public void ClearEditRequest()
+    {
+        EditRequestPending = false;
+        EditRequestReason = null;
+        Touch();
+    }
+
+    public void SoftDelete()
+    {
+        if (Status != AccountOptions.Pending)
+            throw new InvalidOperationException("Only a pending account can be deleted.");
+        SetDeleted();
+        Touch();
+    }
+
+    private void Touch()
+    {
+        SetUpdatedAt();
+        ConcurrencyStamp = Guid.NewGuid();
+    }
+}

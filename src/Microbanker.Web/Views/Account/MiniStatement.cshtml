@@ -1,0 +1,36 @@
+@* src/Microbanker.Web/Views/Account/MiniStatement.cshtml *@
+@model Microbanker.Web.Models.MiniStatementViewModel
+@{
+    var a = Model.Account;
+    ViewData["Title"]        = "Mini Statement";
+    ViewData["PageTitle"]    = "Mini Statement";
+    ViewData["PageSubTitle"] = a.AccountNo + " · " + a.AccountName;
+}
+@functions {
+    static string Badge(string status) => status switch
+    {
+        "ACTIVE" or "APPROVED"            => "badge-subtle-success",
+        "PENDING"                         => "badge-subtle-warning",
+        "FROZEN" or "REJECTED"            => "badge-subtle-danger",
+        "DORMANT"                         => "badge-subtle-info",
+        _                                 => "badge-subtle-secondary"
+    };
+}
+
+<div class="card shadow-sm border-0 mb-3">
+    <div class="card-body d-flex flex-wrap justify-content-between align-items-center">
+        <div>
+            <h5 class="mb-1">@a.AccountName <span class="badge @Badge(a.Status) ms-2">@a.Status</span></h5>
+            <div class="fs--1 text-muted">@a.AccountNo · @a.CustomerNo @a.CustomerName · opened @a.OpenDate.ToString("dd MMM yyyy")</div>
+        </div>
+        <a asp-action="View" asp-route-id="@a.EncryptedId" class="btn btn-falcon-default btn-sm">Back to account</a>
+    </div>
+</div>
+<partial name="_Balances" model="a" />
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-transparent border-bottom py-2"><h6 class="mb-0 fw-semibold fs--1"><i class="fas fa-receipt me-2 text-primary"></i>Recent transactions</h6></div>
+    <div class="card-body text-center text-muted py-5">
+        <i class="fas fa-receipt fa-3x mb-3 opacity-25"></i>
+        <p class="mb-0 fs--1">No transactions yet. Deposits, withdrawals and postings arrive with the transaction module (Phase 5), and will be listed here.</p>
+    </div>
+</div>

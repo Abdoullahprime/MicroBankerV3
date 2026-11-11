@@ -1,0 +1,64 @@
+@* src/Microbanker.Web/Views/Account/BlockAmount.cshtml *@
+@model Microbanker.Web.Models.BlockAmountViewModel
+@{
+    ViewData["Title"]        = "Block Amount";
+    ViewData["PageTitle"]    = "Block / Release Amount";
+    ViewData["PageSubTitle"] = Model.AccountNo + " · " + Model.AccountName;
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row g-3" style="max-width:900px;">
+    <div class="col-12">
+        <div class="card shadow-sm border-0"><div class="card-body">
+            <div class="row text-center">
+                <div class="col-4"><div class="fs--2 text-500 text-uppercase">Book</div><div class="fs-3 fw-bold">@Model.BookBalance.ToString("N2")</div></div>
+                <div class="col-4"><div class="fs--2 text-500 text-uppercase">Blocked</div><div class="fs-3 fw-bold text-warning">@Model.BlockedAmount.ToString("N2")</div></div>
+                <div class="col-4"><div class="fs--2 text-500 text-uppercase">Available</div><div class="fs-3 fw-bold text-success">@Model.AvailableBalance.ToString("N2")</div></div>
+            </div>
+            <div class="text-center fs--1 text-muted mt-2">All amounts in @Model.Currency</div>
+        </div></div>
+    </div>
+    @if (Model.Status != "CLOSED" && Model.Status != "PENDING")
+    {
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 h-100"><div class="card-body">
+                <h6 class="fw-semibold"><i class="fas fa-lock me-2 text-warning"></i>Block an amount</h6>
+                <div class="fs--1 text-muted mb-3">Reduces the available balance. Only an active account can have amounts blocked.</div>
+                <form asp-action="BlockAmount" asp-route-id="@Model.EncryptedId" method="post">
+                    @Html.AntiForgeryToken()
+                    <input name="amount" type="number" step="0.01" min="0.01" class="form-control mb-2" placeholder="Amount" required />
+                    <button class="btn btn-falcon-warning btn-sm" type="submit" disabled="@(Model.Status != "ACTIVE")">Block</button>
+                </form>
+            </div></div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 h-100"><div class="card-body">
+                <h6 class="fw-semibold"><i class="fas fa-lock-open me-2 text-success"></i>Release an amount</h6>
+                <div class="fs--1 text-muted mb-3">Returns blocked funds to the available balance (up to @Model.BlockedAmount.ToString("N2")).</div>
+                <form asp-action="UnblockAmount" asp-route-id="@Model.EncryptedId" method="post">
+                    @Html.AntiForgeryToken()
+                    <input name="amount" type="number" step="0.01" min="0.01" max="@Model.BlockedAmount" class="form-control mb-2" placeholder="Amount" required />
+                    <button class="btn btn-falcon-success btn-sm" type="submit" disabled="@(Model.BlockedAmount <= 0)">Release</button>
+                </form>
+            </div></div>
+        </div>
+    }
+    else
+    {
+        <div class="col-12"><div class="alert alert-light border fs--1">Amounts can only be blocked or released on an open account.</div></div>
+    }
+    <div class="col-12"><a asp-action="View" asp-route-id="@Model.EncryptedId" class="btn btn-falcon-default btn-sm">Back to account</a></div>
+</div>

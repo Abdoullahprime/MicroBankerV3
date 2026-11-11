@@ -1,5 +1,6 @@
 // src/Microbanker.Infrastructure/Persistence/MicrobankerDbContext.cs
 using Microbanker.Domain.Entities.Auth;
+using Microbanker.Domain.Entities.Accounts;
 using Microbanker.Domain.Entities.Customers;
 using Microbanker.Domain.Entities.Organization;
 using Microbanker.Domain.Entities.Setup;
@@ -43,6 +44,10 @@ public class MicrobankerDbContext : DbContext
     // ── Customers ──────────────────────────────────────────────────
     public DbSet<Customer>          Customers          { get; set; }
     public DbSet<SelfRegistration>  SelfRegistrations  { get; set; }
+
+    // ── Accounts ───────────────────────────────────────────────────
+    public DbSet<MemberAccount>      MemberAccounts      { get; set; }
+    public DbSet<AccountEditRequest> AccountEditRequests { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -338,6 +343,62 @@ public class MicrobankerDbContext : DbContext
             e.Property(x => x.Status).IsRequired().HasMaxLength(20);
             e.Property(x => x.RejectionReason).HasMaxLength(500);
             e.HasIndex(x => new { x.OrganizationId, x.Status });
+        });
+
+        // ═══ Accounts ══════════════════════════════════════════════
+        builder.Entity<MemberAccount>(e =>
+        {
+            e.ToTable("MemberAccounts", t =>
+            {
+                t.HasCheckConstraint("CK_MemberAccounts_AccountType", "[AccountType] IN ('SAVINGS','CURRENT','FIXED_DEPOSIT')");
+                t.HasCheckConstraint("CK_MemberAccounts_Status", "[Status] IN ('PENDING','ACTIVE','DORMANT','FROZEN','CLOSED')");
+                t.HasCheckConstraint("CK_MemberAccounts_Blocked", "[BlockedAmount] >= 0");
+            });
+            e.HasKey(x => x.Id);
+            e.Property(x => x.AccountNo).IsRequired().HasMaxLength(40);
+            e.Property(x => x.AccountName).IsRequired().HasMaxLength(200);
+            e.Property(x => x.AccountType).IsRequired().HasMaxLength(20);
+            e.Property(x => x.Currency).IsRequired().HasMaxLength(3);
+            e.Property(x => x.Status).IsRequired().HasMaxLength(20);
+            e.Property(x => x.AtmAccountNo).HasMaxLength(40);
+            e.Property(x => x.GLAssetControl).HasMaxLength(30);
+            e.Property(x => x.GLLiabilityControl).HasMaxLength(30);
+            e.Property(x => x.GLIncomeAccount).HasMaxLength(30);
+            e.Property(x => x.GLExpenseAccount).HasMaxLength(30);
+            e.Property(x => x.GLChargeAccount).HasMaxLength(30);
+            e.Property(x => x.GLFeeAccount).HasMaxLength(30);
+            e.Property(x => x.EditRequestReason).HasMaxLength(500);
+            foreach (var money in new[] { nameof(MemberAccount.OpeningBalance), nameof(MemberAccount.BookBalance),
+                nameof(MemberAccount.AvailableBalance), nameof(MemberAccount.BlockedAmount), nameof(MemberAccount.UnauthorizedDR),
+                nameof(MemberAccount.UnauthorizedCR), nameof(MemberAccount.MonthlyDRTurnover), nameof(MemberAccount.MonthlyCRTurnover),
+                nameof(MemberAccount.InterestAccruedDR), nameof(MemberAccount.InterestAccruedCR), nameof(MemberAccount.AtmDailyLimit) })
+                e.Property(money).HasColumnType("decimal(18,2)");
+            e.Property(x => x.ConcurrencyStamp).IsConcurrencyToken();
+
+            e.HasOne<Organization>().WithMany().HasForeignKey(x => x.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Branch).WithMany().HasForeignKey(x => x.BranchId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Customer).WithMany().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.ProductDefinition).WithMany().HasForeignKey(x => x.ProductDefinitionId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<Sector>().WithMany().HasForeignKey(x => x.SectorId).OnDelete(DeleteBehavior.NoAction);
+            e.HasOne<SubSector>().WithMany().HasForeignKey(x => x.SubSectorId).OnDelete(DeleteBehavior.NoAction);
+
+            // Account numbers are never reused, so this index deliberately ignores IsDeleted.
+            e.HasIndex(x => new { x.OrganizationId, x.AccountNo }).IsUnique();
+            e.HasIndex(x => x.CustomerId);
+            e.HasIndex(x => new { x.OrganizationId, x.Status });
+        });
+
+        builder.Entity<AccountEditRequest>(e =>
+        {
+            e.ToTable("AccountEditRequests", t => t.HasCheckConstraint("CK_AccountEditRequests_Status",
+                "[Status] IN ('PENDING','APPROVED','REJECTED','COMPLETED')"));
+            e.HasKey(x => x.Id);
+            e.Property(x => x.RequestReason).IsRequired().HasMaxLength(500);
+            e.Property(x => x.Status).IsRequired().HasMaxLength(20);
+            e.Property(x => x.ReviewRemarks).HasMaxLength(500);
+            e.HasOne<Organization>().WithMany().HasForeignKey(x => x.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Account).WithMany().HasForeignKey(x => x.AccountId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.AccountId, x.Status });
         });
     }
 
