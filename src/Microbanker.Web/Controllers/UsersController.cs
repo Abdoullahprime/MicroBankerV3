@@ -5,18 +5,59 @@ using Microbanker.Web.Models;
 using Microbanker.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microbanker.Domain.Security;
+using Microbanker.Web.Security;
 
 namespace Microbanker.Web.Controllers;
 
+[RequirePermission(Modules.Users)]
 public class UsersController : BaseController
 {
     private readonly MicrobankerDbContext     _db;
     private readonly IEncryptionService _enc;
+    private readonly IPermissionService _perms;
 
-    public UsersController(MicrobankerDbContext db, IEncryptionService enc)
+    public UsersController(MicrobankerDbContext db, IEncryptionService enc, IPermissionService perms)
     {
-        _db  = db;
-        _enc = enc;
+        _db    = db;
+        _enc   = enc;
+        _perms = perms;
+    }
+
+    /// <summary>
+    /// Why the signed-in user may not give <paramref name="roleId"/> to someone, or null if they may.
+    /// Without this, anyone allowed to edit users could make themselves (or anyone) a Super Administrator.
+    /// A Super Administrator may assign any role; everyone else may only assign an active role of this
+    /// organisation whose permissions they hold themselves.
+    /// </summary>
+    private async Task<string?> RoleAssignmentProblemAsync(Guid? roleId, Guid orgId)
+    {
+        if (roleId == null) return null;
+
+        var role = await _db.Roles.FirstOrDefaultAsync(r => r.Id == roleId && r.OrganizationId == orgId && !r.IsDeleted && r.IsActive);
+        if (role == null) return "Please select a valid role.";
+
+        var me = await _perms.GetCurrentAsync();
+        if (me.IsSuperAdmin) return null;
+
+        if (role.Code == SystemRoles.SuperAdmin)
+            return "Only a Super Administrator can assign the Super Administrator role.";
+
+        var grants = await _db.RolePermissions
+            .Where(rp => rp.RoleId == role.Id && rp.IsGranted && !rp.IsDeleted)
+            .Select(rp => new { Module = rp.AppModule.Code, Action = rp.AppAction.Code }).ToListAsync();
+        if (grants.Any(g => !me.Can(g.Module, g.Action)))
+            return "That role grants permissions you do not hold yourself, so you cannot assign it.";
+        return null;
+    }
+
+    /// <summary>True when the user is a Super Administrator and the signed-in user is not: they may not be changed or deleted.</summary>
+    private async Task<bool> IsProtectedSuperAdminAsync(Guid userId)
+    {
+        var me = await _perms.GetCurrentAsync();
+        if (me.IsSuperAdmin) return false;
+        return await _db.UserRoles.AnyAsync(ur => ur.UserId == userId && !ur.IsDeleted
+            && ur.Role.Code == SystemRoles.SuperAdmin && !ur.Role.IsDeleted);
     }
 
     public async Task<IActionResult> Index()
@@ -90,6 +131,16 @@ public class UsersController : BaseController
             return View(model);
         }
 
+        var roleProblem = await RoleAssignmentProblemAsync(model.RoleId, orgId);
+        if (roleProblem != null)
+        {
+            ModelState.AddModelError("RoleId", roleProblem);
+            model.AvailableRoles = await GetRoleDropdown(orgId);
+            ViewData["ActivePage"]  = "Users";
+            ViewData["ActiveGroup"] = "Administration";
+            return View(model);
+        }
+
         var hash = BCrypt.Net.BCrypt.HashPassword(model.Password!);
         var user = new AppUser(orgId, model.Username, model.Email, hash, model.FirstName, model.LastName);
         user.Update(model.Email, model.FirstName, model.LastName, model.Phone, model.IsActive);
@@ -140,6 +191,15 @@ public class UsersController : BaseController
         var user   = await _db.AppUsers.FindAsync(userId);
         if (user == null || user.IsDeleted || user.OrganizationId != orgId) return NotFound();
 
+        if (await IsProtectedSuperAdminAsync(userId))
+        {
+            TempData["Error"] = "Only a Super Administrator can change a Super Administrator.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var roleProblem = await RoleAssignmentProblemAsync(model.RoleId, orgId);
+        if (roleProblem != null) ModelState.AddModelError("RoleId", roleProblem);
+
         if (!ModelState.IsValid)
         {
             model.EncryptedId    = id;
@@ -173,6 +233,12 @@ public class UsersController : BaseController
         var userId = Guid.Parse(_enc.Decrypt(id));
         var user   = await _db.AppUsers.FindAsync(userId);
         if (user == null || user.OrganizationId != orgId) return NotFound();
+
+        if (await IsProtectedSuperAdminAsync(userId))
+        {
+            TempData["Error"] = "Only a Super Administrator can delete a Super Administrator.";
+            return RedirectToAction(nameof(Index));
+        }
 
         // Prevent deleting yourself
         if (userId == GetUserId())

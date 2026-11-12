@@ -6,9 +6,12 @@ using Microbanker.Domain.Entities.Loans;
 using Microbanker.Infrastructure.Persistence;
 using Microbanker.Web.Models;
 using Microbanker.Web.Services;
+using Microbanker.Domain.Security;
+using Microbanker.Web.Security;
 
 namespace Microbanker.Web.Controllers;
 
+[RequirePermission(Modules.Reports)]
 public class ReportController : SetupControllerBase
 {
     public ReportController(MicrobankerDbContext db, IEncryptionService enc) : base(db, enc) { }

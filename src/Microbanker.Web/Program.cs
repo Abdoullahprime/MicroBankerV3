@@ -18,13 +18,14 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     .AddCookie(options =>
     {
         options.LoginPath       = "/Auth/Login";
-        options.AccessDeniedPath = "/Auth/Login";
+        options.AccessDeniedPath = "/Auth/Unauthorised";
         options.ExpireTimeSpan  = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
     });
 
 // ── Services ─────────────────────────────────────────────────────────────────
 builder.Services.AddSingleton<IEncryptionService, AesEncryptionService>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<IPostingService, PostingService>();
 builder.Services.AddScoped<IProcessingService, ProcessingService>();
 builder.Services.AddMemoryCache();

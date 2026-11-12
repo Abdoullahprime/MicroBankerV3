@@ -7,9 +7,12 @@ using Microbanker.Web.Services;
 using Microbanker.Web.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OrgUnit = Microbanker.Domain.Entities.Organization.Unit;
+using Microbanker.Domain.Security;
+using Microbanker.Web.Security;
 
 namespace Microbanker.Web.Controllers;
 
+[RequirePermission(Modules.Units)]
 public class UnitController : BaseController
 {
     private readonly MicrobankerDbContext _db;

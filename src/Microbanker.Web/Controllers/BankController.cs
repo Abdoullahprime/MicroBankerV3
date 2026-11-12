@@ -5,9 +5,12 @@ using Microbanker.Domain.Entities.Organization;
 using Microbanker.Infrastructure.Persistence;
 using Microbanker.Web.Services;
 using Microbanker.Web.Models;
+using Microbanker.Domain.Security;
+using Microbanker.Web.Security;
 
 namespace Microbanker.Web.Controllers;
 
+[RequirePermission(Modules.Banks)]
 public class BankController : BaseController
 {
     private readonly MicrobankerDbContext _db;

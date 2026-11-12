@@ -9,9 +9,12 @@ using Microbanker.Domain.Entities.Organization;
 using Microbanker.Infrastructure.Persistence;
 using Microbanker.Web.Models;
 using Microbanker.Web.Services;
+using Microbanker.Domain.Security;
+using Microbanker.Web.Security;
 
 namespace Microbanker.Web.Controllers;
 
+[RequirePermission(Modules.Accounts)]
 public class AccountController : SetupControllerBase
 {
     private const int PageSize = 25;
@@ -125,6 +128,7 @@ public class AccountController : SetupControllerBase
 
     /// <summary>JSON helper for the customer-number box on the create form.</summary>
     [HttpGet]
+    [RequirePermission(Modules.Customers, PermissionActions.View)]
     public async Task<IActionResult> LookupCustomer(string? customerNo)
     {
         var org = await GetOrgAsync();
@@ -268,12 +272,15 @@ public class AccountController : SetupControllerBase
     });
 
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.Accounts, PermissionActions.Approve)]
     public Task<IActionResult> Freeze(string id) => ChangeAsync(id, a => { a.Freeze(); return $"Account {a.AccountNo} frozen."; });
 
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.Accounts, PermissionActions.Approve)]
     public Task<IActionResult> Unfreeze(string id) => ChangeAsync(id, a => { a.Unfreeze(); return $"Account {a.AccountNo} unfrozen."; });
 
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.Accounts, PermissionActions.Approve)]
     public Task<IActionResult> Close(string id) => ChangeAsync(id, a => { a.Close(); return $"Account {a.AccountNo} closed."; });
 
     // ── Delete (pending only) ─────────────────────────────────────────────────
@@ -335,6 +342,7 @@ public class AccountController : SetupControllerBase
     public Task<IActionResult> ApproveEditRequest(string id, string? remarks) => ReviewEditAsync(id, remarks, approve: true);
 
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.Accounts, PermissionActions.Approve)]
     public Task<IActionResult> RejectEditRequest(string id, string? remarks) => ReviewEditAsync(id, remarks, approve: false);
 
     private async Task<IActionResult> ReviewEditAsync(string id, string? remarks, bool approve)
@@ -370,6 +378,7 @@ public class AccountController : SetupControllerBase
     // ── Block / unblock ───────────────────────────────────────────────────────
 
     [HttpGet]
+    [RequirePermission(Modules.Accounts, PermissionActions.Edit)]
     public async Task<IActionResult> BlockAmount(string id)
     {
         SetNav();
@@ -384,9 +393,11 @@ public class AccountController : SetupControllerBase
     }
 
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.Accounts, PermissionActions.Edit)]
     public Task<IActionResult> BlockAmount(string id, decimal amount) => AdjustBlockAsync(id, amount, block: true);
 
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.Accounts, PermissionActions.Edit)]
     public Task<IActionResult> UnblockAmount(string id, decimal amount) => AdjustBlockAsync(id, amount, block: false);
 
     private async Task<IActionResult> AdjustBlockAsync(string id, decimal amount, bool block)
@@ -424,6 +435,7 @@ public class AccountController : SetupControllerBase
     // ── Balance enquiry / mini statement ──────────────────────────────────────
 
     [HttpGet]
+    [RequirePermission(Modules.BalanceEnquiry, PermissionActions.View)]
     public async Task<IActionResult> BalanceEnquiry(string? accountNo)
     {
         SetNav("BalanceEnquiry");

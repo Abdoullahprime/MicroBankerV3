@@ -5,9 +5,12 @@ using Microbanker.Domain.Entities.Customers;
 using Microbanker.Infrastructure.Persistence;
 using Microbanker.Web.Models;
 using Microbanker.Web.Services;
+using Microbanker.Domain.Security;
+using Microbanker.Web.Security;
 
 namespace Microbanker.Web.Controllers;
 
+[RequirePermission(Modules.SelfReg)]
 public class SelfRegistrationController : BankingControllerBase
 {
     public SelfRegistrationController(MicrobankerDbContext db, IEncryptionService enc) : base(db, enc) { }
@@ -218,6 +221,7 @@ public class SelfRegistrationController : BankingControllerBase
     }
 
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.SelfReg, PermissionActions.Approve)]
     public async Task<IActionResult> Reject(string id, string? reason)
     {
         var org = await GetOrgAsync();

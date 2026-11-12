@@ -6,9 +6,12 @@ using Microbanker.Domain.Entities.GeneralLedger;
 using Microbanker.Infrastructure.Persistence;
 using Microbanker.Web.Models;
 using Microbanker.Web.Services;
+using Microbanker.Domain.Security;
+using Microbanker.Web.Security;
 
 namespace Microbanker.Web.Controllers;
 
+[RequirePermission(Modules.GeneralLedger)]
 public class GLController : SetupControllerBase
 {
     private const int MaxStatementLines = 2000;

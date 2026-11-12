@@ -5,9 +5,12 @@ using Microbanker.Domain.Entities.Customers;
 using Microbanker.Infrastructure.Persistence;
 using Microbanker.Web.Models;
 using Microbanker.Web.Services;
+using Microbanker.Domain.Security;
+using Microbanker.Web.Security;
 
 namespace Microbanker.Web.Controllers;
 
+[RequirePermission(Modules.Customers)]
 public class CustomerController : BankingControllerBase
 {
     public CustomerController(MicrobankerDbContext db, IEncryptionService enc) : base(db, enc) { }

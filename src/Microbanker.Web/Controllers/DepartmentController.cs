@@ -6,9 +6,12 @@ using Microbanker.Infrastructure.Persistence;
 using Microbanker.Web.Services;
 using Microbanker.Web.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microbanker.Domain.Security;
+using Microbanker.Web.Security;
 
 namespace Microbanker.Web.Controllers;
 
+[RequirePermission(Modules.Departments)]
 public class DepartmentController : BaseController
 {
     private readonly MicrobankerDbContext _db;

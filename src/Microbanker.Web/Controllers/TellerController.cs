@@ -8,6 +8,8 @@ using Microbanker.Domain.Entities.Transactions;
 using Microbanker.Infrastructure.Persistence;
 using Microbanker.Web.Models;
 using Microbanker.Web.Services;
+using Microbanker.Domain.Security;
+using Microbanker.Web.Security;
 
 namespace Microbanker.Web.Controllers;
 
@@ -15,6 +17,7 @@ namespace Microbanker.Web.Controllers;
 /// Counter operations. Every posting goes through <see cref="IPostingService"/>, the only code that changes
 /// balances; this controller only gathers and checks what the teller typed.
 /// </summary>
+[RequirePermission(Modules.Teller)]
 public class TellerController : SetupControllerBase
 {
     private const int PageSize = 25;
@@ -40,6 +43,7 @@ public class TellerController : SetupControllerBase
     // ═════════════════════════════════════════════════════════════════════════
 
     [HttpGet]
+    [RequirePermission(Modules.Teller, PermissionActions.Create)]
     public async Task<IActionResult> Deposit(string? accountNo)
     {
         SetNav("Deposit");
@@ -51,6 +55,7 @@ public class TellerController : SetupControllerBase
     }
 
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.Teller, PermissionActions.Create)]
     public async Task<IActionResult> Deposit(CashPostingFormModel model)
     {
         SetNav("Deposit");
@@ -80,6 +85,7 @@ public class TellerController : SetupControllerBase
     // ═════════════════════════════════════════════════════════════════════════
 
     [HttpGet]
+    [RequirePermission(Modules.Teller, PermissionActions.Create)]
     public async Task<IActionResult> Withdrawal(string? accountNo)
     {
         SetNav("Withdrawal");
@@ -91,6 +97,7 @@ public class TellerController : SetupControllerBase
     }
 
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.Teller, PermissionActions.Create)]
     public async Task<IActionResult> Withdrawal(CashPostingFormModel model)
     {
         SetNav("Withdrawal");
@@ -190,6 +197,7 @@ public class TellerController : SetupControllerBase
     }
 
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.Teller, PermissionActions.Approve)]
     public async Task<IActionResult> RejectWithdrawal(string id, string? remarks)
     {
         var (w, redirect) = await LoadRequestAsync(id);
@@ -210,6 +218,7 @@ public class TellerController : SetupControllerBase
 
     /// <summary>The teller pays an approved withdrawal: the debit is posted and the request completed in one step.</summary>
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.Teller, PermissionActions.Create)]
     public async Task<IActionResult> PayWithdrawal(string id, string? cashGlAccountNo)
     {
         var (w, redirect) = await LoadRequestAsync(id);
@@ -250,6 +259,7 @@ public class TellerController : SetupControllerBase
     // ═════════════════════════════════════════════════════════════════════════
 
     [HttpGet]
+    [RequirePermission(Modules.Teller, PermissionActions.Create)]
     public async Task<IActionResult> RetailPosting()
     {
         SetNav("RetailPosting");
@@ -261,6 +271,7 @@ public class TellerController : SetupControllerBase
     }
 
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.Teller, PermissionActions.Create)]
     public async Task<IActionResult> RetailPosting(RetailPostingFormModel model)
     {
         SetNav("RetailPosting");
@@ -294,6 +305,7 @@ public class TellerController : SetupControllerBase
     // ═════════════════════════════════════════════════════════════════════════
 
     [HttpGet]
+    [RequirePermission(Modules.Teller, PermissionActions.Create)]
     public async Task<IActionResult> MixedPosting()
     {
         SetNav("MixedPosting");
@@ -309,6 +321,7 @@ public class TellerController : SetupControllerBase
     }
 
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.Teller, PermissionActions.Create)]
     public async Task<IActionResult> MixedPosting(MixedPostingFormModel model)
     {
         SetNav("MixedPosting");
@@ -345,6 +358,7 @@ public class TellerController : SetupControllerBase
     // ═════════════════════════════════════════════════════════════════════════
 
     [HttpGet]
+    [RequirePermission(Modules.Teller, PermissionActions.Create)]
     public async Task<IActionResult> BulkUpload()
     {
         SetNav("BulkUpload");
@@ -356,6 +370,7 @@ public class TellerController : SetupControllerBase
     }
 
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.Teller, PermissionActions.Create)]
     public async Task<IActionResult> BulkUpload(BulkUploadFormModel model)
     {
         SetNav("BulkUpload");

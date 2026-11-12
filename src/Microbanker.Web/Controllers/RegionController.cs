@@ -5,9 +5,12 @@ using Microbanker.Domain.Entities.Setup;
 using Microbanker.Infrastructure.Persistence;
 using Microbanker.Web.Services;
 using Microbanker.Web.Models;
+using Microbanker.Domain.Security;
+using Microbanker.Web.Security;
 
 namespace Microbanker.Web.Controllers;
 
+[RequirePermission(Modules.Regions)]
 public class RegionController : SetupControllerBase
 {
     public RegionController(MicrobankerDbContext db, IEncryptionService enc) : base(db, enc) { }

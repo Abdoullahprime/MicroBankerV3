@@ -9,6 +9,8 @@ using Microbanker.Domain.Entities.Loans;
 using Microbanker.Infrastructure.Persistence;
 using Microbanker.Web.Models;
 using Microbanker.Web.Services;
+using Microbanker.Domain.Security;
+using Microbanker.Web.Security;
 
 namespace Microbanker.Web.Controllers;
 
@@ -16,6 +18,7 @@ namespace Microbanker.Web.Controllers;
 /// Loans and loan requests. This module tracks the loan side only: disbursing or repaying a loan does not
 /// move money in a member account or the general ledger (that arrives with the posting module).
 /// </summary>
+[RequirePermission(Modules.Loans)]
 public class LoanController : SetupControllerBase
 {
     private const int PageSize = 25;
@@ -313,6 +316,7 @@ public class LoanController : SetupControllerBase
     // ── Disburse ──────────────────────────────────────────────────────────────
 
     [HttpGet]
+    [RequirePermission(Modules.Loans, PermissionActions.Approve)]
     public async Task<IActionResult> Disburse(string id)
     {
         SetNav();
@@ -330,6 +334,7 @@ public class LoanController : SetupControllerBase
     }
 
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.Loans, PermissionActions.Approve)]
     public async Task<IActionResult> Disburse(string id, DisburseViewModel model)
     {
         SetNav();
@@ -376,6 +381,7 @@ public class LoanController : SetupControllerBase
     // ── Repayment ─────────────────────────────────────────────────────────────
 
     [HttpGet]
+    [RequirePermission(Modules.Loans, PermissionActions.Edit)]
     public async Task<IActionResult> Repayment(string id)
     {
         SetNav();
@@ -393,6 +399,7 @@ public class LoanController : SetupControllerBase
     }
 
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.Loans, PermissionActions.Edit)]
     public async Task<IActionResult> Repayment(string id, RepaymentViewModel model)
     {
         SetNav();
@@ -464,6 +471,7 @@ public class LoanController : SetupControllerBase
     //  LOAN REQUESTS
     // ═════════════════════════════════════════════════════════════════════════
 
+    [RequirePermission(Modules.LoanRequests, PermissionActions.View)]
     public async Task<IActionResult> Requests(string? status, int page = 1)
     {
         SetNav("LoanRequests");
@@ -494,6 +502,7 @@ public class LoanController : SetupControllerBase
     }
 
     [HttpGet]
+    [RequirePermission(Modules.LoanRequests, PermissionActions.Create)]
     public async Task<IActionResult> CreateRequest()
     {
         SetNav("LoanRequests");
@@ -505,6 +514,7 @@ public class LoanController : SetupControllerBase
     }
 
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.LoanRequests, PermissionActions.Create)]
     public async Task<IActionResult> CreateRequest(LoanRequestFormModel model)
     {
         SetNav("LoanRequests");
@@ -538,9 +548,11 @@ public class LoanController : SetupControllerBase
     }
 
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.LoanRequests, PermissionActions.Approve)]
     public Task<IActionResult> ApproveRequest(string id, string? remarks) => ReviewRequestAsync(id, remarks, approve: true);
 
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.LoanRequests, PermissionActions.Approve)]
     public Task<IActionResult> RejectRequest(string id, string? remarks) => ReviewRequestAsync(id, remarks, approve: false);
 
     private async Task<IActionResult> ReviewRequestAsync(string id, string? remarks, bool approve)
@@ -570,6 +582,7 @@ public class LoanController : SetupControllerBase
     }
 
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.LoanRequests, PermissionActions.Delete)]
     public async Task<IActionResult> DeleteRequest(string id)
     {
         var org = await GetOrgAsync();
@@ -590,6 +603,7 @@ public class LoanController : SetupControllerBase
     }
 
     [HttpGet]
+    [RequirePermission(Modules.Customers, PermissionActions.View)]
     public async Task<IActionResult> LookupCustomer(string? customerNo)
     {
         var org = await GetOrgAsync();

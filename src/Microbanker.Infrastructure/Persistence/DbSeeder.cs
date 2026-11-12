@@ -52,6 +52,9 @@ public static class DbSeeder
         ("PERMISSIONS",  "Permissions",  "fas fa-key",            "Administration", 62),
     };
 
+    /// <summary>The codes of every seeded permission module (used by a test that keeps them in step with the controllers).</summary>
+    public static IReadOnlyList<string> ModuleCodes => Modules.Select(m => m.Code).ToList();
+
     // ── Entry point ───────────────────────────────────────────────────────────
 
     public static async Task SeedAsync(MicrobankerDbContext db)

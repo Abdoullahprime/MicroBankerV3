@@ -5,9 +5,12 @@ using Microbanker.Web.Models;
 using Microbanker.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microbanker.Domain.Security;
+using Microbanker.Web.Security;
 
 namespace Microbanker.Web.Controllers;
 
+[RequirePermission(Modules.Roles)]
 public class RolesController : BaseController
 {
     private readonly MicrobankerDbContext      _db;

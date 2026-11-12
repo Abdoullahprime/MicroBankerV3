@@ -6,10 +6,13 @@ using Microbanker.Domain.Entities.GeneralLedger;
 using Microbanker.Infrastructure.Persistence;
 using Microbanker.Web.Models;
 using Microbanker.Web.Services;
+using Microbanker.Domain.Security;
+using Microbanker.Web.Security;
 
 namespace Microbanker.Web.Controllers;
 
 /// <summary>Start-of-day, end-of-day, month-end and year-end. The work itself is in <see cref="IProcessingService"/>.</summary>
+[RequirePermission(Modules.Processing)]
 public class ProcessingController : SetupControllerBase
 {
     private readonly IProcessingService _processing;
@@ -37,6 +40,7 @@ public class ProcessingController : SetupControllerBase
     }
 
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.Processing, PermissionActions.Approve)]
     public async Task<IActionResult> SOD(DateOnly? firstDate)
         => await RunAsync(org => _processing.StartDayAsync(org, GetUserId(), firstDate), nameof(SOD));
 
@@ -52,6 +56,7 @@ public class ProcessingController : SetupControllerBase
     }
 
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.Processing, PermissionActions.Approve)]
     public async Task<IActionResult> EOD(bool confirm)
         => await RunAsync(org => _processing.RunEodAsync(org, GetUserId()), nameof(EOD));
 
@@ -67,6 +72,7 @@ public class ProcessingController : SetupControllerBase
     }
 
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.Processing, PermissionActions.Approve)]
     public async Task<IActionResult> EOM(bool confirm)
         => await RunAsync(org => _processing.RunEomAsync(org, GetUserId()), nameof(EOM));
 
@@ -97,6 +103,7 @@ public class ProcessingController : SetupControllerBase
     }
 
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.Processing, PermissionActions.Approve)]
     public async Task<IActionResult> EOY(string? retainedEarningsGlNo)
         => await RunAsync(org => _processing.RunEoyAsync(org, GetUserId(), retainedEarningsGlNo), nameof(EOY));
 

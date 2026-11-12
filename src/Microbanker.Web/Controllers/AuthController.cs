@@ -140,6 +140,10 @@ public class AuthController : Controller
         return RedirectToAction("Index", "Home");
     }
 
+    // ── GET /Auth/Unauthorised ─────────────────────────────────────
+    [HttpGet]
+    public IActionResult Unauthorised() => View();
+
     // ── GET /Auth/Logout ───────────────────────────────────────────
     [HttpGet]
     public async Task<IActionResult> Logout()

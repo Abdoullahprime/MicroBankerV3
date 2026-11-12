@@ -6,9 +6,12 @@ using Microbanker.Domain.Entities.Transactions;
 using Microbanker.Infrastructure.Persistence;
 using Microbanker.Web.Models;
 using Microbanker.Web.Services;
+using Microbanker.Domain.Security;
+using Microbanker.Web.Security;
 
 namespace Microbanker.Web.Controllers;
 
+[RequirePermission(Modules.Transactions)]
 public class TransactionController : SetupControllerBase
 {
     private const int PageSize = 25;
@@ -124,6 +127,7 @@ public class TransactionController : SetupControllerBase
     // ── Reverse ───────────────────────────────────────────────────────────────
 
     [HttpPost, ValidateAntiForgeryToken]
+    [RequirePermission(Modules.Transactions, PermissionActions.Delete)]
     public async Task<IActionResult> Reverse(string id, string? reason)
     {
         var org = await GetOrgAsync();

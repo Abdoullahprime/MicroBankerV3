@@ -1,4 +1,11 @@
 ﻿@* src/Microbanker.Web/Views/Shared/_Layout.cshtml *@
+@using Microbanker.Domain.Security
+@using Microbanker.Web.Services
+@inject IPermissionService PermissionService
+@{
+    // What the signed-in user may open decides which sidebar entries are shown. The server enforces it too.
+    var perms = await PermissionService.GetCurrentAsync();
+}
 <!DOCTYPE html>
 <html data-bs-theme="light" lang="en-US" dir="ltr">
 
@@ -98,6 +105,8 @@
               </li>
 
               <!-- ════════════════════ MAINTENANCE ════════════════════ -->
+              @if (perms.Can(Modules.Organization) || perms.Can(Modules.Branches) || perms.Can(Modules.Departments) || perms.Can(Modules.Units) || perms.Can(Modules.Banks))
+              {
               <li class="nav-item">
                 <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
                   <div class="col-auto navbar-vertical-label">Maintenance</div>
@@ -115,6 +124,8 @@
                 </a>
                 <ul class="nav collapse @(ViewData["ActiveGroup"]?.ToString() == "Org" ? "show" : "")"
                     id="nav-org">
+                  @if (perms.Can(Modules.Organization))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Organization" ? "active" : "")"
                        asp-controller="Organization" asp-action="Index">
@@ -123,6 +134,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.Branches))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Branches" ? "active" : "")"
                        asp-controller="Branch" asp-action="Index">
@@ -131,6 +145,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.Departments))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Departments" ? "active" : "")"
                        asp-controller="Department" asp-action="Index">
@@ -139,6 +156,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.Units))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Units" ? "active" : "")"
                        asp-controller="Unit" asp-action="Index">
@@ -147,6 +167,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.Banks))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Banks" ? "active" : "")"
                        asp-controller="Bank" asp-action="Index">
@@ -155,10 +178,14 @@
                       </div>
                     </a>
                   </li>
+                  }
                 </ul>
               </li>
+              }
 
               <!-- ════════════════════ SETUP ════════════════════ -->
+              @if (perms.Can(Modules.Regions) || perms.Can(Modules.Districts) || perms.Can(Modules.Areas) || perms.Can(Modules.Sectors) || perms.Can(Modules.SubSectors) || perms.Can(Modules.ProductTypes) || perms.Can(Modules.ProductDefinitions) || perms.Can(Modules.TransactionCodes) || perms.Can(Modules.ChartOfAccounts))
+              {
               <li class="nav-item">
                 <a class="nav-link dropdown-indicator"
                    href="#nav-setup" role="button" data-bs-toggle="collapse"
@@ -171,6 +198,8 @@
                 </a>
                 <ul class="nav collapse @(ViewData["ActiveGroup"]?.ToString() == "Setup" ? "show" : "")"
                     id="nav-setup">
+                  @if (perms.Can(Modules.Regions))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Regions" ? "active" : "")"
                        asp-controller="Region" asp-action="Index">
@@ -179,6 +208,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.Districts))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Districts" ? "active" : "")"
                        asp-controller="District" asp-action="Index">
@@ -187,6 +219,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.Areas))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Areas" ? "active" : "")"
                        asp-controller="Area" asp-action="Index">
@@ -195,6 +230,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.Sectors))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Sectors" ? "active" : "")"
                        asp-controller="Sector" asp-action="Index">
@@ -203,6 +241,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.SubSectors))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "SubSectors" ? "active" : "")"
                        asp-controller="SubSector" asp-action="Index">
@@ -211,6 +252,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.ProductTypes))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "ProductTypes" ? "active" : "")"
                        asp-controller="ProductType" asp-action="Index">
@@ -219,6 +263,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.ProductDefinitions))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "ProductDefinitions" ? "active" : "")"
                        asp-controller="ProductDefinition" asp-action="Index">
@@ -227,6 +274,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.TransactionCodes))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "TransactionCodes" ? "active" : "")"
                        asp-controller="TransactionCode" asp-action="Index">
@@ -235,6 +285,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.ChartOfAccounts))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "ChartOfAccounts" ? "active" : "")"
                        asp-controller="ChartOfAccounts" asp-action="Index">
@@ -243,10 +296,14 @@
                       </div>
                     </a>
                   </li>
+                  }
                 </ul>
               </li>
+              }
 
               <!-- ════════════════════ BANKING ════════════════════ -->
+              @if (perms.Can(Modules.Customers) || perms.Can(Modules.SelfReg) || perms.Can(Modules.Accounts) || perms.Can(Modules.BalanceEnquiry))
+              {
               <li class="nav-item">
                 <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
                   <div class="col-auto navbar-vertical-label">Banking</div>
@@ -264,6 +321,8 @@
                 </a>
                 <ul class="nav collapse @(ViewData["ActiveGroup"]?.ToString() == "Banking" ? "show" : "")"
                     id="nav-banking">
+                  @if (perms.Can(Modules.Customers))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Customers" ? "active" : "")"
                        asp-controller="Customer" asp-action="Index">
@@ -272,6 +331,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.SelfReg))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "SelfReg" ? "active" : "")"
                        asp-controller="SelfRegistration" asp-action="Index">
@@ -280,6 +342,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.Accounts))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Accounts" ? "active" : "")"
                        asp-controller="Account" asp-action="Index">
@@ -288,6 +353,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.BalanceEnquiry))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "BalanceEnquiry" ? "active" : "")"
                        asp-controller="Account" asp-action="BalanceEnquiry">
@@ -296,10 +364,14 @@
                       </div>
                     </a>
                   </li>
+                  }
                 </ul>
               </li>
+              }
 
               <!-- ════════════════════ LENDING ════════════════════ -->
+              @if (perms.Can(Modules.Loans) || perms.Can(Modules.LoanRequests) || perms.Can(Modules.Loans))
+              {
               <li class="nav-item">
                 <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
                   <div class="col-auto navbar-vertical-label">Lending</div>
@@ -317,6 +389,8 @@
                 </a>
                 <ul class="nav collapse @(ViewData["ActiveGroup"]?.ToString() == "Lending" ? "show" : "")"
                     id="nav-lending">
+                  @if (perms.Can(Modules.Loans))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Loans" ? "active" : "")"
                        asp-controller="Loan" asp-action="Index">
@@ -325,6 +399,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.LoanRequests))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "LoanRequests" ? "active" : "")"
                        asp-controller="Loan" asp-action="Requests">
@@ -333,6 +410,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.Loans))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "LoanEnquiry" ? "active" : "")"
                        asp-controller="Loan" asp-action="BalanceEnquiry">
@@ -341,10 +421,14 @@
                       </div>
                     </a>
                   </li>
+                  }
                 </ul>
               </li>
+              }
 
               <!-- ════════════════════ TELLER ════════════════════ -->
+              @if (perms.Can(Modules.Teller, PermissionActions.Create) || perms.Can(Modules.Teller, PermissionActions.Create) || perms.Can(Modules.Teller) || perms.Can(Modules.Teller, PermissionActions.Create) || perms.Can(Modules.Teller, PermissionActions.Create) || perms.Can(Modules.Teller, PermissionActions.Create) || perms.Can(Modules.Transactions))
+              {
               <li class="nav-item">
                 <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
                   <div class="col-auto navbar-vertical-label">Teller</div>
@@ -362,6 +446,8 @@
                 </a>
                 <ul class="nav collapse @(ViewData["ActiveGroup"]?.ToString() == "Teller" ? "show" : "")"
                     id="nav-teller">
+                  @if (perms.Can(Modules.Teller, PermissionActions.Create))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Deposit" ? "active" : "")"
                        asp-controller="Teller" asp-action="Deposit">
@@ -370,6 +456,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.Teller, PermissionActions.Create))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Withdrawal" ? "active" : "")"
                        asp-controller="Teller" asp-action="Withdrawal">
@@ -378,6 +467,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.Teller))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "WithdrawalRequests" ? "active" : "")"
                        asp-controller="Teller" asp-action="WithdrawalRequests">
@@ -386,6 +478,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.Teller, PermissionActions.Create))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "RetailPosting" ? "active" : "")"
                        asp-controller="Teller" asp-action="RetailPosting">
@@ -394,6 +489,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.Teller, PermissionActions.Create))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "MixedPosting" ? "active" : "")"
                        asp-controller="Teller" asp-action="MixedPosting">
@@ -402,6 +500,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.Teller, PermissionActions.Create))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "BulkUpload" ? "active" : "")"
                        asp-controller="Teller" asp-action="BulkUpload">
@@ -410,6 +511,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.Transactions))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Transactions" ? "active" : "")"
                        asp-controller="Transaction" asp-action="Index">
@@ -418,10 +522,14 @@
                       </div>
                     </a>
                   </li>
+                  }
                 </ul>
               </li>
+              }
 
               <!-- ════════════════════ REPORTS ════════════════════ -->
+              @if (perms.Can(Modules.GeneralLedger) || perms.Can(Modules.Processing) || perms.Can(Modules.Reports))
+              {
               <li class="nav-item">
                 <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
                   <div class="col-auto navbar-vertical-label">Reports</div>
@@ -439,6 +547,8 @@
                 </a>
                 <ul class="nav collapse @(ViewData["ActiveGroup"]?.ToString() == "Reports" ? "show" : "")"
                     id="nav-reports">
+                  @if (perms.Can(Modules.GeneralLedger))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "GL" ? "active" : "")"
                        asp-controller="GL" asp-action="Index">
@@ -447,6 +557,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.Processing))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Processing" ? "active" : "")"
                        asp-controller="Processing" asp-action="SOD">
@@ -455,6 +568,9 @@
                       </div>
                     </a>
                   </li>
+                  }
+                  @if (perms.Can(Modules.Reports))
+                  {
                   <li class="nav-item">
                     <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Reports" ? "active" : "")"
                        asp-controller="Report" asp-action="Index">
@@ -463,16 +579,22 @@
                       </div>
                     </a>
                   </li>
+                  }
                 </ul>
               </li>
+              }
 
               <!-- ════════════════════ ADMINISTRATION ════════════════════ -->
+              @if (perms.Can(Modules.Users) || perms.Can(Modules.Roles) || perms.Can(Modules.Permissions))
+              {
               <li class="nav-item">
                 <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
                   <div class="col-auto navbar-vertical-label">Administration</div>
                   <div class="col ps-0"><hr class="mb-0 navbar-vertical-divider" /></div>
                 </div>
 
+                @if (perms.Can(Modules.Users))
+                {
                 <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Users" ? "active" : "")"
                    asp-controller="Users" asp-action="Index" role="button">
                   <div class="d-flex align-items-center">
@@ -480,7 +602,10 @@
                     <span class="nav-link-text ps-1">Users</span>
                   </div>
                 </a>
+                }
 
+                @if (perms.Can(Modules.Roles))
+                {
                 <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Roles" ? "active" : "")"
                    asp-controller="Roles" asp-action="Index" role="button">
                   <div class="d-flex align-items-center">
@@ -488,7 +613,10 @@
                     <span class="nav-link-text ps-1">Roles</span>
                   </div>
                 </a>
+                }
 
+                @if (perms.Can(Modules.Permissions))
+                {
                 <a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Permissions" ? "active" : "")"
                    asp-controller="Permissions" asp-action="Index" role="button">
                   <div class="d-flex align-items-center">
@@ -496,7 +624,9 @@
                     <span class="nav-link-text ps-1">Permissions</span>
                   </div>
                 </a>
+                }
               </li>
+              }
 
             </ul>
           </div>
