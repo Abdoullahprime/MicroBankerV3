@@ -1,0 +1,57 @@
+@* src/Microbanker.Web/Views/Report/TrialBalance.cshtml *@
+@model Microbanker.Web.Models.TrialBalanceViewModel
+@{
+    ViewData["Title"]        = "Trial Balance";
+    ViewData["PageTitle"]    = "Trial Balance";
+    ViewData["PageSubTitle"] = "As at " + Model.AsOf.ToString("dd MMM yyyy");
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-transparent border-bottom py-2 d-flex flex-wrap gap-2 justify-content-between align-items-center">
+        <form method="get" class="d-flex flex-wrap gap-2 align-items-center">
+            <label class="fs--1 text-muted">As at</label>
+            <input name="asOf" type="date" value="@Model.AsOf.ToString("yyyy-MM-dd")" class="form-control form-control-sm" style="width:150px" />
+            <div class="form-check form-check-inline mb-0 fs--1"><input class="form-check-input" type="checkbox" name="beforeClosing" value="true" id="bc" checked="@Model.BeforeClosing" /><label class="form-check-label" for="bc">Before year-end closing entries</label></div>
+            <button class="btn btn-falcon-default btn-sm" type="submit"><i class="fas fa-filter me-1"></i>Show</button>
+        </form>
+        @if (Model.InBalance) { <span class="badge badge-subtle-success fs--1"><i class="fas fa-check me-1"></i>In balance</span> }
+        else { <span class="badge badge-subtle-danger fs--1"><i class="fas fa-exclamation-triangle me-1"></i>OUT OF BALANCE by @Math.Abs(Model.TotalDebit - Model.TotalCredit).ToString("N2")</span> }
+    </div>
+    <div class="card-body p-0">
+        @if (!Model.Rows.Any())
+        {
+            <div class="text-center py-5 text-muted"><i class="fas fa-balance-scale fa-3x mb-3 opacity-25"></i><p class="mb-0 fs--1">No ledger entries up to this date.</p></div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-sm mb-0 fs--1">
+                    <thead class="bg-200"><tr><th>Account</th><th>Type</th><th class="text-end">Debit</th><th class="text-end">Credit</th></tr></thead>
+                    <tbody>
+                    @foreach (var r in Model.Rows)
+                    {
+                        <tr><td><a asp-controller="GL" asp-action="AccountStatement" asp-route-glAccountNo="@r.GlAccountNo" asp-route-from="2000-01-01" asp-route-to="@Model.AsOf.ToString("yyyy-MM-dd")">@r.GlAccountNo</a> <span class="text-muted">@r.Name</span></td>
+                            <td class="text-muted">@r.Type</td>
+                            <td class="text-end">@(r.Debit == 0 ? "" : r.Debit.ToString("N2"))</td><td class="text-end">@(r.Credit == 0 ? "" : r.Credit.ToString("N2"))</td></tr>
+                    }
+                    </tbody>
+                    <tfoot class="bg-200 fw-semibold"><tr><td colspan="2">Total</td><td class="text-end">@Model.TotalDebit.ToString("N2")</td><td class="text-end">@Model.TotalCredit.ToString("N2")</td></tr></tfoot>
+                </table>
+            </div>
+        }
+    </div>
+</div>

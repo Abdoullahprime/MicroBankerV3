@@ -1,0 +1,58 @@
+@* src/Microbanker.Web/Views/Report/AccountStatement.cshtml *@
+@model Microbanker.Web.Models.AccountStatementViewModel
+@{
+    ViewData["Title"]        = "Account Statement";
+    ViewData["PageTitle"]    = "Account Statement";
+    ViewData["PageSubTitle"] = "A customer account over a date range";
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm border-0 mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-4"><label asp-for="AccountNo" class="form-label fw-medium fs--1"></label><input asp-for="AccountNo" class="form-control form-control-sm text-uppercase" placeholder="e.g. MN-SA-0000001" /></div>
+            <div class="col-md-3"><label class="form-label fw-medium fs--1">From</label><input name="from" type="date" value="@Model.From.ToString("yyyy-MM-dd")" class="form-control form-control-sm" /></div>
+            <div class="col-md-3"><label class="form-label fw-medium fs--1">To</label><input name="to" type="date" value="@Model.To.ToString("yyyy-MM-dd")" class="form-control form-control-sm" /></div>
+            <div class="col-md-2"><button class="btn btn-primary btn-sm w-100" type="submit"><i class="fas fa-search me-1"></i>Show</button></div>
+        </form>
+    </div>
+</div>
+@if (Model.NotFound)
+{
+    <div class="alert alert-warning fs--1">No account <strong>@Model.AccountNo</strong>.</div>
+}
+else if (Model.Searched)
+{
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-transparent border-bottom py-2"><h6 class="mb-0 fw-semibold fs--1">@Model.AccountNo — @Model.AccountName <span class="text-muted fw-normal">· @Model.CustomerName · @Model.Status</span></h6></div>
+        <div class="table-responsive">
+            <table class="table table-sm mb-0 fs--1">
+                <thead class="bg-200"><tr><th>Date</th><th>Ref</th><th>Narration</th><th class="text-end">Debit</th><th class="text-end">Credit</th><th class="text-end">Balance</th></tr></thead>
+                <tbody>
+                    <tr class="bg-100"><td colspan="5" class="fw-medium">Opening balance</td><td class="text-end fw-medium">@Model.OpeningBalance.ToString("N2")</td></tr>
+                    @foreach (var l in Model.Lines)
+                    {
+                        <tr class="@(l.Status == "REVERSED" ? "text-decoration-line-through text-muted" : "")">
+                            <td>@l.ValueDate.ToString("dd MMM yyyy")</td><td>@l.TransactionRef@(l.IsReversal ? " (reversal)" : "")</td><td>@l.Narration</td>
+                            <td class="text-end">@(l.Debit == 0 ? "" : l.Debit.ToString("N2"))</td><td class="text-end">@(l.Credit == 0 ? "" : l.Credit.ToString("N2"))</td><td class="text-end">@l.Balance.ToString("N2")</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot class="bg-200 fw-semibold"><tr><td colspan="3">Totals / closing balance (@Model.Currency)</td><td class="text-end">@Model.TotalDebits.ToString("N2")</td><td class="text-end">@Model.TotalCredits.ToString("N2")</td><td class="text-end">@Model.ClosingBalance.ToString("N2")</td></tr></tfoot>
+            </table>
+        </div>
+    </div>
+}

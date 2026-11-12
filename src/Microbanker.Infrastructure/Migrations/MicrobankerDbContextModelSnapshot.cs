@@ -177,10 +177,10 @@ namespace Microbanker.Infrastructure.Migrations
                         .HasColumnType("nvarchar(30)");
 
                     b.Property<decimal>("InterestAccruedCR")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,6)");
 
                     b.Property<decimal>("InterestAccruedDR")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,6)");
 
                     b.Property<bool>("IsApproved")
                         .HasColumnType("bit");
@@ -978,6 +978,211 @@ namespace Microbanker.Infrastructure.Migrations
                     b.ToTable("SelfRegistrations", null, t =>
                         {
                             t.HasCheckConstraint("CK_SelfRegistrations_Status", "[Status] IN ('PENDING','APPROVED','REJECTED')");
+                        });
+                });
+
+            modelBuilder.Entity("Microbanker.Domain.Entities.GeneralLedger.EODLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly>("ProcessDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("ProcessType")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
+
+                    b.Property<Guid>("RunBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId", "ProcessType", "ProcessDate");
+
+                    b.ToTable("EODLogs", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_EODLogs_Status", "[Status] IN ('RUNNING','COMPLETED','FAILED')");
+
+                            t.HasCheckConstraint("CK_EODLogs_Type", "[ProcessType] IN ('SOD','EOD','EOM','EOY')");
+                        });
+                });
+
+            modelBuilder.Entity("Microbanker.Domain.Entities.GeneralLedger.GLEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DrCr")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("nvarchar(2)");
+
+                    b.Property<string>("FiscalPeriod")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
+
+                    b.Property<string>("GLAccountNo")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("JournalRef")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("Narration")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PostedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("PostingDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SourceModule")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("SourceRef")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateOnly>("ValueDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId", "FiscalPeriod");
+
+                    b.HasIndex("OrganizationId", "JournalRef");
+
+                    b.HasIndex("OrganizationId", "SourceRef");
+
+                    b.HasIndex("OrganizationId", "GLAccountNo", "ValueDate");
+
+                    b.ToTable("GLEntries", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_GLEntries_Amount", "[Amount] > 0");
+
+                            t.HasCheckConstraint("CK_GLEntries_DrCr", "[DrCr] IN ('DR','CR')");
+
+                            t.HasCheckConstraint("CK_GLEntries_Source", "[SourceModule] IN ('TELLER','LOAN','SYSTEM')");
+
+                            t.HasCheckConstraint("CK_GLEntries_Status", "[Status] IN ('POSTED','REVERSED')");
+                        });
+                });
+
+            modelBuilder.Entity("Microbanker.Domain.Entities.GeneralLedger.ProcessingDate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ClosedThroughPeriod")
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
+
+                    b.Property<Guid>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateOnly>("CurrentDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("EODStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastEODAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastEOMAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastEOYAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastSODAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId")
+                        .IsUnique();
+
+                    b.ToTable("ProcessingDates", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ProcessingDates_Status", "[EODStatus] IN ('OPEN','EOD_RUNNING','CLOSED')");
                         });
                 });
 
@@ -2478,6 +2683,33 @@ namespace Microbanker.Infrastructure.Migrations
                     b.Navigation("Sector");
 
                     b.Navigation("SubSector");
+                });
+
+            modelBuilder.Entity("Microbanker.Domain.Entities.GeneralLedger.EODLog", b =>
+                {
+                    b.HasOne("Microbanker.Domain.Entities.Organization.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microbanker.Domain.Entities.GeneralLedger.GLEntry", b =>
+                {
+                    b.HasOne("Microbanker.Domain.Entities.Organization.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microbanker.Domain.Entities.GeneralLedger.ProcessingDate", b =>
+                {
+                    b.HasOne("Microbanker.Domain.Entities.Organization.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microbanker.Domain.Entities.Loans.LoanAccount", b =>

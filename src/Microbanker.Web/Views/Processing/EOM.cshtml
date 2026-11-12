@@ -1,0 +1,38 @@
+@* src/Microbanker.Web/Views/Processing/EOM.cshtml *@
+@model Microbanker.Web.Models.ProcessingStateViewModel
+@{
+    ViewData["Title"]        = "Month End";
+    ViewData["PageTitle"]    = "Month End";
+    ViewData["PageSubTitle"] = "Pay interest and close the month";
+}
+<partial name="_State" model="Model" />
+<div class="card shadow-sm border-0" style="max-width:760px;">
+    <div class="card-body">
+        <p class="fs--1 mb-2">Month end runs between end of day and start of day, for the oldest month not yet closed:</p>
+        <ol class="fs--1">
+            <li>pays accrued interest to accounts whose product pays in this month, whole cents at a time (any fraction carries forward);</li>
+            <li>zeroes every account's monthly turnover counters;</li>
+            <li>closes the month: nothing can be posted into it afterwards.</li>
+        </ol>
+        @if (!Model.Initialised)
+        {
+            <div class="alert alert-light border fs--1 mb-0">Start the business day first.</div>
+        }
+        else if (Model.EomPossible)
+        {
+            <form asp-action="EOM" method="post" onsubmit="return confirm('Close period @Model.NextEomPeriod? This cannot be undone.');">
+                @Html.AntiForgeryToken()
+                <button class="btn btn-warning" type="submit"><i class="fas fa-calendar-check me-2"></i>Run month end for @Model.NextEomPeriod</button>
+            </form>
+            <div class="fs--1 text-muted mt-2">If it stops part-way, fix the cause and run it again: interest already paid is not paid twice.</div>
+        }
+        else
+        {
+            <div class="alert alert-light border fs--1 mb-0">
+                @if (Model.Status != "CLOSED") { <span>The day must be closed first (run end of day).</span> }
+                else { <span>Period <strong>@Model.NextEomPeriod</strong> is not over yet: its last day has not been closed.</span> }
+            </div>
+        }
+    </div>
+</div>
+<partial name="_Log" model="Model" />

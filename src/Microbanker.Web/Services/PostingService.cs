@@ -2,6 +2,7 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microbanker.Domain.Entities.Accounts;
+using Microbanker.Domain.Entities.GeneralLedger;
 using Microbanker.Domain.Entities.Setup;
 using Microbanker.Domain.Entities.Transactions;
 using Microbanker.Infrastructure.Persistence;
@@ -15,8 +16,9 @@ namespace Microbanker.Web.Services;
 /// Account rows carry a concurrency token, so if another user changes an account while we are working,
 /// the posting is retried from scratch against the fresh balances instead of overwriting them.
 ///
-/// The general-ledger side is recorded as <see cref="Transaction.GLAccountNo"/> on each leg; turning that
-/// into ledger entries is the job of the end-of-day / ledger phase.
+/// Each posting also writes its general-ledger journal in the same database transaction: every leg is a line on
+/// the account's liability control GL account, and a one-sided posting adds the opposite line on its contra
+/// account. The journal's debits and credits are asserted equal before anything is saved.
 /// </summary>
 public class PostingService : IPostingService
 {
@@ -131,9 +133,23 @@ public class PostingService : IPostingService
                 return PostingResult.Fail($"The posting does not balance: debits are {debits:N2} and credits are {credits:N2}.");
         }
 
-        // ── Value date ──
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        if (r.ValueDate > today) return PostingResult.Fail("The value date cannot be in the future.");
+        // ── Business day and value date ──
+        var day = await BusinessCalendar.GetAsync(_db, r.OrganizationId);
+        var dayProblem = CheckDay(day, r.ValueDate, r.IsSystem);
+        if (dayProblem != null) return PostingResult.Fail(dayProblem);
+
+        // ── Ledger accounts behind the customer accounts ──
+        var controlNos = accounts.Select(a => a.GLLiabilityControl).Where(g => !string.IsNullOrWhiteSpace(g)).Select(g => g!).Distinct().ToList();
+        var controlGls = await _db.GLAccounts
+            .Where(g => g.OrganizationId == r.OrganizationId && !g.IsDeleted && g.IsActive && controlNos.Contains(g.AccountNumber))
+            .Select(g => g.AccountNumber).ToListAsync();
+        foreach (var a in accounts)
+        {
+            if (string.IsNullOrWhiteSpace(a.GLLiabilityControl))
+                return PostingResult.Fail($"Account {a.AccountNo} has no liability control GL account, so it cannot be posted to. Set one on the account first.");
+            if (!controlGls.Contains(a.GLLiabilityControl))
+                return PostingResult.Fail($"The liability control GL account {a.GLLiabilityControl} of account {a.AccountNo} was not found or is not active.");
+        }
 
         // ── Per-account rules ──
         var now = DateTime.UtcNow;
@@ -143,6 +159,14 @@ public class PostingService : IPostingService
             var a = byNo[Norm(leg.AccountNo)];
             if (r.ValueDate < a.OpenDate)
                 return PostingResult.Fail($"Account {a.AccountNo}: the value date is before the account was opened.");
+
+            if (leg.SettlesAccruedInterest)
+            {
+                if (!r.IsSystem || leg.DrCr != TransactionOptions.Credit)
+                    return PostingResult.Fail("Only month-end processing may pay out accrued interest.");
+                if (leg.Amount > a.PayableInterest)
+                    return PostingResult.Fail($"Account {a.AccountNo} has only {a.PayableInterest:N2} of accrued interest to pay.");
+            }
 
             if (leg.DrCr == TransactionOptions.Credit)
             {
@@ -179,7 +203,12 @@ public class PostingService : IPostingService
             var a = byNo[Norm(leg.AccountNo)];
             var isDebit = leg.DrCr == TransactionOptions.Debit;
 
-            if (isDebit) a.Debit(leg.Amount, now); else a.Credit(leg.Amount, now);
+            if (isDebit) a.Debit(leg.Amount, now);
+            else
+            {
+                a.Credit(leg.Amount, now, isInterest: leg.SettlesAccruedInterest);
+                if (leg.SettlesAccruedInterest) a.SettleAccruedInterest(leg.Amount);
+            }
 
             txns.Add(new Transaction(r.OrganizationId, a.BranchId, refs[i],
                 isDebit ? debitCode!.Id : creditCode!.Id, a.Id, a.AccountType, leg.DrCr, leg.Amount,
@@ -188,10 +217,57 @@ public class PostingService : IPostingService
                 oneSided ? contraNo : null, now));
         }
 
+        var journal = BuildJournal(txns, byNo.Values.ToDictionary(a => a.Id, a => a.GLLiabilityControl!), r.PostedBy, now,
+            r.IsSystem ? GLOptions.System : GLOptions.Teller, "JNL-" + refs[0][4..]);
+
         _db.Transactions.AddRange(txns);
+        _db.GLEntries.AddRange(journal);
         withdrawal?.Complete(txns[0].TransactionRef);
         await _db.SaveChangesAsync();
         return PostingResult.Ok(txns);
+    }
+
+    /// <summary>
+    /// The ledger lines for a set of transactions: each leg on its account's liability control GL (same side as
+    /// the leg, because a customer credit increases what the bank owes), plus the opposite line on the contra GL
+    /// where there is one. Debits and credits of the journal must be equal.
+    /// </summary>
+    private static List<GLEntry> BuildJournal(IReadOnlyList<Transaction> txns, IReadOnlyDictionary<Guid, string> controlByAccount,
+        Guid postedBy, DateTime now, string sourceModule, string journalRef)
+    {
+        var lines = new List<GLEntry>();
+        foreach (var t in txns)
+        {
+            lines.Add(new GLEntry(t.OrganizationId, journalRef, controlByAccount[t.AccountId], t.DrCr, t.Amount, t.Narration,
+                t.ValueDate, now, postedBy, sourceModule, t.TransactionRef));
+            if (t.GLAccountNo != null)
+                lines.Add(new GLEntry(t.OrganizationId, journalRef, t.GLAccountNo,
+                    t.DrCr == TransactionOptions.Debit ? GLOptions.Credit : GLOptions.Debit, t.Amount, t.Narration,
+                    t.ValueDate, now, postedBy, sourceModule, t.TransactionRef));
+        }
+
+        var dr = lines.Where(l => l.DrCr == GLOptions.Debit).Sum(l => l.Amount);
+        var cr = lines.Where(l => l.DrCr == GLOptions.Credit).Sum(l => l.Amount);
+        if (dr != cr)
+            throw new InvalidOperationException($"The ledger journal does not balance (debits {dr:N2}, credits {cr:N2}). Nothing was posted.");
+        return lines;
+    }
+
+    /// <summary>Null when postings dated <paramref name="valueDate"/> are allowed now; otherwise why not.</summary>
+    private static string? CheckDay(BusinessDay day, DateOnly valueDate, bool isSystem)
+    {
+        if (!day.Initialised)
+            return valueDate > day.Date ? "The value date cannot be in the future." : null;
+
+        if (day.Status == GLOptions.EodRunning)
+            return "End-of-day is running. Please wait for it to finish.";
+        if (!isSystem && day.Status != GLOptions.Open)
+            return "The business day is not open. Run start-of-day first.";
+        if (valueDate > day.Date)
+            return $"The value date cannot be after the business date ({day.Date:dd MMM yyyy}).";
+        if (day.IsClosedPeriod(valueDate))
+            return $"Period {GLOptions.PeriodOf(valueDate)} has been closed; nothing can be posted into it.";
+        return null;
     }
 
     // ═════════════════════════════════════════════════════════════════════════
@@ -227,10 +303,23 @@ public class PostingService : IPostingService
         var ids = originals.Select(t => t.AccountId).Distinct().ToList();
         var accounts = await _db.MemberAccounts.Where(a => ids.Contains(a.Id)).ToDictionaryAsync(a => a.Id);
 
+        // The reversal is a new posting, dated on the business date (so it never lands in a closed period).
+        var day = await BusinessCalendar.GetAsync(_db, orgId);
         var now = DateTime.UtcNow;
+        var today = day.Date;
+        var dayProblem = CheckDay(day, today, isSystem: false);
+        if (dayProblem != null) return PostingResult.Fail(dayProblem);
+
+        // The ledger lines of the originals; the reversal mirrors them exactly. System postings (interest) are not reversible.
+        var originalRefs = originals.Select(t => t.TransactionRef).ToList();
+        var originalLines = await _db.GLEntries
+            .Where(g => g.OrganizationId == orgId && originalRefs.Contains(g.SourceRef) && g.Status == GLOptions.Posted)
+            .ToListAsync();
+        if (originalLines.Any(g => g.SourceModule == GLOptions.System))
+            return PostingResult.Fail("System postings such as interest cannot be reversed.");
+
         var refs = await NextRefsAsync(orgId, originals.Count, now);
         var batchRef = originals.Count > 1 ? "REV-" + first.BatchRef : null;
-        var today = DateOnly.FromDateTime(now);
         var created = new List<Transaction>(originals.Count);
 
         // Take money back first, then give it back, so a reversal never depends on money that is about to arrive.
@@ -248,7 +337,19 @@ public class PostingService : IPostingService
             created.Add(reversal);
         }
 
+        var journalRef = "JNL-" + refs[0][4..];
+        var mirrors = new List<GLEntry>();
+        foreach (var line in originalLines)
+        {
+            var reversalRef = newRefByOriginal[originals.First(t => t.TransactionRef == line.SourceRef).Id];
+            mirrors.Add(line.Mirror(journalRef, reversalRef, $"Reversal of {line.SourceRef}: {reason}", today, now, reversedBy));
+            line.MarkReversed();
+        }
+        if (mirrors.Count > 0 && mirrors.Where(m => m.DrCr == GLOptions.Debit).Sum(m => m.Amount) != mirrors.Where(m => m.DrCr == GLOptions.Credit).Sum(m => m.Amount))
+            throw new InvalidOperationException("The reversing ledger journal does not balance. Nothing was posted.");
+
         _db.Transactions.AddRange(created);
+        _db.GLEntries.AddRange(mirrors);
         await _db.SaveChangesAsync();
         return PostingResult.Ok(created);
     }

@@ -59,6 +59,7 @@ public sealed class TellerControllerTests : IDisposable
         _bigWdl.Update("BIGW", "Large withdrawal", "DR", null, true, true);
         _db.TransactionCodes.AddRange(_wdl, _dep, _bigWdl);
         _db.GLAccounts.Add(new GLAccount(_org.Id, "1000", "Cash", "ASSET", null, 1));
+        _db.GLAccounts.Add(new GLAccount(_org.Id, "2000", "Customer deposits", "LIABILITY", null, 1));
 
         _a1 = Account("MN-SA-0000001", 1000m);
         _a2 = Account("MN-SA-0000002", 50m);
@@ -74,6 +75,7 @@ public sealed class TellerControllerTests : IDisposable
         _db.Customers.Add(cust);
         var a = new MemberAccount(_org.Id, _branch.Id, cust.Id, _product.Id, no, "Acc " + no, "SAVINGS");
         a.UpdateTerms(_product.Id, "GMD", balance, new DateOnly(2026, 1, 1));
+        a.Update(a.AccountName, null, 0m, null, null, null, "2000", null, null, null, null);
         a.Approve(Guid.NewGuid());
         _db.MemberAccounts.Add(a);
         return a;

@@ -1,0 +1,41 @@
+@* src/Microbanker.Web/Views/Processing/SOD.cshtml *@
+@model Microbanker.Web.Models.SodViewModel
+@{
+    ViewData["Title"]        = "Start of Day";
+    ViewData["PageTitle"]    = "Start of Day";
+    ViewData["PageSubTitle"] = "Open the business day";
+}
+<partial name="_State" model="Model" />
+<div class="card shadow-sm border-0" style="max-width:640px;">
+    <div class="card-body">
+        @if (!Model.Initialised)
+        {
+            <p class="fs--1">This starts day management. Choose the first business date; from then on postings need an open day, cannot be dated after the business date, and cannot go into a closed month.</p>
+            <form asp-action="SOD" method="post" class="row g-3 align-items-end">
+                @Html.AntiForgeryToken()
+                <div class="col-md-6">
+                    <label asp-for="FirstDate" class="form-label fw-medium"></label>
+                    <input asp-for="FirstDate" class="form-control" type="date" />
+                </div>
+                <div class="col-md-6"><button class="btn btn-primary" type="submit"><i class="fas fa-sun me-2"></i>Start day management</button></div>
+            </form>
+        }
+        else if (Model.Status == "CLOSED")
+        {
+            <p class="fs--1">The business date is <strong>@Model.CurrentDate.ToString("dd MMM yyyy")</strong> and the day is closed. Open it so tellers can post.</p>
+            <form asp-action="SOD" method="post">
+                @Html.AntiForgeryToken()
+                <button class="btn btn-primary" type="submit"><i class="fas fa-sun me-2"></i>Open @Model.CurrentDate.ToString("dd MMM yyyy")</button>
+            </form>
+        }
+        else if (Model.Status == "OPEN")
+        {
+            <p class="mb-0 fs--1"><i class="fas fa-check-circle text-success me-2"></i><strong>@Model.CurrentDate.ToString("dd MMM yyyy")</strong> is open. Run <a asp-action="EOD">end of day</a> when business is done.</p>
+        }
+        else
+        {
+            <p class="mb-0 fs--1"><i class="fas fa-spinner me-2 text-warning"></i>End-of-day is running.</p>
+        }
+    </div>
+</div>
+<partial name="_Log" model="Model" />

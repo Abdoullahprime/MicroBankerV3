@@ -1,0 +1,31 @@
+@* src/Microbanker.Web/Views/Processing/EOD.cshtml *@
+@model Microbanker.Web.Models.ProcessingStateViewModel
+@{
+    ViewData["Title"]        = "End of Day";
+    ViewData["PageTitle"]    = "End of Day";
+    ViewData["PageSubTitle"] = "Close the business day";
+}
+<partial name="_State" model="Model" />
+<div class="card shadow-sm border-0" style="max-width:760px;">
+    <div class="card-body">
+        <p class="fs--1 mb-2">End of day, in one step that either completes or changes nothing:</p>
+        <ol class="fs--1">
+            <li>checks that the general ledger balances;</li>
+            <li>accrues a day's interest on every active deposit account;</li>
+            <li>marks accounts with no activity beyond their product's dormancy limit as dormant;</li>
+            <li>moves the business date on and closes the day.</li>
+        </ol>
+        @if (Model.Initialised && Model.Status == "OPEN")
+        {
+            <form asp-action="EOD" method="post" onsubmit="return confirm('Close @Model.CurrentDate.ToString("dd MMM yyyy") now? Tellers will not be able to post until the next start of day.');">
+                @Html.AntiForgeryToken()
+                <button class="btn btn-warning" type="submit"><i class="fas fa-moon me-2"></i>Run end of day for @Model.CurrentDate.ToString("dd MMM yyyy")</button>
+            </form>
+        }
+        else
+        {
+            <div class="alert alert-light border fs--1 mb-0">@(!Model.Initialised ? "Start the business day first." : Model.Status == "CLOSED" ? "The day is already closed. Open the next one under Start of day." : "End-of-day is running.")</div>
+        }
+    </div>
+</div>
+<partial name="_Log" model="Model" />

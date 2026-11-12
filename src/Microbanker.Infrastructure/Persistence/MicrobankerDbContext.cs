@@ -2,6 +2,7 @@
 using Microbanker.Domain.Entities.Auth;
 using Microbanker.Domain.Entities.Accounts;
 using Microbanker.Domain.Entities.Customers;
+using Microbanker.Domain.Entities.GeneralLedger;
 using Microbanker.Domain.Entities.Loans;
 using Microbanker.Domain.Entities.Organization;
 using Microbanker.Domain.Entities.Setup;
@@ -60,6 +61,11 @@ public class MicrobankerDbContext : DbContext
     // ── Transactions ───────────────────────────────────────────────
     public DbSet<Transaction>       Transactions       { get; set; }
     public DbSet<WithdrawalRequest> WithdrawalRequests { get; set; }
+
+    // ── General Ledger ─────────────────────────────────────────────
+    public DbSet<GLEntry>        GLEntries       { get; set; }
+    public DbSet<ProcessingDate> ProcessingDates { get; set; }
+    public DbSet<EODLog>         EODLogs         { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -385,8 +391,11 @@ public class MicrobankerDbContext : DbContext
             foreach (var money in new[] { nameof(MemberAccount.OpeningBalance), nameof(MemberAccount.BookBalance),
                 nameof(MemberAccount.AvailableBalance), nameof(MemberAccount.BlockedAmount), nameof(MemberAccount.UnauthorizedDR),
                 nameof(MemberAccount.UnauthorizedCR), nameof(MemberAccount.MonthlyDRTurnover), nameof(MemberAccount.MonthlyCRTurnover),
-                nameof(MemberAccount.InterestAccruedDR), nameof(MemberAccount.InterestAccruedCR), nameof(MemberAccount.AtmDailyLimit) })
+                nameof(MemberAccount.AtmDailyLimit) })
                 e.Property(money).HasColumnType("decimal(18,2)");
+            // Daily interest is a fraction of a cent, so accruals keep six decimals until they are paid out.
+            e.Property(x => x.InterestAccruedDR).HasColumnType("decimal(18,6)");
+            e.Property(x => x.InterestAccruedCR).HasColumnType("decimal(18,6)");
             e.Property(x => x.ConcurrencyStamp).IsConcurrencyToken();
 
             e.HasOne<Organization>().WithMany().HasForeignKey(x => x.OrganizationId).OnDelete(DeleteBehavior.Restrict);
@@ -550,6 +559,59 @@ public class MicrobankerDbContext : DbContext
             e.HasOne<MemberAccount>().WithMany().HasForeignKey(x => x.AccountId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne<TransactionCode>().WithMany().HasForeignKey(x => x.TransactionCodeId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(x => new { x.OrganizationId, x.Status });
+        });
+
+        // ═══ General Ledger ════════════════════════════════════════
+        builder.Entity<GLEntry>(e =>
+        {
+            e.ToTable("GLEntries", t =>
+            {
+                t.HasCheckConstraint("CK_GLEntries_DrCr", "[DrCr] IN ('DR','CR')");
+                t.HasCheckConstraint("CK_GLEntries_Status", "[Status] IN ('POSTED','REVERSED')");
+                t.HasCheckConstraint("CK_GLEntries_Source", "[SourceModule] IN ('TELLER','LOAN','SYSTEM')");
+                t.HasCheckConstraint("CK_GLEntries_Amount", "[Amount] > 0");
+            });
+            e.HasKey(x => x.Id);
+            e.Property(x => x.JournalRef).IsRequired().HasMaxLength(40);
+            e.Property(x => x.GLAccountNo).IsRequired().HasMaxLength(30);
+            e.Property(x => x.DrCr).IsRequired().HasMaxLength(2);
+            e.Property(x => x.Narration).IsRequired().HasMaxLength(250);
+            e.Property(x => x.SourceModule).IsRequired().HasMaxLength(10);
+            e.Property(x => x.SourceRef).IsRequired().HasMaxLength(40);
+            e.Property(x => x.FiscalPeriod).IsRequired().HasMaxLength(7);
+            e.Property(x => x.Status).IsRequired().HasMaxLength(10);
+            e.Property(x => x.Amount).HasColumnType("decimal(18,2)");
+            e.HasOne<Organization>().WithMany().HasForeignKey(x => x.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.OrganizationId, x.GLAccountNo, x.ValueDate });
+            e.HasIndex(x => new { x.OrganizationId, x.JournalRef });
+            e.HasIndex(x => new { x.OrganizationId, x.SourceRef });
+            e.HasIndex(x => new { x.OrganizationId, x.FiscalPeriod });
+        });
+
+        builder.Entity<ProcessingDate>(e =>
+        {
+            e.ToTable("ProcessingDates", t => t.HasCheckConstraint("CK_ProcessingDates_Status", "[EODStatus] IN ('OPEN','EOD_RUNNING','CLOSED')"));
+            e.HasKey(x => x.Id);
+            e.Property(x => x.EODStatus).IsRequired().HasMaxLength(20);
+            e.Property(x => x.ClosedThroughPeriod).HasMaxLength(7);
+            e.Property(x => x.ConcurrencyStamp).IsConcurrencyToken();
+            e.HasOne<Organization>().WithMany().HasForeignKey(x => x.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => x.OrganizationId).IsUnique();          // one business calendar per organisation
+        });
+
+        builder.Entity<EODLog>(e =>
+        {
+            e.ToTable("EODLogs", t =>
+            {
+                t.HasCheckConstraint("CK_EODLogs_Type", "[ProcessType] IN ('SOD','EOD','EOM','EOY')");
+                t.HasCheckConstraint("CK_EODLogs_Status", "[Status] IN ('RUNNING','COMPLETED','FAILED')");
+            });
+            e.HasKey(x => x.Id);
+            e.Property(x => x.ProcessType).IsRequired().HasMaxLength(5);
+            e.Property(x => x.Status).IsRequired().HasMaxLength(10);
+            e.Property(x => x.Notes).HasMaxLength(2000);
+            e.HasOne<Organization>().WithMany().HasForeignKey(x => x.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.OrganizationId, x.ProcessType, x.ProcessDate });
         });
     }
 

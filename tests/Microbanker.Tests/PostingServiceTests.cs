@@ -49,6 +49,10 @@ public sealed class PostingServiceTests : IDisposable
 
         _cash = new GLAccount(_org.Id, "1000", "Cash", "ASSET", null, 1);
         _db.GLAccounts.Add(_cash);
+        // The ledger account every customer account sits under. It is a control account, so it cannot be a contra.
+        var liability = new GLAccount(_org.Id, "2000", "Customer deposits", "LIABILITY", null, 1);
+        liability.Update("2000", "Customer deposits", "LIABILITY", null, 1, isControlAccount: true, isActive: true, null);
+        _db.GLAccounts.Add(liability);
         _db.SaveChanges();
     }
 
@@ -61,6 +65,7 @@ public sealed class PostingServiceTests : IDisposable
         _db.Customers.Add(cust);
         var a = new MemberAccount(_org.Id, _branch.Id, cust.Id, _product.Id, no, "Acc " + no, "SAVINGS");
         a.UpdateTerms(_product.Id, currency, balance, new DateOnly(2026, 1, 1));
+        a.Update(a.AccountName, null, 0m, null, null, null, "2000", null, null, null, null);
         if (active) a.Approve(Guid.NewGuid());
         _db.MemberAccounts.Add(a);
         _db.SaveChanges();
@@ -229,11 +234,6 @@ public sealed class PostingServiceTests : IDisposable
     [Fact]
     public async Task A_control_account_cannot_be_used_as_the_contra()
     {
-        _db.GLAccounts.Add(new GLAccount(_org.Id, "2000", "Customer deposits", "LIABILITY", null, 1));
-        await _db.SaveChangesAsync();
-        var control = await _db.GLAccounts.SingleAsync(g => g.AccountNumber == "2000");
-        control.Update("2000", "Customer deposits", "LIABILITY", null, 1, isControlAccount: true, isActive: true, null);
-        await _db.SaveChangesAsync();
         Account("A1");
         Assert.False((await Service().PostAsync(Req("CR", "A1", 5m, contra: "2000"))).Success);
     }

@@ -177,9 +177,10 @@ public class MemberAccount : BaseEntity
     {
         if (Status == AccountOptions.Pending || Status == AccountOptions.Closed)
             throw new InvalidOperationException("Only an approved, open account can be closed.");
-        if (BookBalance != 0 || BlockedAmount != 0 || InterestAccruedDR != 0 || InterestAccruedCR != 0
+        if (BookBalance != 0 || BlockedAmount != 0 || InterestAccruedDR != 0 || PayableInterest != 0
             || UnauthorizedDR != 0 || UnauthorizedCR != 0)
             throw new InvalidOperationException("The account still has a balance, a blocked amount, accrued interest or unauthorised items.");
+        InterestAccruedCR = 0m;      // less than one cent is written off
         Status = AccountOptions.Closed;
         ClosedAt = DateTime.UtcNow;
         Touch();
@@ -217,7 +218,7 @@ public class MemberAccount : BaseEntity
     /// Adds money to the account. Allowed on active and dormant accounts; a credit ends dormancy.
     /// Use through the posting service, which records the matching transaction.
     /// </summary>
-    public void Credit(decimal amount, DateTime when)
+    public void Credit(decimal amount, DateTime when, bool isInterest = false)
     {
         RequirePostable(amount);
         if (Status != AccountOptions.Active && Status != AccountOptions.Dormant)
@@ -225,10 +226,14 @@ public class MemberAccount : BaseEntity
 
         BookBalance += amount;
         AvailableBalance += amount;
-        MonthlyCRTurnover += amount;
         LastCRDate = when;
-        LastCRActivityDate = when;
-        if (Status == AccountOptions.Dormant) Status = AccountOptions.Active;
+        // Interest the bank credits is not the customer's own activity: it neither counts as turnover nor ends dormancy.
+        if (!isInterest)
+        {
+            MonthlyCRTurnover += amount;
+            LastCRActivityDate = when;
+            if (Status == AccountOptions.Dormant) Status = AccountOptions.Active;
+        }
         Touch();
     }
 
@@ -273,6 +278,58 @@ public class MemberAccount : BaseEntity
         AvailableBalance += amount;
         MonthlyDRTurnover = Math.Max(0m, MonthlyDRTurnover - amount);
         Touch();
+    }
+
+    // ── Day-end processing ────────────────────────────────────────────────────
+
+    /// <summary>Adds one day's interest to what is owed to the customer. Kept to six decimal places so that rounding does not drift.</summary>
+    public void AccrueInterest(decimal amount)
+    {
+        if (amount < 0) throw new ArgumentOutOfRangeException(nameof(amount), "Accrued interest cannot be negative.");
+        if (Status != AccountOptions.Active && Status != AccountOptions.Dormant)
+            throw new InvalidOperationException($"The account is {Status.ToLowerInvariant()} and cannot accrue interest.");
+        InterestAccruedCR = Math.Round(InterestAccruedCR + amount, 6);
+        Touch();
+    }
+
+    /// <summary>The accrued interest that can be paid now: whole cents, rounded down so the remainder carries forward.</summary>
+    public decimal PayableInterest => Math.Floor(InterestAccruedCR * 100m) / 100m;
+
+    /// <summary>Takes paid-out interest off the accrual. The matching credit is posted separately.</summary>
+    public void SettleAccruedInterest(decimal amount)
+    {
+        RequirePostable(amount);
+        if (amount > PayableInterest)
+            throw new InvalidOperationException("The amount is more than the interest accrued on this account.");
+        InterestAccruedCR = Math.Round(InterestAccruedCR - amount, 6);
+        Touch();
+    }
+
+    /// <summary>Flags an unused account as dormant. Only an active account can become dormant.</summary>
+    public void MarkDormant()
+    {
+        if (Status != AccountOptions.Active)
+            throw new InvalidOperationException("Only an active account can become dormant.");
+        Status = AccountOptions.Dormant;
+        Touch();
+    }
+
+    public void ResetMonthlyTurnover()
+    {
+        MonthlyDRTurnover = 0m;
+        MonthlyCRTurnover = 0m;
+        Touch();
+    }
+
+    /// <summary>The date of the customer's last own debit or credit, or the opening date if there has been none.</summary>
+    public DateOnly LastActivityDate
+    {
+        get
+        {
+            var last = new[] { LastDRActivityDate, LastCRActivityDate }.Where(d => d != null).Select(d => d!.Value).DefaultIfEmpty(DateTime.MinValue).Max();
+            var date = last == DateTime.MinValue ? OpenDate : DateOnly.FromDateTime(last);
+            return date < OpenDate ? OpenDate : date;
+        }
     }
 
     private static void RequirePostable(decimal amount)

@@ -1,0 +1,49 @@
+@* src/Microbanker.Web/Views/Processing/_State.cshtml — business-day header, tabs, last result and recent runs *@
+@model Microbanker.Web.Models.ProcessingStateViewModel
+@{
+    var current = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    string Tab(string a) => string.Equals(a, current, StringComparison.OrdinalIgnoreCase) ? "active" : "";
+    var badge = Model.Status switch { "OPEN" => "badge-subtle-success", "EOD_RUNNING" => "badge-subtle-warning", _ => "badge-subtle-secondary" };
+}
+<ul class="nav nav-pills mb-3 fs--1">
+    <li class="nav-item"><a class="nav-link @Tab("SOD")" asp-action="SOD">Start of day</a></li>
+    <li class="nav-item"><a class="nav-link @Tab("EOD")" asp-action="EOD">End of day</a></li>
+    <li class="nav-item"><a class="nav-link @Tab("EOM")" asp-action="EOM">Month end</a></li>
+    <li class="nav-item"><a class="nav-link @Tab("EOY")" asp-action="EOY">Year end</a></li>
+</ul>
+
+<div class="card shadow-sm border-0 mb-3">
+    <div class="card-body d-flex flex-wrap gap-4 align-items-center">
+        @if (!Model.Initialised)
+        {
+            <div><div class="fs--2 text-500 text-uppercase">Business day</div><div class="fw-bold">Not started</div>
+                <div class="fs--1 text-muted">Until the first start-of-day, postings are limited only by today's date.</div></div>
+        }
+        else
+        {
+            <div><div class="fs--2 text-500 text-uppercase">Business date</div><div class="fs-4 fw-bold">@Model.CurrentDate.ToString("dddd dd MMM yyyy")</div></div>
+            <div><div class="fs--2 text-500 text-uppercase">Day</div><span class="badge @badge fs--1">@Model.Status.Replace("_", " ")</span></div>
+            <div><div class="fs--2 text-500 text-uppercase">Periods closed through</div><div class="fw-medium">@(Model.ClosedThroughPeriod ?? "—")</div></div>
+            <div class="fs--1 text-muted">
+                Last start @(Model.LastSODAt?.ToString("dd MMM HH:mm") ?? "—") · last end-of-day @(Model.LastEODAt?.ToString("dd MMM HH:mm") ?? "—") ·
+                last month-end @(Model.LastEOMAt?.ToString("dd MMM HH:mm") ?? "—") · last year-end @(Model.LastEOYAt?.ToString("dd MMM HH:mm") ?? "—")
+            </div>
+        }
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success fs--1"><i class="fas fa-check-circle me-2"></i>@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger fs--1"><i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]</div>
+}
+@if (Model.LastNotes.Any())
+{
+    <div class="card shadow-sm border-0 mb-3"><div class="card-body fs--1">
+        <div class="fw-semibold mb-1">What it did</div>
+        <ul class="mb-0">@foreach (var n in Model.LastNotes) { <li>@n</li> }</ul>
+    </div></div>
+}

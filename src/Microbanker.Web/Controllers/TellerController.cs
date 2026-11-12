@@ -31,7 +31,8 @@ public class TellerController : SetupControllerBase
         ViewData["ActivePage"]  = page;
     }
 
-    private static DateOnly Today() => DateOnly.FromDateTime(DateTime.UtcNow);
+    /// <summary>The date new postings get by default: the open business date (or today before day management is started).</summary>
+    private async Task<DateOnly> BusinessDateAsync(Guid orgId) => (await BusinessCalendar.GetAsync(_db, orgId)).Date;
     private static string? Clean(string? s) => string.IsNullOrWhiteSpace(s) ? null : s.Trim();
 
     // ═════════════════════════════════════════════════════════════════════════
@@ -44,7 +45,7 @@ public class TellerController : SetupControllerBase
         SetNav("Deposit");
         var org = await GetOrgAsync();
         if (org == null) return RedirectToAction("Index", "Organization");
-        var model = new CashPostingFormModel { Kind = "Deposit", AccountNo = accountNo, ValueDate = Today() };
+        var model = new CashPostingFormModel { Kind = "Deposit", AccountNo = accountNo, ValueDate = await BusinessDateAsync(org.Id) };
         await FillCashListsAsync(model, org.Id, TransactionOptions.Credit);
         return View(model);
     }
@@ -56,7 +57,7 @@ public class TellerController : SetupControllerBase
         var org = await GetOrgAsync();
         if (org == null) return RedirectToAction("Index", "Organization");
         model.Kind = "Deposit";
-        model.ValueDate ??= Today();
+        model.ValueDate ??= await BusinessDateAsync(org.Id);
 
         if (ModelState.IsValid)
         {
@@ -84,7 +85,7 @@ public class TellerController : SetupControllerBase
         SetNav("Withdrawal");
         var org = await GetOrgAsync();
         if (org == null) return RedirectToAction("Index", "Organization");
-        var model = new CashPostingFormModel { Kind = "Withdrawal", AccountNo = accountNo, ValueDate = Today() };
+        var model = new CashPostingFormModel { Kind = "Withdrawal", AccountNo = accountNo, ValueDate = await BusinessDateAsync(org.Id) };
         await FillCashListsAsync(model, org.Id, TransactionOptions.Debit);
         return View(model);
     }
@@ -96,7 +97,7 @@ public class TellerController : SetupControllerBase
         var org = await GetOrgAsync();
         if (org == null) return RedirectToAction("Index", "Organization");
         model.Kind = "Withdrawal";
-        model.ValueDate ??= Today();
+        model.ValueDate ??= await BusinessDateAsync(org.Id);
 
         if (ModelState.IsValid)
         {
@@ -222,7 +223,7 @@ public class TellerController : SetupControllerBase
         var account = await _db.MemberAccounts.Where(a => a.Id == w.AccountId).Select(a => a.AccountNo).FirstAsync();
         var result = await _posting.PostAsync(new PostingRequest
         {
-            OrganizationId = w.OrganizationId, PostedBy = GetUserId(), ValueDate = Today(),
+            OrganizationId = w.OrganizationId, PostedBy = GetUserId(), ValueDate = await BusinessDateAsync(w.OrganizationId),
             DebitCodeId = w.TransactionCodeId, Narration = w.Purpose ?? "Withdrawal", ContraGlAccountNo = cashGlAccountNo,
             WithdrawalRequestId = w.Id, Legs = new[] { new PostingLeg(account, TransactionOptions.Debit, w.Amount) }
         });
@@ -254,7 +255,7 @@ public class TellerController : SetupControllerBase
         SetNav("RetailPosting");
         var org = await GetOrgAsync();
         if (org == null) return RedirectToAction("Index", "Organization");
-        var model = new RetailPostingFormModel { ValueDate = Today() };
+        var model = new RetailPostingFormModel { ValueDate = await BusinessDateAsync(org.Id) };
         await FillRetailListsAsync(model, org.Id);
         return View(model);
     }
@@ -265,7 +266,7 @@ public class TellerController : SetupControllerBase
         SetNav("RetailPosting");
         var org = await GetOrgAsync();
         if (org == null) return RedirectToAction("Index", "Organization");
-        model.ValueDate ??= Today();
+        model.ValueDate ??= await BusinessDateAsync(org.Id);
 
         if (ModelState.IsValid)
         {
@@ -300,7 +301,7 @@ public class TellerController : SetupControllerBase
         if (org == null) return RedirectToAction("Index", "Organization");
         var model = new MixedPostingFormModel
         {
-            ValueDate = Today(),
+            ValueDate = await BusinessDateAsync(org.Id),
             Lines = { new PostingLineModel { DrCr = "DR" }, new PostingLineModel { DrCr = "CR" } }
         };
         await FillMixedListsAsync(model, org.Id);
@@ -313,7 +314,7 @@ public class TellerController : SetupControllerBase
         SetNav("MixedPosting");
         var org = await GetOrgAsync();
         if (org == null) return RedirectToAction("Index", "Organization");
-        model.ValueDate ??= Today();
+        model.ValueDate ??= await BusinessDateAsync(org.Id);
 
         // Rows the teller left completely blank are ignored.
         model.Lines = model.Lines.Where(l => !string.IsNullOrWhiteSpace(l.AccountNo) || l.Amount != 0 || !string.IsNullOrWhiteSpace(l.Narration)).ToList();
@@ -349,7 +350,7 @@ public class TellerController : SetupControllerBase
         SetNav("BulkUpload");
         var org = await GetOrgAsync();
         if (org == null) return RedirectToAction("Index", "Organization");
-        var model = new BulkUploadFormModel { ValueDate = Today() };
+        var model = new BulkUploadFormModel { ValueDate = await BusinessDateAsync(org.Id) };
         await FillBulkListsAsync(model, org.Id);
         return View(model);
     }
@@ -360,7 +361,7 @@ public class TellerController : SetupControllerBase
         SetNav("BulkUpload");
         var org = await GetOrgAsync();
         if (org == null) return RedirectToAction("Index", "Organization");
-        model.ValueDate ??= Today();
+        model.ValueDate ??= await BusinessDateAsync(org.Id);
         model.FileErrors = new List<string>();
 
         List<PostingLeg>? legs = null;

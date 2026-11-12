@@ -1,0 +1,46 @@
+@* src/Microbanker.Web/Views/Report/Index.cshtml *@
+@{
+    ViewData["Title"]        = "Reports";
+    ViewData["PageTitle"]    = "Reports";
+    ViewData["PageSubTitle"] = "Statements, schedules and the trial balance";
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row g-3" style="max-width:1000px;">
+    <div class="col-md-6"><a asp-action="TrialBalance" class="text-decoration-none"><div class="card shadow-sm border-0 h-100"><div class="card-body">
+        <h6 class="fw-semibold"><i class="fas fa-balance-scale me-2 text-primary"></i>Trial balance</h6>
+        <div class="fs--1 text-muted">Every ledger account's debit or credit balance as at a date, with a check that debits equal credits.</div>
+    </div></div></a></div>
+    <div class="col-md-6"><a asp-controller="GL" asp-action="Index" class="text-decoration-none"><div class="card shadow-sm border-0 h-100"><div class="card-body">
+        <h6 class="fw-semibold"><i class="fas fa-book me-2 text-primary"></i>General ledger</h6>
+        <div class="fs--1 text-muted">The chart of accounts with balances, and every entry on any one account.</div>
+    </div></div></a></div>
+    <div class="col-md-6"><a asp-action="AccountStatement" class="text-decoration-none"><div class="card shadow-sm border-0 h-100"><div class="card-body">
+        <h6 class="fw-semibold"><i class="fas fa-file-invoice me-2 text-primary"></i>Account statement</h6>
+        <div class="fs--1 text-muted">A customer account's transactions over a date range, with opening and closing balances.</div>
+    </div></div></a></div>
+    <div class="col-md-6"><div class="card shadow-sm border-0 h-100"><div class="card-body">
+        <h6 class="fw-semibold"><i class="fas fa-receipt me-2 text-primary"></i>Mini statement</h6>
+        <form asp-action="MiniStatement" method="get" class="d-flex gap-2 mt-2">
+            <input name="accountNo" class="form-control form-control-sm text-uppercase" placeholder="Account number" />
+            <button class="btn btn-falcon-default btn-sm" type="submit">Open</button>
+        </form>
+    </div></div></div>
+    <div class="col-md-6"><a asp-action="LoanSchedule" class="text-decoration-none"><div class="card shadow-sm border-0 h-100"><div class="card-body">
+        <h6 class="fw-semibold"><i class="fas fa-calendar-alt me-2 text-primary"></i>Loan schedule</h6>
+        <div class="fs--1 text-muted">A loan's repayment schedule with what has been paid and what is overdue.</div>
+    </div></div></a></div>
+</div>

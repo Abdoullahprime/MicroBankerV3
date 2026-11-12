@@ -26,6 +26,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 // ── Services ─────────────────────────────────────────────────────────────────
 builder.Services.AddSingleton<IEncryptionService, AesEncryptionService>();
 builder.Services.AddScoped<IPostingService, PostingService>();
+builder.Services.AddScoped<IProcessingService, ProcessingService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpContextAccessor();
 

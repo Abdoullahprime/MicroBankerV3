@@ -1,0 +1,68 @@
+@* src/Microbanker.Web/Views/GL/AccountStatement.cshtml *@
+@model Microbanker.Web.Models.GLStatementViewModel
+@{
+    ViewData["Title"]        = "GL Account Statement";
+    ViewData["PageTitle"]    = "GL Account Statement";
+    ViewData["PageSubTitle"] = "Every entry on one ledger account";
+    string Bal(decimal n) => n == 0 ? "0.00" : Math.Abs(n).ToString("N2") + (n > 0 ? " Dr" : " Cr");
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm border-0 mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <label asp-for="GlAccountNo" class="form-label fw-medium fs--1"></label>
+                <select asp-for="GlAccountNo" asp-items="Model.Accounts" class="form-select form-select-sm"><option value="">— Select account —</option></select>
+            </div>
+            <div class="col-md-2"><label class="form-label fw-medium fs--1">From</label><input name="from" type="date" value="@Model.From.ToString("yyyy-MM-dd")" class="form-control form-control-sm" /></div>
+            <div class="col-md-2"><label class="form-label fw-medium fs--1">To</label><input name="to" type="date" value="@Model.To.ToString("yyyy-MM-dd")" class="form-control form-control-sm" /></div>
+            <div class="col-md-2"><button class="btn btn-primary btn-sm w-100" type="submit"><i class="fas fa-search me-1"></i>Show</button></div>
+        </form>
+    </div>
+</div>
+@if (Model.NotFound)
+{
+    <div class="alert alert-warning fs--1">No ledger account <strong>@Model.GlAccountNo</strong>.</div>
+}
+else if (Model.Searched)
+{
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-transparent border-bottom py-2"><h6 class="mb-0 fw-semibold fs--1">@Model.GlAccountNo — @Model.Name <span class="text-muted fw-normal">(@Model.Type)</span></h6></div>
+        <div class="table-responsive">
+            <table class="table table-sm mb-0 fs--1">
+                <thead class="bg-200"><tr><th>Date</th><th>Journal</th><th>Source</th><th>Narration</th><th class="text-end">Debit</th><th class="text-end">Credit</th><th class="text-end">Balance</th></tr></thead>
+                <tbody>
+                    <tr class="bg-100"><td colspan="6" class="fw-medium">Opening balance</td><td class="text-end fw-medium">@Bal(Model.OpeningNet)</td></tr>
+                    @foreach (var l in Model.Lines)
+                    {
+                        <tr class="@(l.Status == "REVERSED" ? "text-muted" : "")">
+                            <td>@l.ValueDate.ToString("dd MMM yyyy")</td>
+                            <td>@l.JournalRef</td>
+                            <td>@l.SourceRef <span class="badge badge-subtle-secondary ms-1">@l.SourceModule</span></td>
+                            <td>@l.Narration @if (l.Status == "REVERSED") { <span class="badge badge-subtle-danger">REVERSED</span> }</td>
+                            <td class="text-end">@(l.Debit == 0 ? "" : l.Debit.ToString("N2"))</td>
+                            <td class="text-end">@(l.Credit == 0 ? "" : l.Credit.ToString("N2"))</td>
+                            <td class="text-end">@Bal(l.Running)</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot class="bg-200 fw-semibold"><tr><td colspan="4">Totals / closing balance</td><td class="text-end">@Model.TotalDebits.ToString("N2")</td><td class="text-end">@Model.TotalCredits.ToString("N2")</td><td class="text-end">@Bal(Model.ClosingNet)</td></tr></tfoot>
+            </table>
+        </div>
+        @if (Model.Truncated) { <div class="card-footer fs--1 text-warning">Only the first 2,000 entries are shown. Narrow the date range.</div> }
+    </div>
+}

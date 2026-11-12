@@ -4,7 +4,11 @@ using Microbanker.Domain.Entities.Transactions;
 namespace Microbanker.Web.Services;
 
 /// <summary>One leg of a posting: money in or out of one member account.</summary>
-public sealed record PostingLeg(string AccountNo, string DrCr, decimal Amount, string? Narration = null);
+/// <param name="SettlesAccruedInterest">
+/// Set only by month-end processing: the credit pays out interest accrued on the account, which is taken off
+/// the accrual in the same step. It does not count as the customer's own activity.
+/// </param>
+public sealed record PostingLeg(string AccountNo, string DrCr, decimal Amount, string? Narration = null, bool SettlesAccruedInterest = false);
 
 /// <summary>
 /// A set of legs posted together, all or nothing.
@@ -31,6 +35,11 @@ public sealed class PostingRequest
     /// completed in the same database transaction as the debit, so it cannot be paid twice.
     /// </summary>
     public Guid? WithdrawalRequestId { get; init; }
+    /// <summary>
+    /// A posting made by day-end processing rather than a teller. It may run while the day is closed (between
+    /// end-of-day and start-of-day) and is recorded in the ledger as SYSTEM. It still cannot enter a closed period.
+    /// </summary>
+    public bool IsSystem { get; init; }
 }
 
 public sealed class PostingResult

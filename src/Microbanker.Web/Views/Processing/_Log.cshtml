@@ -1,0 +1,31 @@
+@* src/Microbanker.Web/Views/Processing/_Log.cshtml *@
+@model Microbanker.Web.Models.ProcessingStateViewModel
+<div class="card shadow-sm border-0 mt-3">
+    <div class="card-header bg-transparent border-bottom py-2"><h6 class="mb-0 fw-semibold fs--1"><i class="fas fa-history me-2 text-primary"></i>Recent runs</h6></div>
+    @if (!Model.RecentLogs.Any())
+    {
+        <div class="card-body text-center text-muted fs--1 py-4">Nothing has been run yet.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-sm mb-0 fs--1">
+                <thead class="bg-200"><tr><th>Process</th><th>Date</th><th>Started</th><th>Took</th><th class="text-center">Status</th><th>By</th><th>Notes</th></tr></thead>
+                <tbody>
+                @foreach (var l in Model.RecentLogs)
+                {
+                    <tr>
+                        <td class="fw-medium">@l.ProcessType</td>
+                        <td>@l.ProcessDate.ToString("dd MMM yyyy")</td>
+                        <td class="text-muted">@l.StartedAt.ToString("dd MMM HH:mm:ss")</td>
+                        <td class="text-muted">@(l.CompletedAt == null ? "—" : ((int)(l.CompletedAt.Value - l.StartedAt).TotalSeconds) + " s")</td>
+                        <td class="text-center"><span class="badge @(l.Status == "COMPLETED" ? "badge-subtle-success" : l.Status == "FAILED" ? "badge-subtle-danger" : "badge-subtle-warning")">@l.Status</span></td>
+                        <td class="text-muted">@l.RunByName</td>
+                        <td class="text-muted" style="white-space:pre-line">@l.Notes</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

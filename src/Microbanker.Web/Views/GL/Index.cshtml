@@ -1,0 +1,62 @@
+@* src/Microbanker.Web/Views/GL/Index.cshtml *@
+@model Microbanker.Web.Models.GLListViewModel
+@{
+    ViewData["Title"]        = "General Ledger";
+    ViewData["PageTitle"]    = "General Ledger";
+    ViewData["PageSubTitle"] = "Account balances as at a date";
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-transparent border-bottom py-2">
+        <form method="get" class="d-flex flex-wrap gap-2 align-items-center">
+            <label class="fs--1 text-muted">As at</label>
+            <input name="asOf" type="date" value="@Model.AsOf.ToString("yyyy-MM-dd")" class="form-control form-control-sm" style="width:150px" />
+            <select name="type" asp-items="Model.Types" class="form-select form-select-sm" style="width:140px"><option value="">All types</option></select>
+            <div class="form-check form-check-inline mb-0 fs--1"><input class="form-check-input" type="checkbox" name="hideEmpty" value="true" id="hideEmpty" checked="@Model.HideEmpty" /><label class="form-check-label" for="hideEmpty">Hide accounts with no entries</label></div>
+            <button class="btn btn-falcon-default btn-sm" type="submit"><i class="fas fa-filter me-1"></i>Show</button>
+            <a asp-controller="Report" asp-action="TrialBalance" asp-route-asOf="@Model.AsOf.ToString("yyyy-MM-dd")" class="btn btn-link btn-sm">Trial balance</a>
+        </form>
+    </div>
+    <div class="card-body p-0">
+        @if (!Model.Rows.Any())
+        {
+            <div class="text-center py-5 text-muted"><i class="fas fa-book fa-3x mb-3 opacity-25"></i><p class="mb-0 fs--1">No accounts to show.</p></div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover table-sm mb-0 fs--1">
+                    <thead class="bg-200"><tr><th>Account</th><th>Type</th><th class="text-end">Debits</th><th class="text-end">Credits</th><th class="text-end">Balance</th><th class="text-end"></th></tr></thead>
+                    <tbody>
+                    @foreach (var r in Model.Rows)
+                    {
+                        <tr>
+                            <td><span style="padding-left:@((r.Level - 1) * 16)px" class="@(r.Level == 1 ? "fw-semibold" : "")">@r.GlAccountNo <span class="fw-normal">@r.Name</span></span>@if (r.IsControlAccount) { <span class="badge badge-subtle-secondary ms-1">control</span> }</td>
+                            <td class="text-muted">@r.Type</td>
+                            <td class="text-end">@(r.DebitTotal == 0 ? "" : r.DebitTotal.ToString("N2"))</td>
+                            <td class="text-end">@(r.CreditTotal == 0 ? "" : r.CreditTotal.ToString("N2"))</td>
+                            <td class="text-end fw-medium">@(r.Net == 0 ? "" : Math.Abs(r.Net).ToString("N2") + (r.Net > 0 ? " Dr" : " Cr"))</td>
+                            <td class="text-end"><a asp-action="AccountStatement" asp-route-glAccountNo="@r.GlAccountNo" asp-route-to="@Model.AsOf.ToString("yyyy-MM-dd")" asp-route-from="2000-01-01" class="btn btn-falcon-default btn-sm py-0 px-2" title="Entries"><i class="fas fa-list"></i></a></td>
+                        </tr>
+                    }
+                    </tbody>
+                    <tfoot class="bg-200 fw-semibold"><tr><td colspan="2">Total</td><td class="text-end">@Model.TotalDebits.ToString("N2")</td><td class="text-end">@Model.TotalCredits.ToString("N2")</td><td colspan="2"></td></tr></tfoot>
+                </table>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,51 @@
+@* src/Microbanker.Web/Views/Processing/EOY.cshtml *@
+@model Microbanker.Web.Models.EoyViewModel
+@{
+    ViewData["Title"]        = "Year End";
+    ViewData["PageTitle"]    = "Year End";
+    ViewData["PageSubTitle"] = "Close the fiscal year";
+}
+<partial name="_State" model="Model" />
+<div class="card shadow-sm border-0" style="max-width:860px;">
+    <div class="card-body">
+        <p class="fs--1">Year end moves each income and expense account's balance for the fiscal year (the calendar year) into a retained-earnings account, so the new year starts from zero. It can run once the year's December has been closed by month end.</p>
+        @if (Model.Problem != null)
+        {
+            <div class="alert alert-light border fs--1 mb-0"><i class="fas fa-info-circle me-2"></i>@Model.Problem</div>
+        }
+        else
+        {
+            <h6 class="fw-semibold">Fiscal year @Model.Year</h6>
+            @if (!Model.Lines.Any(l => l.CreditTotal != 0 || l.DebitTotal != 0))
+            {
+                <div class="fs--1 text-muted mb-3">There are no income or expense balances to close.</div>
+            }
+            else
+            {
+                <div class="table-responsive mb-3">
+                    <table class="table table-sm fs--1 mb-0">
+                        <thead class="bg-200"><tr><th>Account</th><th>Type</th><th class="text-end">Income (credit)</th><th class="text-end">Expense (debit)</th></tr></thead>
+                        <tbody>
+                        @foreach (var l in Model.Lines.Where(l => l.CreditTotal != 0 || l.DebitTotal != 0))
+                        {
+                            <tr><td>@l.GlAccountNo <span class="text-muted">@l.Name</span></td><td class="text-muted">@l.Type</td>
+                                <td class="text-end">@(l.CreditTotal == 0 ? "" : l.CreditTotal.ToString("N2"))</td><td class="text-end">@(l.DebitTotal == 0 ? "" : l.DebitTotal.ToString("N2"))</td></tr>
+                        }
+                        </tbody>
+                        <tfoot class="bg-200 fw-semibold"><tr><td colspan="3">@(Model.NetProfit >= 0 ? "Net profit" : "Net loss")</td><td class="text-end">@Math.Abs(Model.NetProfit).ToString("N2")</td></tr></tfoot>
+                    </table>
+                </div>
+            }
+            <form asp-action="EOY" method="post" class="row g-3 align-items-end" onsubmit="return confirm('Close fiscal year @Model.Year? The closing entries cannot be removed.');">
+                @Html.AntiForgeryToken()
+                <div class="col-md-8">
+                    <label asp-for="RetainedEarningsGlNo" class="form-label fw-medium"></label>
+                    <select asp-for="RetainedEarningsGlNo" asp-items="Model.EquityAccounts" class="form-select" required><option value="">— Select an equity account —</option></select>
+                    @if (!Model.EquityAccounts.Any()) { <div class="form-text text-danger">There is no active EQUITY account. Add one under Chart of Accounts.</div> }
+                </div>
+                <div class="col-md-4"><button class="btn btn-warning" type="submit"><i class="fas fa-flag-checkered me-2"></i>Close @Model.Year</button></div>
+            </form>
+        }
+    </div>
+</div>
+<partial name="_Log" model="Model" />

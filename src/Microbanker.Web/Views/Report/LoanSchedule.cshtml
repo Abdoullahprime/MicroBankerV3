@@ -1,0 +1,60 @@
+@* src/Microbanker.Web/Views/Report/LoanSchedule.cshtml *@
+@model Microbanker.Web.Models.LoanScheduleReportViewModel
+@{
+    ViewData["Title"]        = "Loan Schedule";
+    ViewData["PageTitle"]    = "Loan Schedule";
+    ViewData["PageSubTitle"] = "Repayment schedule of a loan";
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show fs--1" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm border-0 mb-3" style="max-width:640px;">
+    <div class="card-body">
+        <form method="get" class="d-flex gap-2">
+            <input asp-for="LoanNo" class="form-control text-uppercase" placeholder="e.g. LN-2026-000001" />
+            <button class="btn btn-primary" type="submit"><i class="fas fa-search me-1"></i>Show</button>
+        </form>
+    </div>
+</div>
+@if (Model.NotFound)
+{
+    <div class="alert alert-warning fs--1" style="max-width:640px;">No loan <strong>@Model.LoanNo</strong>.</div>
+}
+else if (Model.Searched)
+{
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-transparent border-bottom py-2"><h6 class="mb-0 fw-semibold fs--1">@Model.LoanNo — @Model.LoanName <span class="text-muted fw-normal">· @Model.CustomerName · @Model.Status.Replace("_", " ") · @Model.LoanAmount.ToString("N2") @Model.Currency at @Model.InterestRate.ToString("0.####")% (@Model.Method)@(Model.IsPreview ? " · preview" : "")</span></h6></div>
+        @if (!Model.Rows.Any())
+        {
+            <div class="card-body text-center text-muted fs--1 py-4">This loan has no schedule.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-sm mb-0 fs--1">
+                    <thead class="bg-200"><tr><th>#</th><th>Due</th><th class="text-end">Principal</th><th class="text-end">Interest</th><th class="text-end">Charges</th><th class="text-end">Total</th>@if (!Model.IsPreview) { <th class="text-end">Paid</th><th class="text-end">Remaining</th><th class="text-center">Status</th> }</tr></thead>
+                    <tbody>
+                    @foreach (var r in Model.Rows)
+                    {
+                        <tr class="@(r.IsOverdue ? "table-danger" : "")"><td>@r.No</td><td>@r.DueDate.ToString("dd MMM yyyy")</td><td class="text-end">@r.PrincipalDue.ToString("N2")</td><td class="text-end">@r.InterestDue.ToString("N2")</td><td class="text-end">@r.ChargesDue.ToString("N2")</td><td class="text-end fw-medium">@r.TotalDue.ToString("N2")</td>
+                            @if (!Model.IsPreview) { <td class="text-end">@r.TotalPaid.ToString("N2")</td><td class="text-end">@r.Remaining.ToString("N2")</td><td class="text-center">@r.Status@(r.IsOverdue ? " · OVERDUE" : "")</td> }</tr>
+                    }
+                    </tbody>
+                    <tfoot class="bg-200 fw-semibold"><tr><td colspan="2">Total</td><td class="text-end">@Model.TotalPrincipal.ToString("N2")</td><td class="text-end">@Model.TotalInterest.ToString("N2")</td><td class="text-end">@Model.TotalCharges.ToString("N2")</td><td class="text-end">@Model.TotalDue.ToString("N2")</td>@if (!Model.IsPreview) { <td class="text-end">@Model.TotalPaid.ToString("N2")</td><td colspan="2"></td> }</tr></tfoot>
+                </table>
+            </div>
+        }
+    </div>
+}
